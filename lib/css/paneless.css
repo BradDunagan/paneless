@@ -1,0 +1,278 @@
+﻿
+/*	paneless.css
+*/
+
+paneless-mother-pane {
+	display:			block;
+	position:			relative;
+	width:				100%;
+	display:			block;
+	background-color:	white;
+	overflow:			auto;					/*	Show scroll bar when contents are beyond borders. */
+	border:				1px solid lightgray;	/*	For now. */
+	cursor:				default;
+}
+
+paneless-frame {
+	display:			block;
+	position:			absolute;
+	background-color:	white;
+
+	/*	The contents (that is, paneless-client) is resized when the frame is resized so that
+		there should never be any overflow.  So, for Chrome and IE  auto  works without ever
+		showing scroll bars on the frame.  Firefox shows scroll bars when the frame size is
+		decreased to a certain value (not yet determined  that size's significance).  So
+		setting overflow to  hidden  seems to work (frame scroll bars are never shown) for 
+		all browsers.
+	*/
+/*	overflow:			auto;	*/			/*	Show scroll bar when contents are beyond borders. */
+	overflow:			hidden;				/*	For firefox.  */
+/*	overflow:			visible; */
+/*	overflow:			scroll; */
+
+	border:				1px solid gray;
+	font-family:		Consolas, Verdana, Arial, sans-serif;
+	font-size:			12px;
+	cursor:				default;
+}
+
+/*
+paneless-title-bar {
+	display:			block;
+	position:			relative;
+	left:				0px;
+	top:				0px;
+	width:				100%;
+	height:				15px;
+	border-bottom:		1px solid lightgray;
+}
+
+paneless-mover {
+	display:			inline-block;
+	position:			relative;
+	left:				0px;
+	top:				0px;
+	width:				15px;
+	height:				100%;
+	border-right:		1px solid lightgray;
+	cursor:				move;
+}
+
+paneless-title {
+	display:			inline;
+	position:			relative;
+	left:				0px;
+	top:				-3px;
+	width:				100%;
+	height:				15px;
+	font-weight:		bold;
+}
+*/
+paneless-title-bar {						/*	Firefox  */
+	display:			block;
+	position:			relative;
+	left:				0px;
+	top:				0px;
+	width:				100%;
+	height:				15px;
+	border-bottom:		1px solid lightgray;
+}
+
+paneless-mover {							/*	Firefox  */
+	display:			block;
+	position:			absolute;
+	left:				0px;
+	top:				0px;
+	width:				15px;
+	height:				15px;
+	border-right:		1px solid lightgray;
+	cursor:				move;
+}
+
+paneless-title {							/*	Firefox  */
+	display:			block;
+	position:			absolute;
+	left:				18px;
+	top:				0px;
+/*	width:				100%; */
+	height:				15px;
+	font-weight:		bold;
+}
+
+paneless-client {
+	display:			block;
+	position:			relative;
+/*	overflow:			auto; */
+	overflow:			visible;		/*	The pane fills the client and should not overflow. */
+	width:				100%;
+	height:				30px;
+}
+
+paneless-status-bar {
+	display:			block;
+	position:			relative;
+	left:				0px;
+	top:				0px;
+	width:				100%;
+	height:				15px;		/* 18px; */		/*	3 px more than status do avoid vert scroll bar */
+	border-top:			1px solid lightgray;
+}
+
+paneless-status {
+	display:			inline-block;
+	position:			absolute;	/* relative */	/*	absolute is the soulution to the ver scroll bar */
+	left:				0px;
+	top:				0px;		/*  2px; */
+	height:				15px;
+	color:				gray;
+	overflow:			hidden; 
+	white-space:		nowrap;
+	text-overflow:		ellipsis;
+}
+
+paneless-sizer {
+	display:			inline;
+	float:				right;
+	width:				15px;
+	height:				15px;		/* 18px; */
+	border-left:		1px solid lightgray;
+	overflow:			hidden;
+	cursor:				nwse-resize;
+}
+
+/*	The size of the pane is dynamic according to its contents (as specified by 
+	the app).  In other words, it works like a div.
+
+	The size of the client is always that of the frame (minus the height of the 
+	title and status bars).
+
+	This makes it easy to show scroll bars, in the client, only when the pane
+	is larger than the client.
+
+	But the pane borders are invisible and when, for example, there is just one
+	pane in the client, (mouse) events for the pane might miss the pane and be 
+	received only by the client.  At times the client must appear to be the pane.
+
+	Update -
+
+	Scroll bars are shown by the pane when the contents specified by the app go 
+	beyond its (the pane's) borders.
+
+	I don't think the client is necessary anymore.
+*/
+paneless-pane {
+	display:			block;
+	position:			absolute;
+	background-color:	white;
+	overflow:			auto;				/*	Show scroll bar when contents are beyond borders. */
+/*	overflow:			hidden; */			/*	Scroll bars are shown in the client pane. */
+/*	border:				1px solid gray;	*/
+	font-family:		Consolas, Verdana, Arial, sans-serif;
+	font-size:			12px;
+	cursor:				default;
+}
+
+paneless-splitter-horz {
+	display:			block;
+	position:			relative;
+	width:				100%;
+	height:				4px;			/* 10px; */		/*  WARNING/FIX: hard coded in pane-ful.js. */
+	background-color:	white;
+	border-top:			1px solid lightgray;
+	border-bottom:		1px solid lightgray;
+	cursor:				ns-resize;
+}
+
+paneless-splitter-vert {
+	display:			block;
+	position:			absolute;
+	width:				4px;			/* 10px; */		/*  WARNING/FIX: hard coded in pane-ful.js. */
+	height:				100%;
+	background-color:	white;
+	border-left:		1px solid lightgray;
+	border-right:		1px solid lightgray;
+	cursor:				ew-resize;
+}
+
+paneless-menu {
+	display:			block;
+	position:			fixed;
+	background-color:	white;
+	border:				1px solid black;
+	font-family:		Verdana, Arial, sans-serif;
+	font-size:			10px;
+	cursor:				default;
+}
+
+paneless-menu div {
+	padding-left:		10px;
+	padding-right:		10px;
+	padding-top:		3px;
+	padding-bottom:		3px;
+}
+
+paneless-menu div:hover {
+	background-color:	#dae1fc;
+}
+
+.paneless-menu-divider {
+	margin-top:			6px;
+	margin-left:		4px;
+	margin-right:		4px;
+	margin-bottom:		5px;
+	padding:			0px;
+	border-top:			1px solid lightgray;
+}
+
+paneless-drag-source {
+	display:			block;
+	position:			absolute;
+	width:				20px;
+	height:				20px;
+	left:				0px;
+	top:				0px;
+	background-color:	rgba(161, 251, 11, 0.60);
+	border:				1px solid lightgray;
+	visibility:			hidden;
+	overflow:			hidden;
+	cursor:				move;
+}
+
+paneless-drag-target {
+	display:			block;
+	position:			absolute;
+	width:				0px;
+	height:				0px;
+	left:				0px;
+	top:				0px;
+	background-color:	transparent;		/*  rgba(255, 255, 255, 0.70);  */
+/*	border:				1px solid blue; */
+	visibility:			hidden;
+}
+
+
+/*	Tabs */
+
+paneless-tab {
+	position:			absolute;
+	left:				 0px;
+	top:				 0px;
+	width:				 0px;
+	height:				15px;
+	background-color:	white;
+	overflow:			hidden;
+	border-left:		1px solid gray;
+	border-right:		1px solid gray;
+	border-bottom:		1px solid gray;
+	font-family:		Consolas, Verdana, Arial, sans-serif;
+	font-size:			12px;
+	cursor:				default;
+}
+
+paneless-tab div {
+	margin-left:		2px;
+	overflow:			hidden; 
+	white-space:		nowrap;
+	text-overflow:		ellipsis;
+}
+
