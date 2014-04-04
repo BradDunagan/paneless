@@ -1,0 +1,9 @@
+# Exclude everything except lib
+/*
+!/lib
+
+# and don't ignore theses
+!README.md
+!LICENSE.md
+!.gitignore
+!/screenshots
