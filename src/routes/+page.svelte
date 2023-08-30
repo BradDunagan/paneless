@@ -596,6 +596,11 @@ class ClassPanelessDemo {
 </script>
 
 
+<svelte:head>
+	<title>paneless demo</title>
+	<meta name="description" content="This demostrates paneless - a window manager for web apps." />
+</svelte:head>
+
 
 <AppFrame 
 	appTitle            = '<App Name>'
