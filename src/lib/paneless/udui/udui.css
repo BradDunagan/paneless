@@ -1,0 +1,830 @@
+
+.rr-udui-container {
+	display:			grid;
+	width:              100%;
+	height:				100%;
+}
+
+.rr-udui-title {
+	font-family:        Arial, Helvetica, sans-serif;
+	font-size:          12px;
+	padding-bottom:     1px;
+	flex:               1 1 auto;
+	max-height:         14px;
+	cursor:				default;
+	text-align: 		center;
+	border-bottom: 		dotted 1px #d2d2d2;
+}
+
+
+.u34-panel {
+	fill: 			yellow; 
+	stroke: 		gray; 
+	stroke-width: 	0;
+	cursor: 		default;
+}
+
+.u34-panel-rect {
+	fill: 			white;				
+/*	fill: 			#AAAAEE;			 Something different from the background to verify working.	*/
+}
+
+.u34-panel-rect-transparent {
+	fill: 			transparent;				
+}
+
+
+.u34-panel-border {
+	fill: 			white;
+	stroke: 		#555555; 		/*	Same as .u34-scroll-border, .u34-splitter-border			*/
+	stroke-width: 	1;
+}
+
+.u34-panel-border-transparent {
+	fill: 			transparent;
+/*	stroke: 		#555555; 		/*	Same as .u34-scroll-border, .u34-splitter-border			*/
+	stroke:			transparent;
+	stroke-width: 	1;
+}
+
+.u34-panel-border-blue {
+	fill: 			white;
+	stroke: 		blue;
+	stroke-width: 	1;
+}
+
+.u34-app-header-root-panel-bottom-border {
+	stroke: 		#555555; 		/*	Same as .u34-panel-border									*/
+	stroke-width: 	1;
+}
+
+.u34-scroll-border {
+/*	stroke: 		red;				*/
+	stroke: 		#555555; 		/*	Same as .u34-panel-border									*/
+	stroke-width: 	1;
+}
+
+.u34-scroll-track {
+	fill:			#EEEEEE;
+	stroke:			#EEEEEE;
+	stroke-width:	0;
+}
+
+.u34-scroll-thumb {
+/*	fill:			lightgray;			*/
+/*	stroke:			lightgray;			*/
+	fill:			#DDDDDD;
+	stroke:			#DDDDDD;
+	stroke-width:	0;
+}
+
+.u34-scroll-thumb-scrolling {
+/*	fill:			gray;				*/
+/*	stroke:			gray;				*/
+	fill:			#DDDDDD;
+	stroke:			#DDDDDD;
+	stroke-width:	0;
+}
+
+.u34-control-select-rect {
+	fill:			transparent;
+	stroke:			#DDDDDD;
+	stroke-width:	1;
+}
+
+.u34-controls-selected-rect {
+/*	fill:			#EEE;			*/	/*	Opacity something like when dragging. 						*/
+/*	fill-opacity:	0.8;			*/
+/*	stroke:			transparent;	*/
+/*	stroke-width:	0;				*/
+
+	fill:			transparent;
+	stroke:			lightgray;
+	stroke-width:	1;
+}
+
+.u34-selected-rect {
+	fill: 					transparent; 
+	stroke-width: 			1;					
+	stroke:					gray;
+	stroke-dasharray:		2;
+	pointer-events: 		none;		/*	Don't need/want pointer (mouse) events.						*/
+}
+
+.u34-move-handle-transparent {
+	fill: 			transparent; 
+	stroke: 		transparent; 
+	stroke-width: 	1;
+	cursor: 		default;
+}
+
+.u34-move-handle {
+	fill: 			white; 
+	stroke: 		gray; 
+	stroke-width: 	1;
+	cursor: 		default;
+}
+
+.u34-size-handle-transparent {
+	fill: 			transparent; 
+	stroke: 		transparent; 
+	stroke-width: 	1;
+	cursor: 		default;
+}
+
+.u34-size-handle {
+	fill: 			white; 
+	stroke: 		gray; 
+	stroke-width: 	1;
+	cursor: 		default;
+}
+
+.u34-save-handle-transparent {
+	fill: 			transparent; 
+	stroke: 		transparent; 
+	stroke-width: 	1;
+}
+
+.u34-size-handle-rect {
+	fill: 			transparent; 
+	stroke: 		transparent; 
+	stroke-width: 	0;
+	cursor: 		default;
+}
+
+.u34-size-handle-border {
+	stroke: 		gray;
+	stroke-width: 	1;
+}
+
+.u34-save-handle {
+	fill: 			white; 
+	stroke: 		gray; 
+	stroke-width: 	1;
+}
+
+.u34-close-handle-transparent {
+	fill: 			transparent; 
+	stroke: 		transparent; 
+	stroke-width: 	1;
+	cursor: 		default;
+}
+
+.u34-close-handle {
+	fill: 			white; 
+	stroke: 		gray; 
+	stroke-width: 	1;
+	cursor: 		default;
+}
+
+.u34-connector-transparent {
+	fill: 			transparent; 
+	stroke: 		transparent; 
+	stroke-width: 	1;
+	cursor: 		default;
+}
+
+.u34-connector {
+	fill: 			white; 
+	stroke: 		gray; 
+	stroke-width: 	1;
+	cursor: 		default;
+}
+
+.u34-path {
+	stroke:			gray;
+	stroke-width:	1;
+	fill:			none;
+}
+
+.u34-focus-rect {
+	fill: 					transparent; 
+	stroke-width: 			1;					
+	pointer-events: 		none;		/*	Don't need/want pointer (mouse) events.						*/
+}
+
+/*
+.u34-focus-rect-transition {
+	fill: 					transparent; 
+	stroke:					transparent;
+	stroke-width:			1;
+	transition-property:    stroke;
+	transition-duration:    3000ms;
+}
+*/
+
+.u34-label-flyover-info {
+	fill: 			white; 
+/*	fill-opacity:	0.8;			*/
+/*	stroke: 		#EEE; 			*/	/* 	See the flyover's border.									*/
+	stroke: 		transparent;		/* 	No border.													*/
+	stroke-width: 	1;
+	pointer-events: none;				/*	Don't need/want pointer (mouse) events on the flyover.		*/
+}
+
+.u34-label {					/*	like .u34-checkbox			*/
+	fill: 			white; 
+/*	stroke: 		white; 			*/	/* 	Normally don't see the border around a label.				*/
+/*	stroke-width: 	1;				*/
+}
+
+.u34-label-mouse-over {
+	fill: 			white; 
+	stroke: 		gray; 				/*	See the border while the mouse is over the label.			*/
+	stroke-width: 	1.0;
+}
+.u34-label-with-border {		/*	like .u34-checkbox			*/
+	fill: 			white; 
+	stroke: 		gray; 				/* 	Normally don't see the border around a label.				*/
+	stroke-width: 	1.0;
+}
+
+.u34-label-text {		/* 	like .u34-checkbox-text, u34-tabs-text		*/
+	/* 	http://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css 	*/
+	-webkit-touch-callout:	none;		/* iOS Safari */
+	-webkit-user-select:	none;		/* Chrome/Safari/Opera */
+	-khtml-user-select:		none;		/* Konqueror */
+	-moz-user-select:		none;		/* Firefox */
+	-ms-user-select:		none;		/* Internet Explorer/Edge */
+	user-select:			none;		/* Non-prefixed version, currently not supported by any browser */
+
+	cursor: 				default;
+}
+
+.u34-checkbox {			/*	like .u34-label				*/
+	fill: 			white; 
+	stroke: 		white; 				/* 	Normally don't see the border around a checkbox.			*/
+	stroke-width: 	1;
+}
+
+.u34-checkbox-mouse-over {
+	fill: 			white; 
+	stroke: 		gray; 				/* 	See the border while the mouse is over the checkbox.		*/
+	stroke-width: 	1;
+}
+
+.u34-checkbox-text {	/* 	like .u34-label-text		*/
+	/* 	http://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css 	*/
+	-webkit-touch-callout:	none;		/* iOS Safari */
+	-webkit-user-select:	none;		/* Chrome/Safari/Opera */
+	-khtml-user-select:		none;		/* Konqueror */
+	-moz-user-select:		none;		/* Firefox */
+	-ms-user-select:		none;		/* Internet Explorer/Edge */
+	user-select:			none;		/* Non-prefixed version, currently not supported by any browser */
+	cursor: 				default;
+}
+
+.u34-checkbox-box {
+	fill: 			white; 
+	stroke: 		gray;
+	stroke-width: 	1;
+}
+
+.u34-checkbox-checked {
+	stroke: 		black;
+	stroke-width: 	1;
+	pointer-events: none;
+}
+
+.u34-checkbox-checked-not {
+	stroke: 		transparent;
+	stroke-width: 	1;
+	pointer-events: none;
+}
+
+.u34-graph-flyover-info {
+	fill: 			white; 
+/*	fill-opacity:	0.8;			*/
+/*	stroke: 		#EEE; 			*/	/* 	See the flyover's border.									*/
+	stroke: 		transparent;		/* 	No border.													*/
+	stroke-width: 	1;
+	pointer-events: none;				/*	Don't need/want pointer (mouse) events on the flyover.		*/
+}
+
+.u34-graph {					/*	like .u34-checkbox			*/
+	fill: 			white; 
+/*	stroke: 		white; 			*/	/* 	Normally don't see the border around a label.				*/
+/*	stroke-width: 	1;				*/
+}
+
+.u34-graph-mouse-over {
+	fill: 			white; 
+	stroke: 		gray; 				/*	See the border while the mouse is over the label.			*/
+	stroke-width: 	1.0;
+}
+.u34-graph-with-border {		/*	like .u34-checkbox			*/
+	fill: 			white; 
+	stroke: 		gray; 				/* 	Normally don't see the border around a label.				*/
+	stroke-width: 	1.0;
+}
+
+.u34-graph-node-text {
+	user-select:	none;
+}
+
+.u34-input {
+	padding-left:	2px;				/*	See INPUT_PADDING_LEFT in udui-common.js. 					*/
+	padding-right:	2px;				/*	See INPUT_PADDING_RIGHT in udui-common.js.					*/
+	padding-top: 	0px;
+	padding-bottom: 0px;
+	border: 		solid 1px lightgray;
+	outline: 		none;				/*	No blue outline rect when has focus.						*/
+	font-family: 	inherit;
+	font-size: 		inherit;
+	line-height: 	inherit;
+}
+
+.u34-input-test {
+	padding-left:	2px;				/*	See INPUT_PADDING_LEFT in udui-common.js. 					*/
+	padding-right:	2px;				/*	See INPUT_PADDING_RIGHT in udui-common.js.					*/
+	padding-top: 	0px;
+	padding-bottom: 0px;
+	border: 		solid 1px #ffcb7d;	/* 	kind of a light orange                                      */
+	outline: 		none;				/*	No blue outline rect when has focus.						*/
+	font-family: 	inherit;
+	font-size: 		inherit;
+	line-height: 	inherit;
+}
+
+.u34-textarea {
+	resize: 		none;
+	padding-left:	2px;				/*	See INPUT_PADDING_LEFT in udui-common.js. 					*/
+	padding-right:	2px;				/*	See INPUT_PADDING_RIGHT in udui-common.js.					*/
+	padding-top: 	0px;
+	padding-bottom: 0px;
+	border: 		solid 1px transparent;
+	outline: 		none;				/*	No blue outline rect when has focus.						*/
+	font-family: 	inherit;
+	font-size: 		inherit;
+	line-height: 	inherit;
+	overflow-y:		hidden;
+}
+
+
+.u34-textarea-border {
+	border: 		solid 1px gray;
+}
+
+/*
+.u34-textarea-no-border {
+	resize: 		none;
+	padding-left:	2px;
+	padding-right:	2px;
+	padding-top: 	0px;
+	padding-bottom: 0px;
+	border: 		solid 1px transparent;
+	outline: 		none;
+	font-family: 	inherit;
+	font-size: 		inherit;
+	line-height: 	inherit;
+	overflow-y:		hidden;
+}
+*/
+
+/*
+.u34-textarea-mouse-over {
+	resize: 		none;
+	padding-left:	2px;
+	padding-right:	2px;
+	padding-top: 	0px;
+	padding-bottom: 0px;
+	border: 		solid 1px gray;
+	outline: 		none;
+	font-family: 	inherit;
+	font-size: 		inherit;
+	line-height: 	inherit;
+	overflow-y:		hidden;
+}
+*/
+
+.u34-button {
+	fill: 			white; 
+	stroke: 		gray; 
+	stroke-width: 	1;
+}
+
+.u34-button-text {
+	/* 	http://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css 	*/
+	-webkit-touch-callout:	none;		/* iOS Safari */
+	-webkit-user-select:	none;		/* Chrome/Safari/Opera */
+	-khtml-user-select:		none;		/* Konqueror */
+	-moz-user-select:		none;		/* Firefox */
+	-ms-user-select:		none;		/* Internet Explorer/Edge */
+	user-select:			none;		/* Non-prefixed version, currently not supported by any browser */
+	cursor: 				default;
+}
+
+.u34-dropdownarrow {
+	fill:			white;
+	stroke:			gray;
+	stroke-width:	0.5;
+}
+
+.u34-tabs {
+	fill: 			white; 
+	stroke: 		transparent; 		/* Btm bdr or entire tabs control.	*/
+	stroke-width: 	1;
+	cursor: 		default;
+}
+
+.u34-tabs-empty-content {
+	fill: 			white; 
+	stroke: 		none; 
+	cursor: 		default;
+}
+
+.u34-tabs-text {		/* 	like .u34-label-text, .u34-checkbox-text		*/
+	/* 	http://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css 	*/
+	-webkit-touch-callout:	none;		/* iOS Safari */
+	-webkit-user-select:	none;		/* Chrome/Safari/Opera */
+	-khtml-user-select:		none;		/* Konqueror */
+	-moz-user-select:		none;		/* Firefox */
+	-ms-user-select:		none;		/* Internet Explorer/Edge */
+	user-select:			none;		/* Non-prefixed version, currently not supported by any browser */
+
+	cursor: 				default;
+}
+
+/*
+.u34-tabs-tab-plus {
+	fill: 			white; 
+	stroke: 		red; 
+	stroke-width: 	1;
+	cursor: 		default;
+}
+*/
+
+.u34-tabs-tab-rect {		/*	to catch click anywere in tab 											*/
+	fill: 			transparent;
+	stroke: 		transparent;
+	cursor: 		default;
+}
+
+.u34-disabled {
+	fill:			white;
+	fill-opacity:	0.8;
+	cursor:			default;
+}
+
+.u34-list {
+	fill: 			white; 
+	stroke: 		gray; 
+	stroke-width: 	1;
+}
+
+.u34-list-rect {						/* Like u34-panel-rect, used for scrolling/panning.				*/
+	fill: 			white;				
+/*	fill: 			#AAAAEE;		*/	/*	Something different from the background to verify working.	*/
+}
+
+.u34-list-text {
+	/* 	http://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css 	*/
+	-webkit-touch-callout:	none;		/* iOS Safari */
+	-webkit-user-select:	none;		/* Chrome/Safari/Opera */
+	-khtml-user-select:		none;		/* Konqueror */
+	-moz-user-select:		none;		/* Firefox */
+	-ms-user-select:		none;		/* Internet Explorer/Edge */
+	user-select:			none;		/* Non-prefixed version, currently not supported by any browser */
+
+	cursor: 				default;
+}
+
+.u34-list-item {
+/*	fill: 			white; 				*/
+/*	stroke: 		gray; 				*/
+/*	stroke-width: 	1;					*/
+	fill: 			white; 
+	cursor: 		default;
+}
+
+.u34-list-item-selected {
+	fill: 			lightblue; 
+	cursor: 		default;
+}
+
+.u34-list-item-mouse-over {
+/*	fill: 			lightgray; 			*/
+/*	fill: 			#F8F8F8; 			*/
+	fill: 			orange; 	
+}
+
+.u34-list-item-text {
+	/* 	http://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css 	*/
+	-webkit-touch-callout:	none;		/* iOS Safari */
+	-webkit-user-select:	none;		/* Chrome/Safari/Opera */
+	-khtml-user-select:		none;		/* Konqueror */
+	-moz-user-select:		none;		/* Firefox */
+	-ms-user-select:		none;		/* Internet Explorer/Edge */
+	user-select:			none;		/* Non-prefixed version, currently not supported by any browser */
+
+	padding-left: 			2px;
+	padding-right:			2px;
+	display: 				flex;
+	flex-direction:			row;	
+	justify-content:		space-between;		/*	<- 	key 	*/
+	cursor: 				default;
+}
+
+.u34-tree {
+	fill: 			white; 
+	stroke: 		gray; 
+	stroke-width: 	1;
+}
+
+.u34-tree-rect {						/* Like u34-panel-rect, used for scrolling/panning.				*/
+	fill: 			white;				
+/*	fill: 			#AAAAEE;		*/	/*	Something different from the background to verify working.	*/
+}
+
+
+.u34-tree-text {
+	/* 	http://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css 	*/
+	-webkit-touch-callout:	none;		/* iOS Safari */
+	-webkit-user-select:	none;		/* Chrome/Safari/Opera */
+	-khtml-user-select:		none;		/* Konqueror */
+	-moz-user-select:		none;		/* Firefox */
+	-ms-user-select:		none;		/* Internet Explorer/Edge */
+	user-select:			none;		/* Non-prefixed version, currently not supported by any browser */
+
+	cursor: 				default;
+}
+
+.u34-tree-item {
+/*	fill: 			white; 				*/
+/*	stroke: 		gray; 				*/
+/*	stroke-width: 	1;					*/
+	fill: 			white; 
+	cursor: 		default;
+}
+
+.u34-tree-item-selected {
+	fill: 			lightblue; 
+	cursor: 		default;
+}
+
+.u34-tree-item-mouse-over {
+/*	fill: 			lightgray; 			*/
+/*	fill: 			#F8F8F8; 			*/
+	fill: 			orange; 	
+}
+
+.u34-tree-item-text {
+	/* 	http://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css 	*/
+	-webkit-touch-callout:	none;		/* iOS Safari */
+	-webkit-user-select:	none;		/* Chrome/Safari/Opera */
+	-khtml-user-select:		none;		/* Konqueror */
+	-moz-user-select:		none;		/* Firefox */
+	-ms-user-select:		none;		/* Internet Explorer/Edge */
+	user-select:			none;		/* Non-prefixed version, currently not supported by any browser */
+
+	padding-left: 			2px;
+	padding-right:			2px;
+	display: 				flex;
+	flex-direction:			row;	
+	justify-content:		space-between;		/*	<- 	key 	*/
+	cursor: 				default;
+}
+
+.u34-tree-expand-btn {
+	fill:			white;
+	stroke:			gray;
+	stroke-width:	1;
+}
+
+.u34-tree-expand-btn-stroke-transparent {
+	fill:			transparent;
+	stroke:			transparent;
+	stroke-width:	1;
+}
+
+.u34-tree-expand-v-line {	/*	same as -h-line, used for selection		*/
+	fill:			none;
+	stroke: 		gray;
+	stroke-width: 	0.5;
+	pointer-events: none;
+}
+
+.u34-tree-expand-h-line {	/*	same as -v-line, used for selection		*/
+	fill:			none;
+	stroke: 		gray;
+	stroke-width: 	0.5;
+	pointer-events: none;
+}
+
+
+.u34-rect-zoom {
+	fill:			none;
+	stroke:			transparent;
+	stroke-width:	0.5;
+	pointer-events:	fill;
+}
+
+
+.u34-table {
+	fill: 			yellow; 
+	stroke: 		gray; 
+	stroke-width: 	0;
+	cursor: 		default;
+}
+
+/*
+.u34-table-no-border {
+	fill: 			yellow; 
+	stroke: 		none; 
+	cursor: 		default;
+}
+*/
+
+.u34-table-with-border {
+	fill: 			yellow; 
+	stroke: 		gray; 
+	stroke-width: 	1;
+	cursor: 		default;
+}
+
+.u34-table-fo-body-div-table {
+/*	width: 			100%;	*/
+border-spacing: 	0px;
+border-collapse: 	collapse;
+background-color: 	#fff;
+}
+
+.u34-table-fo-body-div-table tbody tr td {
+	padding-left: 	3px;				/* 	matches TableData's colsPaddingLeft							*/
+/*	width: 			10%; 		*/		/* 	set with style - see uduiTableA's defineTableElement() 		*/
+	border:			solid 1px gray;
+}
+
+.u34-table-fo-body-div-table tbody tr td:first-child {
+	border-left:	none;
+}
+
+.u34-table-fo-body-div-table tbody tr td:last-child {
+	border-right:	none;
+}
+
+.u34-table-td-prop-name {
+	display:		inline-block;
+	width: 			90px;
+	overflow-x:		hidden;
+	padding-top:	4px;
+}
+
+.u34-table-column-splitter {
+	border:			none !important;
+	width: 			2px  !important;
+	cursor: 		col-resize;
+}
+
+.u34-table-td-prop-value {
+	width: 			90px !important;
+}
+
+.u34-table-col-prop-name {
+	width: 			10px;
+}
+
+.u34-table-col-splitter {
+	border:			none !important;
+	width: 			2px  !important;
+}
+
+.u34-table-col-prop-value {
+	width: 			90px !important;
+}
+
+
+.u34-splitter-rect {
+	fill: 			white; 
+	stroke: 		transparent;
+	stroke-width: 	0;
+}
+
+.u34-splitter-border2 {
+	stroke: 		#555555; 		/*	Same as .u34-panel-border									*/
+	stroke-width: 	1;
+}
+
+.u34-splitter-horz {
+	cursor: 		ew-resize;
+}
+
+.u34-splitter-vert {
+	cursor: 		ns-resize;
+}
+
+
+.u34-popupmenu-screen {				/*	To disable mouse activity on all but the menu				*/
+/*	fill:			#EEE;			*/
+/*	fill-opacity:	0.5;			*/
+	fill:			transparent;
+}
+
+
+/*
+.u34-popupmenu-full-screen {		*	Covers the entire browser document. *
+	position:           fixed;
+	left:               0px;
+	top:                0px;
+	width:              100%;
+	height:             100%;
+	background-color:   transparent;
+}
+*/
+.rr-dropdown-container {
+	position:			fixed;
+	border:				transparent;
+	left:				0px;
+	top:				0px;
+	width:				100%;
+	height:				100%;
+	background-color:	transparent;
+}
+
+
+.u34-horz-splitter-screen {			/*	To maintain the mouse cursor while splitting				*/
+	fill:			transparent;
+	cursor: 		col-resize;
+}
+
+
+
+.u34-drag-dragee-outline {
+	fill:			#EEE;
+	fill-opacity:	0.8;
+	pointer-events: none;
+}
+
+.u34-drag-target-screen {
+	fill:			#EEE;
+	fill-opacity:	0.8;
+	pointer-events: none;				
+}
+
+.u34-drag-target-circle {
+	fill:			black;
+	stroke:			#DDDDDD;
+	stroke-width:	1;
+}
+
+.u34-drag-target-drop {
+	fill:			#FFF;
+	fill-opacity:	0.8;
+	pointer-events: none;
+}
+
+.u34-drag-info-text {
+	font-family: 	Verdana;  
+	font-size: 		10px;	
+	pointer-events: none;
+}
+
+.u34-test-polygon-drop-target {
+	fill:				transparent;
+/*	stroke: 			gray;			*/
+/*	stroke-width:		1;				*/
+}
+
+.u34-test-line-drop-target {
+	stroke: 			gray;
+	stroke-width:		1;
+}
+
+.u34-markdown-container {
+/*	overflow-y:		auto;				*/
+	padding-right:	12px;
+}
+
+/*
+.u34-markdown-container::-webkit-scrollbar {
+	width:			10px;
+	height:			10px;
+}
+
+.u34-markdown-container::-webkit-scrollbar-track {
+	background:		#EEE;
+	border-radius:	0px;
+}
+
+.u34-markdown-container::-webkit-scrollbar-thumb {
+	background:		#DDD;		
+	border-radius:	4px;
+}
+*/
+
+.u34-editor-foreignobject {
+}
+
+.u34-editor-foreignobject-with-border {
+	border:			solid 1px gray;
+}
+
+.u34-editor-div {
+	width:			200px;
+	height:			150px;
+	overflow:		hidden;
+	border:			solid orange;
+}
+
+
+

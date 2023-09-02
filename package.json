@@ -40,7 +40,10 @@
 	"types": "./dist/index.d.ts",
 	"type": "module",
 	"dependencies": {
-		"clone": "^2.1.2"
+		"@types/d3": "^7.4.0",
+		"clone": "^2.1.2",
+		"d3": "^7.8.5",
+		"monaco-editor": "file:monaco/monaco-editor-0.13.1.tgz"
 	},
 	"author": {
 		"name": "Brad Dunagan"

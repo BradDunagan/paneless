@@ -1,10 +1,18 @@
 <script lang="ts">
 	import { tick }				from 'svelte';
+	import clone 				from 'clone';
 	import { cmn }				from '$lib/paneless/common.ts';
 	import AppFrame				from '$lib/paneless/app-frame.svelte';
 	import { getFrameId }		from '$lib/paneless/frame-id.ts';
 	import { getPaneId }		from '$lib/paneless/pane-id.ts';
+	import { db }				from './db';
+	import type { Data }		from './db';
+	import UDUI					from '$lib/paneless/udui/udui.svelte';
+	import Properties 			from '$lib/paneless/udui/properties.svelte';
 	import ContentExample1		from './content-example-1.svelte';
+	import DlgNameRecord		from './dlg-name-record.svelte';
+	import DlgLongText			from './dlg-long-text.svelte';
+	import DlgMessageBox		from './dlg-message-box';
 	   
     import type { Item as HdrItem}	from '$lib/paneless/interfaces.ts';
 	
@@ -78,6 +86,7 @@ class ClassPanelessDemo {
 
 	frames:				Frames;
 	content: 			Panes;
+	registry:			object;
 
 	appFrameFnc:		any;
 	appContentFnc:		any;
@@ -85,12 +94,14 @@ class ClassPanelessDemo {
 	
 	helpFrameId:		number;
 	
+//	stateMenuOrDialogDepth:	number;
 	appDialogFnc:		any;
 
 	constructor() {
 
 		this.frames 			= {};
 		this.content			= {};
+		this.registry			= {};
 
 		this.appFrameFnc		= null;
 		this.appContentFnc		= null;
@@ -98,6 +109,7 @@ class ClassPanelessDemo {
 	
 		this.helpFrameId		= 0;
 
+//		this.stateMenuOrDialogDepth = 0;
 		this.appDialogFnc		= null;
 	
 		this.initCentral		= this.initCentral.bind ( this );
@@ -117,6 +129,20 @@ class ClassPanelessDemo {
 		this.restoreFrame		= this.restoreFrame.bind ( this );
 		this.defineInstall		= this.defineInstall.bind ( this );
 		this.setCallDown		= this.setCallDown.bind ( this );
+		this.menuItem			= this.menuItem.bind ( this );
+		this.instantiateCode	= this.instantiateCode.bind ( this );
+		this.loadRecordDialog	= this.loadRecordDialog.bind ( this );
+		this.okRecordName		= this.okRecordName.bind ( this );
+		this.longTextDialog		= this.longTextDialog.bind ( this );
+		this.make_id			= this.make_id.bind ( this );
+		this.make_ids			= this.make_ids.bind ( this );
+		this.setRegisteredCallee			
+								= this.setRegisteredCallee.bind ( this );
+		this.unsetRegisteredCallee			
+								= this.unsetRegisteredCallee.bind ( this );
+		this.register			= this.register.bind ( this );
+		this.unregister			= this.unregister.bind ( this );
+		this.showMenu			= this.showMenu.bind ( this );
 		this.doAll				= this.doAll.bind ( this );
 	}
 
@@ -495,6 +521,30 @@ class ClassPanelessDemo {
 					prpClientAppFnc: 	this.doAll,
 					prpAppFrameFnc: 	this.appFrameFnc,
 					prpAppContentFnc:	this.appContentFnc } }; }	
+		if ( typeName === 'UDUI' ) {
+			install.content = {
+				comp:		UDUI,
+				props:	{
+					prpFrameId:			frameId,
+					prpPaneId:			paneId,
+					prpEleId:			ccEleId,
+					prpClientAppFnc: 	this.doAll,
+					prpAppFrameFnc: 	this.appFrameFnc,
+				//	prpAppContentFnc:	this.appContentFnc,
+					prpCommand:			false,
+					prpState:			state } };
+		}
+		if ( typeName === 'Properties' ) {
+			install.content = {
+				comp:		Properties,
+				props: 	{
+					prpFrameId:			frameId,
+					prpPaneId:			paneId,
+					prpEleId:			ccEleId,
+					prpClientAppFnc:	this.doAll,
+					prpAppFrameFnc:		this.appFrameFnc,
+					prpAppContentFnc:	this.appContentFnc } };
+		}
 
 		if ( ! install.content.comp ) {
 			cmn.error ( sW, 'unrecognized typeName \"' + typeName + '\"' ); 
@@ -573,12 +623,726 @@ class ClassPanelessDemo {
 		cmn.error ( sW, 'unrecognized to - ' + o.to );
 	}	//	setCallDown()
 
+	menuItem ( o: any ) {
+		let sW = 'App menuItem() ' + o.menuItemText;
+		cmn.log ( sW );
+		if ( ! o.paneId ) {
+			cmn.error ( sW, 'No paneId. Frame menu item?')
+			return; }
+
+		//	Install (uninitialized) client content in a vacant pane.
+		//
+		let content: null | PaneContent = this.content[o.paneId];
+		if ( ! content ) {
+			content = this.definePaneContent ( o, 0, false ); }
+
+		let self							= this;
+		let compName: null | string			= null;
+		let dataName						= '';
+		let initialTabText: null | string	= null;
+
+		function loadPane ( state?: null | any ) {
+			if ( ! content ) {
+				cmn.error ( sW, 'Pane content is null.' );
+				return; }
+			content.install = self.defineInstall ( compName, dataName,
+															 o.frameId, 
+															 o.paneId, 
+															 content.ccEleId,
+															 initialTabText,
+															 state );
+			content.paneContentFnc ( Object.assign ( 
+				{ do: 'install-client-content' }, content.install ) );
+		}	//	loadPane()
+
+		switch ( o.menuItemText ) {
+			case 'Controls':
+				compName		= 'UDUI';
+				initialTabText	= 'controls'
+				break;
+			case 'Properties':
+				compName		= 'Properties';
+				initialTabText	= 'properties'
+				break;
+			default:
+				cmn.error ( sW, 'Unrecognized menu item - ' 
+								+ o.menuItemText );
+				return;
+		}
+
+		loadPane ( null );
+
+	}	//	menuItem()
+
+	instantiateCode ( o ) {
+		const sW = 'App instantiateCode() ' + o.codeName;
+		cmn.log ( sW );
+		let code: any = null;
+		switch ( o.codeName ) {
+			case 'DlgMessageBox':
+				code = new DlgMessageBox ( { 
+					clientAppFnc:	this.doAll,
+					frameId:		o.prpFrameId,
+					uduiFnc:		o.uduiFnc,
+					rpd: 			o.rpd,
+					args:		o.state.dlgArgs ? o.state.dlgArgs 
+												: null } ); 
+				break;
+
+			default:
+				cmn.error ( sW, 'unrecognized code name - "' 
+								+ o.codeName + '"' ); }
+		return code;
+
+	}	//	instantiateCode()
+
+	loadRecordDialog ( o ) {
+		const sW = 'App loadRecordDialog()';
+		cmn.log ( sW );
+
+		//  Modal dialog to list existing layouts by name - and to select a
+		//  layout.
+		//	DlgNameRecord will call self.doAll() with 'ok-load' (wich calls
+		//	this.okRecordName()) and the specified ctx on ok - loadRecord2() 
+		//	will handle it.
+		this.appFrameFnc ( { do: 		'app-dialog',
+							 dlgComp: 	{
+								 comp:	DlgNameRecord,
+								 props:	{ prpAppFrameFnc: 	this.appFrameFnc,
+										  prpTitle: 		o.title,
+										  prpRecType:		o.recordType,
+								//		  prpTypeId:		o.typeId,
+										  prpCtx: {
+											   fnc:			this.doAll,
+											   recType:		o.recordType,
+											   typeId:		o.typeId,
+											   chgType:		o.chgType,
+											   after:		'load',
+											   afterCB:		o.afterCB
+										 } },
+							 screenClass:	null,
+							} } );
+	}	//	loadRecordDialog()
+	
+	okRecordName ( o ) {
+		const sW = 'App okRecordName()';
+
+		//	Use a simple IndexedDB store.
+		if ( ! db ) {
+			cmn.error ( sW, 'db is null' );
+			return; }
+
+		function addRecord ( data ) {
+			if ( ! db ) {
+				cmn.error ( sW, 'db is null' );
+				return; }
+			let d: Data = { id: 	o.recId,
+							type:	o.recType,
+							name:	o.recName,
+							data:	data };
+			db.addData ( d );
+		}	//	addRecord()
+
+		function updateRecord ( data ) {
+			if ( ! db ) {
+				cmn.error ( sW, 'db is null' );
+				return; }
+			let d: Data = { id: 	o.recId,
+							type:	o.recType,
+							name:	o.recName,
+							data:	data };
+			db.updateData ( d );
+		}	//	updateRecord()
+
+		if ( o.ctx.after === 'save' ) {
+			if ( 	(typeof o.recId !== 'number') 
+				 || (typeof o.recName  !== 'string') ) {
+				return; }
+			if ( o.recName === '' ) {
+				return; }
+			if ( typeof o.ctx.afterCB !== 'function' ) {
+				return; }
+			let data = o.ctx.afterCB();
+
+			try {
+				if ( o.recId <= 0 ) {
+					addRecord ( data ); }
+				else {
+					db.loadData ( o.recId ).then ( ( r: any ) => {
+						if ( o.recName === r.name ) {
+							updateRecord ( data ); }
+						else {
+							addRecord ( data ); }
+					} ); }
+			}
+			catch ( e: any ) {
+				cmn.error ( sW, e.message ); }
+			return; }
+
+		if ( o.ctx.after === 'load' ) {
+			if ( (typeof o.recId !== 'number') || (o.recId <= 0) ) {
+				return; }
+			if ( typeof o.ctx.afterCB === 'function' ) {
+				db.loadData ( o.recId ).then ( ( r: any ) => {
+					o.ctx.afterCB ( r.data ); } ); 
+			} }
+	}	//	okRecordName()
+
+	longTextDialog ( o ) {
+		this.appFrameFnc ( { do: 		'app-dialog',
+							 dlgComp:	{
+								comp: 	DlgLongText,
+								props:	{ prpEleId:			'rr-longTextDialog',
+										  prpAppFrameFnc:	this.appFrameFnc,
+										  prpOnOK:			o.onOK,
+										  prpTitle:			o.title,
+										  prpText:			o.text },
+
+							 } } );
+	}	//	longTextDialog()
+
+	make_id ( o, frame, pane ) {
+		if ( cmn.isString ( frame ) ) {
+			return { frame: frame, pane: pane }; } 
+		return { frameId: o.frameId, pane: pane };
+	}	//	make_id()
+
+	make_ids ( o, frame, pane ) {
+		let id = this.make_id ( o, frame, pane );
+		return JSON.stringify ( id );
+	}	//	make_ids()
+
+	setRegisteredCallee ( o, reg, e, callerFnc, paneKind, regSpec, calleeFnc ) {
+		//	o		What is passed to register() or unregister().
+		//	reg		The already registered entry being considered
+		//	e		The sndTo or rcvFm item of what is already registered.
+		//	e may be, for example -
+		//		udui: { pane: <pane>, frame: <frame> }
+		//	or
+		//		udui: { '<pki>': { pane: <pane>, frame: <frame> },
+		//				..., }
+		//	The second case is where there are multiple instances of a 
+		//	paneKind.
+		//
+		//	callerFnc	Calling function, or sender.
+		//	paneKind
+		//	regSpec
+		//	calleeFnc
+		let e_ids: any = null;
+		function tryIt() {
+			if ( 	(e_ids !== reg.ids)
+				 && ! (   (o.frameId === reg.frameId     )
+					   && (e.pane    === reg.regSpec.pane)) ) {
+				return false; }
+			callerFnc ( { do:		'set-registered-callee',
+						  paneKind:	paneKind,
+						  frame:	regSpec.frame,
+						  pane:		regSpec.pane,
+						  fnc:		calleeFnc } );
+			return true;
+		}
+		if ( cmn.isString ( e.pane ) ) {	//	typical, no pki ...
+			e_ids = this.make_ids ( o, e.frame, e.pane ); 
+			tryIt();
+			return; }
+		let keys = Object.keys ( e );	//	Multiple pki (Pane Kind Items).
+		for ( let i = 0; i < keys.length; i++ ) {
+			let pki = e[keys[i]];
+			e_ids = this.make_ids ( o, pki.frame, pki.pane ); 
+			if ( tryIt() ) {
+				break; } 
+		}
+	}	//	setRegisteredCallee()
+
+	unsetRegisteredCallee ( o, reg, e, callerFnc, paneKind, regSpec ) {
+		//	Similar to setRegisteredCallee()
+		let e_ids: any = null;
+		function tryIt() {
+			if ( e_ids !== reg.ids ) {
+				return false; }
+			callerFnc ( { do: 		'unset-registered-callee',
+					  	  paneKind:	paneKind,
+					      pane:		regSpec.pane } );
+			return true;
+		}
+		if ( cmn.isString ( e.pane ) ) {	//	typical, no pki ...
+			e_ids = this.make_ids ( o, e.frame, e.pane ); 
+			tryIt();
+			return; }
+		let keys = Object.keys ( e );	//	Multiple pki (Pane Kind Items).
+		for ( let i = 0; i < keys.length; i++ ) {
+			let pki = e[keys[i]];
+			e_ids = this.make_ids ( o, pki.frame, pki.pane ); 
+			if ( tryIt() ) {
+				break; } 
+		}
+	}	//	unsetRegisteredCallee()
+
+	register ( o ) {
+		let sW = 'App register()';
+		let rs: any  = null;						//	regSpec
+		let id: any  = null;
+		let ids: any = null;
+		
+		if ( ! cmn.isObject ( o.regSpec ) ) {
+			cmn.error ( sW, ' expected o.regSpec' );
+			return; }
+		if ( ! cmn.isString ( o.paneKind ) ) {
+			cmn.error ( sW, ' expected o.paneKind' );
+			return; }
+
+		rs  = o.regSpec;
+		id  = this.make_id ( o, rs.frame, rs.pane );
+		ids = JSON.stringify ( id );
+		sW += '  ' + ids;
+
+
+		cmn.log ( sW );
+
+	//	this.checkContent ( sW );
+		
+		//	This is called by a client component (after it is loaded) to set up
+		//	function calls between it and other components that are somewhat
+		//	mutually dependent on each other.
+		//	In other words, the component that is registering expects to be 
+		//	called by or to call certain other components.  Those other 
+		//	components are specified in o.
+		//
+		//	o is expected to be -
+		//	{	what:		The calling component.  The component's type name.
+		//		frameId:	Frame  o.what  is in.
+		//		paneId:		Pane  o.what  is in.
+		//		fnc:		o.what's  function that other components may call.
+		//		rcvFm:		An array of specs of other component that  o.what
+		//					expectes to be called by.
+		//		sndTo:		An array of specs of other components that  o.what
+		//	}				will call.
+		//
+		//	rcvFm and sndTo component specs -
+		//	{	what:		Component type name.
+		//		frameId:	Frame the component is in.  Optional.
+		//		paneId:		Pane the component is in.  Optional.
+		//	}
+		//
+		//	Registry keys are simply the component type name. Each registry
+		//	item is an array of components of that type that have been 
+		//	registered.
+		//
+		//	Or -
+		//
+		//	Implementing regSpec in UDUI panels which has the user specify
+		//	the registration as a panel property. 
+		//
+		//	In this case o is expected to be like -
+		//
+		//		{ do: 		'register',
+		//		  id:		Uniquely identifies the panel in the layout,
+		//		  fnc:		Function in panel's code,
+		//		  rcvFm:		Array of other panel ids this panel might 
+		//		  				recieve function calls from,
+		//		  			or
+		//		  				An object of named ids.
+		//		  sndTo:	Array of other panel ids this panel might call.
+		//		  			or
+		//		  				An object of named ids.
+		//
+		//	Not "panel" but "pane". Yes, the regSpec is typically a property 
+		//	of a UDUI panel but non-UDUI panes may register this way too. And, 
+		//	so far, registration is not done between multiple panels in one 
+		//	UDUI/pane.  So it is like this -
+		//
+		//		{ do:		"register",
+		//		  frameId:	<the ID of the frame the registering pane is in>,
+		//		  fnc:		<registering pane's doAll function>,
+		//		  regSpec:	{ "frame":	"<name of registering pane's frame>",
+		//					  "pane":	"<name of registering pane>",
+		//		  			  "rcvFm": { "<PT>": { frame: "<name of frame>",
+		//		  			  					   pane:  "<name of pane>"   },
+		//		  			  			 ... }
+		//		  			  "sndTo": { ... } } }
+		//
+		//
+		//		The regSpec is what the user specifies for each pane that
+		//		is to connect (interact) with (receive from, send to various
+		//		things) other panes.
+		//		
+		//		The "frame" properties in regSpec, and rcvFrm, sndTo array
+		//		items is optional. Specify "frame" when connecting to panes
+		//		in other frames from the frame of the pane doing the 
+		//		registering.
+		//
+		//		The "rcvFm" property in the regSpec is an object whose 
+		//		properties specify what panes the registering pane expectes to
+		//		receive things from. Each "<PT>" (described below) object
+		//		must have a "pane" property whereas the "frame" property is
+		//		optional and if present it specifies the name of the frame 
+		//		that contains the specified pane.
+		//
+		//		The "sndTo" property is similar to "rcvFm" but it specifies 
+		//		the panes the registering pane will send things to.
+		//
+		//		The "<PT>" properties in the rcvFrm and sndTo objects are
+		//		app-defined strings that are a pane type. For example, help 
+		//		panes are of these types -
+		//		
+		//			"help"			Displays help topics.
+		//			"help-toc"		Displays the help table of contents.
+		//			"help-edit"		A pane for editing help topics.
+		//			"help-hist"		Displays a list of recently viewed help
+		//							topics.
+
+		//	2023-May-19		What about -
+		//
+		//	-	For a controls pane there are possibly two registrations -
+		//		-	That of the UDUI itself (i.e., udui.svelte).
+		//		-	And that of the UDUI code (e.g., vp_select_1.ts). 
+		//		Possibly (i.e., not always) because not all UDUI panes have 
+		//		code.
+		//
+		//	-	Some frames (e.g., dlg-select-robot-system-3.ts) have multiple
+		//		UDUI/Controls panes. How are the UDUI registrations of those
+		//		panes identified?  
+		//
+		//	Need -
+		//
+		//	-	Another dialog in UDUI panes. Like the registration for UDUIs
+		//		that have code, the user needs to be able to specify/edit 
+		//		the registration for UDUI panes that have no code.
+		//	-	Furthermore, the user should specify a frame name in those
+		//		registrations. The frame name need not be what appears in the
+		//		frame's title bar; just something for identification that can
+		//		be persistent (unlike the frame's ID).
+		//	-	And both registrations should be persistent.
+
+		if ( rs ) {
+			//	A pane may only be registered with the specified id once.
+			if ( this.registry[ids] ) {
+				cmn.error ( sW, 'already registered' );
+				return; }
+
+			//	Now hook up. 
+			//	First look for panes registered by "id".
+			for ( let k in this.registry ) {
+				let ra		  = this.registry[k];
+				let keys: any = null;
+				if ( ra.length < 1 ) {
+					continue; }
+				let r  = ra[0];		//	Always just one at [0].
+				if ( ! cmn.isString ( r.ids ) ) {
+					continue; }
+				//	Already registered panes to call ids (i.e., the caller,
+				//	what is registering now, rs) -
+				keys = Object.keys ( rs.rcvFm );
+				keys.forEach ( k => {		//	each pane that rs is expected 
+					let e = rs.rcvFm[k];	//	to receive from 
+				//	let e_ids = this.make_ids ( o, e.frame, e.pane );
+				//	if ( 	(e_ids !== r.ids)
+				//		 && ! (   (o.frameId === r.frameId     )
+				//		 	   && (e.pane    === r.regSpec.pane)) ) {
+				//		return; }
+				//	r.fnc ( { do:		'set-registered-callee',
+				//			  paneKind:	o.paneKind,
+				//			  frame:	rs.frame,
+				//			  pane:		rs.pane,
+				//			  fnc:		o.fnc } );
+			//		let e_id = this.make_e_id ( o, e );
+					this.setRegisteredCallee ( o, r, e, r.fnc, o.paneKind, rs, o.fnc );
+				} );
+				
+				//	rs.pane to call already registered panes -
+				keys = Object.keys ( rs.sndTo );
+				keys.forEach ( k => {		//	each pane that rs wants to send 
+					let e = rs.sndTo[k];	//	to
+				//	let e_ids = this.make_ids ( o, e.frame, e.pane );
+				//	if ( 	(e_ids !== r.ids)
+				//		 && ! (   (o.frameId === r.frameId     )
+				//		 	   && (e.pane    === r.regSpec.pane)) ) {
+				//		return; }
+				//	o.fnc ( { do: 		'set-registered-callee',
+				//			  paneKind:	r.paneKind,
+				//			  frame:	r.regSpec.frame,
+				//			  pane:		r.regSpec.pane,
+				//			  fnc:		r.fnc } );
+					this.setRegisteredCallee ( o, r, e, o.fnc, r.paneKind, r.regSpec, r.fnc );
+				} );
+			}	//	for ( k ...
+
+			//	Now look for  components registered by "what".
+			for ( let k in this.registry ) {
+				let ra = this.registry[k];
+				for ( let i = 0; i < ra.length; i++ ) {
+					let r = ra[i];
+					if ( cmn.isArray ( o.rcvFm ) ) {
+						o.rcvFm.forEach ( e => {
+							if ( e !== r.what ) {
+								return; }
+							r.fnc ( { do: 		'set-registered-callee',
+									  what:		o.id,
+									  frameId:	0,
+									  paneId:	0,
+									  fnc:		o.fnc } );
+						} ); }
+					if ( cmn.isObject ( o.rcvFm ) ) {
+						let names = Object.keys ( o.rcvFm );
+						names.forEach ( n => {
+							let e = o.rcvFm[n];
+							if ( e !== r.what ) {
+								return; }
+							r.fnc ( { do: 		'set-registered-callee',
+									  what:		o.id,
+									  frameId:	0,
+									  paneId:	0,
+									  fnc:		o.fnc } );
+						} ); }
+					if ( cmn.isArray ( o.sndTo ) ) {
+						//	o.id to call already registered components -
+						o.sndTo.forEach ( e => {
+							if ( e !== r.what ) {
+								return; }
+							o.fnc ( { do: 	'set-registered-callee',
+									  id:	r.what,
+									  fnc:	r.fnc } );
+						} ); }
+					if ( cmn.isObject ( o.sndTo ) ) {
+						let names = Object.keys ( o.sndTo );
+						names.forEach ( n => {
+							let e = o.sndTo[n];
+							if ( e !== r.what ) {
+								return; }
+							o.fnc ( { do: 	'set-registered-callee',
+									  id:	r.what,
+									  fnc:	r.fnc } );
+						} ); }
+				}	//	for ( i ...
+			}	//	for ( k ...
+
+			//	But we still use an array in this case as otherwise.
+			let o2 = clone ( o );
+				o2.ids = ids;
+			let a = this.registry[o2.ids] = [];
+			a.push ( o2 );
+		}
+		else {
+			//	Hook up.
+			for ( let k in this.registry ) {
+				let ra = this.registry[k];
+				for ( let i = 0; i < ra.length; i++ ) {
+					let r = ra[i];
+					//	Already registered components to call o.what -
+					if ( o.rcvFm ) {
+						o.rcvFm.forEach ( e => {
+							if ( e.what !== r.what ) {
+								return; }
+							if ( e.frameId && (e.frameId !== r.frameId ) ) {
+								return; }
+							if ( e.paneId && (e.paneId !== r.paneId) ) {
+								return; }
+							r.fnc ( { do: 		'set-registered-callee',
+									  what:		o.what,
+									  frameId:	o.frameId,
+									  paneId:	o.paneId,
+									  fnc:		o.fnc } );
+						} ); } 
+					if ( o.sndTo ) {
+						//	o.what to call already registered components -
+						o.sndTo.forEach ( e => {
+							if ( e.what !== r.what ) {
+								return; }
+							if ( e.frameId && (e.frameId !== r.frameId ) ) {
+								return; }
+							if ( e.paneId && (e.paneId !== r.paneId) ) {
+								return; }
+							o.fnc ( { do: 		'set-registered-callee',
+									  what:		r.what,
+									  frameId:	r.frameId,
+									  paneId:	r.paneId,
+									  fnc:		r.fnc } );
+						} ); }
+			} } 
+		
+			//	Add to the registry.
+			let a = this.registry[o.what];
+			if ( ! a ) {
+				a = this.registry[o.what] = []; }
+			a.push ( o );
+		}
+
+		//	e2e test?
+		while ( o.paneId ) {
+			let content = this.content[o.paneId];
+			if ( ! content ) {
+				break; }
+			let fac = this.frameAutoCreate;
+			while ( fac && (content.frameId === fac.frameId) ) {
+				if ( fac.isE2eTest && (o.what === 'PEStdout') ) {
+					let vpi = fac.vertPaneIds;
+					this.appContentFnc ( { 
+						do: 	'e2e-set-output',
+						result:	{ status: 		'ok' ,
+								  frameId:		fac.frameId,
+								  editorPaneId:	vpi.topPaneId,
+								  outputPaneId: o.paneId } } );
+					break; } 
+				break; }
+			break; }
+
+	}	//	register()
+
+	unregister ( o ) {
+		let sW = 'App unregister()';
+	//	if ( cmn.isString ( o.what ) ) {
+	//		sW = 'App unregister() ' + o.what + '  frame ' + o.frameId 
+	//										  + '  pane ' + o.paneId; }
+	//	else 
+	//	if ( cmn.isString ( o.id ) ) {			//	panel regSpec
+	//		sW = 'App unregister() ' + o.id; }
+
+		let rs = null;						//	regSpec
+		let id  = null;
+		let ids = null;
+
+		if ( cmn.isString ( o.what ) ) {
+			sW += o.what + '  frame ' + o.frameId + '  pane ' + o.paneId; }
+		else {
+		if ( cmn.isObject ( o.regSpec ) ) {			//	panel/pane regSpec
+			rs  = o.regSpec;
+			id  = this.make_id ( o, rs.frame, rs.pane );
+			ids = JSON.stringify ( id );
+			sW += '  ' + ids; } 
+		else {
+			cmn.error ( sW, ' expected o.what or o.regSpec' );
+			return; } }
+			
+	//	diag ( [1, 2, 3], sW );
+		cmn.log ( sW );
+
+	//	this.checkContent ( sW );
+
+		if ( cmn.isString ( ids ) ) {
+			//	First remove o from the registry. If not found then return.
+			let a = this.registry[ids];
+			if ( ! a ) {
+				cmn.error ( sW, 'pane not found' );
+				return; }
+
+			//	Undo the calls.
+			for ( let k in this.registry ) {
+				let ra = this.registry[k];
+				for ( let i = 0; i < ra.length; i++ ) {
+					let r = ra[i];
+					//	Other components calling o.id -
+					let keys = null;
+					keys = Object.keys ( rs.rcvFm );
+					keys.forEach ( k => {
+						let e = rs.rcvFm[k];
+					//	let e_id  = this.make_id ( o, e.frame, e.pane );
+					//	let e_ids = JSON.stringify ( e_id );
+					//	if ( e_ids !== r.ids ) {
+					//		return; }
+					//	r.fnc ( { do: 		'unset-registered-callee',
+					//			  paneKind:	r.paneKind,
+					//			  pane:		rs.pane } );
+						this.unsetRegisteredCallee ( o, r, e, r.fnc, r.paneKind, rs );
+					} );
+					//	o.id calling other components -
+					keys = Object.keys ( rs.sndTo );
+					keys.forEach ( k => {
+						let e = rs.sndTo[k];
+					//	let e_id  = this.make_id ( o, e.frame, e.pane );
+					//	let e_ids = JSON.stringify ( e_id );
+					//	if ( e_ids !== r.ids ) {
+					//		return; }
+					//	o.fnc ( { do: 		'unset-registered-callee',
+					//			  paneKind:	r.paneKind,
+					//			  pane:		r.regSpec.pane } );
+						this.unsetRegisteredCallee ( o, r, e, o.fnc, r.paneKind, r.regSpec );
+					} );
+			} }
+			
+			cmn.log ( sW, 'deleting ' + ids + ' from registry' );
+			delete this.registry[ids];
+		}
+		else {
+			//	First remove o from the registry. If not found then return.
+			let a = this.registry[o.what];
+			if ( ! a ) {
+				return; }
+			let i = a.findIndex ( e => { return    (e.frameId === o.frameId)
+												&& (e.paneId === o.paneId) } );
+			if ( i < 0 ) {
+				return; }
+			a.splice ( i, 1 );
+
+			//	Undo the calls.
+			for ( let k in this.registry ) {
+				let ra = this.registry[k];
+				for ( let i = 0; i < ra.length; i++ ) {
+					let r = ra[i];
+					//	Other components calling o.what -
+					if ( o.rcvFm ) {
+						o.rcvFm.forEach ( e => {
+							if ( e.what !== r.what ) {
+								return; }
+							if ( e.frameId && (e.frameId !== r.frameId ) ) {
+								return; }
+							if ( e.paneId && (e.paneId !== r.paneId) ) {
+								return; }
+							r.fnc ( { do: 		'unset-registered-callee',
+									  what:		o.what,
+									  frameId:	o.frameId,
+									  paneId:	o.paneId } );
+						} ); }
+					if ( o.sndTo ) {
+						//	o.what calling other components -
+						o.sndTo.forEach ( e => {
+							if ( e.what !== r.what ) {
+								return; }
+							if ( e.frameId && (e.frameId !== r.frameId ) ) {
+								return; }
+							if ( e.paneId && (e.paneId !== r.paneId) ) {
+								return; }
+							o.fnc ( { do: 		'unset-registered-callee',
+									  what:		r.what,
+									  frameId:	r.frameId,
+									  paneId:	r.paneId } );
+						} ); }
+			} }
+		}
+		
+	//	this.checkContent ( sW );
+	
+	}	//	unregister()
+
+	showMenu ( o ) {
+		const sW = 'App showMenu()';
+		cmn.log ( sW );
+
+		let ce = <HTMLElement>
+				 document.getElementById ( this.appContentEleId );
+		let r  = ce.getBoundingClientRect();
+
+		this.appFrameFnc ( { 
+			do: 		'show-menu',
+			menuEleId:	'app-menu',
+			menuX:		o.x,
+			menuY:		o.y,
+			menuItems:	o.items,	//	each has its own function
+			upFnc:		null,
+			ctx:		{ clientRect:	r } } );
+		//				  what:			o.what,
+		//				  after:		o.after } } );
+	}	//	showMenu()
+
 	doAll ( o: any ) {
 		let sW = 'App doAll() ' + o.do;
 		if ( o.to ) {
 			sW += ' to ' + o.to; }
 		cmn.log ( sW );
 		switch ( o.do ) {
+			case 'check-content':
+			//	return this.checkContent ( o.sW );
+			//	To debug certain issues.  Implement, maybe, later.
+				return null;
 			case 'set-call-down':
 				this.setCallDown ( o );
 				break;
@@ -586,8 +1350,56 @@ class ClassPanelessDemo {
 				return this.destroyFrame ( o.frameId );
 			case 'frame-destroyed':
 				return this.frameDestroyed ( o );
+			case 'set-state-changed':
+			//	return this.setStateChanged ( o );
+			//	Regards state and persistence. Ignore for now.
+				return null;
+			case 'set-state-menu-or-dialog':
+			//	this.stateMenuOrDialogDepth = o.depth;
+			//	Regards state and persistence. Ignore for now.
+				return true;
+			case 'append-menu-items':
+				if ( o.to === 'pane-burger' ) {
+					o.menuItems.push ( { type: 'item', 
+										 text: 'Controls' } );
+					o.menuItems.push ( { type: 'item', 
+										 text: 'Properties' } );
+					break; }
+				break;
+			case 'menu-item':
+				this.menuItem ( o );
+				break;
+			case 'instantiate-code':
+				return this.instantiateCode ( o );
+			case 'load-record-dialog':
+				this.loadRecordDialog ( o );
+				break;
+			case 'ok-load':
+				this.okRecordName ( o );
+				break;
+			case 'long-text-dialog':
+				this.longTextDialog ( o );
+				break;
+			case 'pane-content-update':
+			//	this.paneContentUpdate ( o );
+			//	Obsolete. Fix caller.
+				break;
+			case 'get-frame':
+				return this.frames[o.frameId];
+			case 'load-pane-state':
+			//	return this.loadPaneState ( o );
+			//	Regards persistence. Later.
+				return null;
+			case 'register':
+				return this.register ( o );
+			case 'unregister':
+				return this.unregister ( o );
+			case 'show-menu':
+				return this.showMenu ( o );
+			default:
+				cmn.error ( sW, 'unrecognized do "' + o.do + '"' );
+				return null; 
 		}	//	switch
-
 	}	//	doAll()
 }	//	class	ClassPanelessDemo
 
