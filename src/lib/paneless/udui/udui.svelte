@@ -63,7 +63,7 @@ class ClassUDUI {
 //	vpFnc:			any;
 //	prpsFnc:		any;
 	prpsCtrlD:		any;
-	notifyGotVPFnc:	any;
+//	notifyGotVPFnc:	any;
 
 	callees:		any;				//	registered panes called from 
 										//	here
@@ -107,12 +107,6 @@ class ClassUDUI {
 		//	Default reg spec.  Note that this is for the UDUI.  The controls
 		//	hosted here may have a separate/additional regSpec - it is
 		//	this.rpd.regSpec.
-	//	let o = { pane:		'UDUI',
-	//			  rcvFm:	{ 'properties':	{ pane: 'Properties' },
-	//				  		  'pe':			{ pane: 'PE'         } },
-	//			  sndTo:	{ 'pe':			{ pane: 'PE'         },
-	//			  			  'viewport':	{ pane: 'Viewport'   },
-	//			  			  'properties':	{ pane: 'Properties  } } };
 	//	this.regSpec	= JSON.stringify ( o, null, '    ' );
 	//	this.rs			= null;		//	pane registration spec
 
@@ -123,16 +117,12 @@ class ClassUDUI {
 		this.regSpec = { pane:	"UDUI",
 						 rcvFm: {
 							properties: {
+								frame:	'Properties',
 								pane:  	'Properties' },
-							pe: {
-								pane:	'PE'}
 						 },
 						 sndTo: {
-							pe: {
-								pane: 'PE' },
-							vp: {
-								pane: 'Viewport' },
 							properties: {
+								frame:	'Properties',
 								pane: 'Properties' }
 						 } };
 		this.bUDUIRegistered	= false;
@@ -143,7 +133,7 @@ class ClassUDUI {
 	//	this.prpsFnc 	= null;		//	Properties
 		this.prpsCtrlD 	= null;		//	Which control's properties are being 
 									//	edited.
-		this.notifyGotVPFnc	= null;	//	To notify others when a Viewport is 
+	//	this.notifyGotVPFnc	= null;	//	To notify others when a Viewport is 
 									//	connected.
 		
 		this.callees 	= {};
@@ -1891,24 +1881,6 @@ class ClassUDUI {
 			prpClientAppFnc ( o );
 			return; }
 		if ( o.do === 'set-registered-callee' ) {
-		//	if ( o.pane === this.regSpec.sndTo['pe'].pane ) {
-		//		this.peFnc = o.fnc;
-		//		return; }
-		//	if ( o.pane === this.regSpec.sndTo['vp'].pane ) {
-		//		this.vpFnc = o.fnc;
-		//		if ( this.notifyGotVPFnc ) {
-		//			this.notifyGotVPFnc ( this.vpFnc ); }
-		//		return; }
-		//	if ( o.pane === this.regSpec.sndTo['properties'].pane ) {
-		//		this.prpsFnc = o.fnc;
-		//		if ( this.prpsCtrlD ) {
-		//			this.prpsFnc ( { do: 		'properties-of-control',
-		//							 frameId:	prpFrameId,
-		//							 paneId:	prpPaneId,
-		//							 ctrlD:		this.prpsCtrlD,
-		//							 title:		'Edit' } );	}
-		//		this.gotProperties ( true );
-		//		return; }
 			cmn.log ( sW, '  ' + o.paneKind + '  ' + o.pane );
 			if ( ! cmn.isObject ( this.regSpec ) ) {
 				cmn.error ( sW, 'this.regSpec is not set' );
@@ -1917,9 +1889,9 @@ class ClassUDUI {
 													this.callees, o );
 			if ( ! cmn.isFunction ( fnc ) ) {
 				return; };
-			if ( o.pane === this.regSpec.sndTo['vp'].pane ) {
-				if ( this.notifyGotVPFnc ) {
-					this.notifyGotVPFnc ( fnc ); } }
+		//	if ( o.pane === this.regSpec.sndTo['vp'].pane ) {
+		//		if ( this.notifyGotVPFnc ) {
+		//			this.notifyGotVPFnc ( fnc ); } }
 			if ( o.pane === this.regSpec.sndTo['properties'].pane ) {
 				if ( this.prpsCtrlD ) {
 					fnc ( { do: 		'properties-of-control',
@@ -2017,7 +1989,10 @@ class ClassUDUI {
 			//	fully sized. So, hack, and give this time to size. IOW, I
 			//	think, set the SVG element's size in the next JS event
 			//	cycle (after this has sized).
-			window.setTimeout ( this.setRootPanelWH, 0 );
+		//	window.setTimeout ( this.setRootPanelWH, 0 );
+			tick().then ( () => {
+				this.setRootPanelWH();
+			} );
 			return; }
 		if ( o.do === 'load-children' ) {
 			return this.loadChildren ( sW, o.controls, o.panel );
@@ -2294,13 +2269,13 @@ class ClassUDUI {
 		if ( o.do === 'click-focus' ) {
 			this.clickFocus ( o );
 			return null; }
-		if ( o.do === 'get-vp-fnc' ) {
-			this.notifyGotVPFnc = o.cb;
-			let fnc = cmn.oneCallee ( sW, this.callees, 'viewport' );
-			if ( ! cmn.isFunction ( fnc ) ) {
-				return null; }
-			this.notifyGotVPFnc ( fnc );
-			return null; }
+	//	if ( o.do === 'get-vp-fnc' ) {
+	//		this.notifyGotVPFnc = o.cb;
+	//		let fnc = cmn.oneCallee ( sW, this.callees, 'viewport' );
+	//		if ( ! cmn.isFunction ( fnc ) ) {
+	//			return null; }
+	//		this.notifyGotVPFnc ( fnc );
+	//		return null; }
 		if ( o.do === 'not-focus' ) {
 			let fPD = this.get_fPD();
 			if ( fPD && (fPD.focusedChildId > 0) ) {

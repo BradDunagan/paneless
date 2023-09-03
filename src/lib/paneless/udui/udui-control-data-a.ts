@@ -100,7 +100,7 @@ export var uCD = (function() {
 		var baseD = null;						//	panel base data
 		if ( d.type === uc.TYPE_PANEL_BASE ) { baseD = d;  d = d.panelData; }
 		let tagName = evt.target ? evt.target.tagName : '?';
-		cmn.log ( sW, ' tagName ' + tagName + ' d.name ' + d.name );
+	//	cmn.log ( sW, ' tagName ' + tagName + ' d.name ' + d.name );
 	//	if ( ! d.fillsPanel ) {
 	//		evt.stopPropagation(); }
 

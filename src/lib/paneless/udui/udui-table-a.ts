@@ -173,9 +173,9 @@ export var uTable = (function() {
 		var bd = parentPanelData.baseData[0];
 		var filledBy, sx = 0, sy = 0;
 
-//		cmn.log ( sW, ' d.name: ' + d.name 
-//					+ '   w h: ' + d.w + ' ' + d.h 
-//					+ '   dx y: ' + dx + ' ' + dy );
+		cmn.log ( sW, ' d.name: ' + d.name 
+					+ '   w h: ' + d.w + ' ' + d.h 
+					+ '   dx y: ' + dx + ' ' + dy );
 
 		if ( tableData.fillsPanel ) {
 			if ( (dx > 0) && (bd.x < 0) ) {				//	scroll/pan first
@@ -1252,6 +1252,8 @@ export var uTable = (function() {
 
 //	TableData.prototype.setTitle = function ( titleText ) {
 	function TableData_setTitle ( titleText ) {
+		const sW = 'TableData_setTitle()';
+		cmn.log ( sW );
 		this.title = cmn.isString ( titleText ) ? titleText : '';
 		if ( this.title.length <= 0 ) {
 			this.tableY = 0; 			//	hide the title area
@@ -1291,6 +1293,8 @@ export var uTable = (function() {
 	}	//	TableData.prototype.update()
 
 	function TableData_clear() {
+		const sW = 'TableData_clear()';
+		cmn.log ( sW );
 		this.rows = [];
 		this.table.update();
 		this.h = this.title.length > 0 ? TitleAreaHeight : 0;
@@ -1456,7 +1460,9 @@ export var uTable = (function() {
 				.attr ( 'height', d => { return (d.h    ) + 'px'; } )
 				.append ( 'xhtml:body' )
 					.attr ( 'id',          function ( d, i ) { return d.eleId + '-fo-body'; } )
-					.style ( 'font', '10px "consolas"' )
+					.style ( 'font-size', '10px' )
+					.style ( 'font-family', 'consolas, monospace' )
+					.style ( 'margin', '0px' )
 					.append ( 'div' )
 						.attr ( 'id', function ( d, i ) { return d.eleId + '-fo-body-div'; } )
 						.each ( function ( d, i, g ) {

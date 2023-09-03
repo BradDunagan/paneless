@@ -11,7 +11,6 @@
 	import { uc } 				from './udui-common';
 	import { uPanel } 			from './udui-panel-f';
 	import { uShiftClick } 		from './udui-shift-click-a';
-	import { uButton } 			from './udui-button-e';
 
 	export let prpAppFrameFnc: any		= null;
 	export let prpClientAppFnc: any 	= null;

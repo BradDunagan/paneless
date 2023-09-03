@@ -540,7 +540,6 @@ class ClassPanelessDemo {
 				props: 	{
 					prpFrameId:			frameId,
 					prpPaneId:			paneId,
-					prpEleId:			ccEleId,
 					prpClientAppFnc:	this.doAll,
 					prpAppFrameFnc:		this.appFrameFnc,
 					prpAppContentFnc:	this.appContentFnc } };
@@ -1166,26 +1165,6 @@ class ClassPanelessDemo {
 				a = this.registry[o.what] = []; }
 			a.push ( o );
 		}
-
-		//	e2e test?
-		while ( o.paneId ) {
-			let content = this.content[o.paneId];
-			if ( ! content ) {
-				break; }
-			let fac = this.frameAutoCreate;
-			while ( fac && (content.frameId === fac.frameId) ) {
-				if ( fac.isE2eTest && (o.what === 'PEStdout') ) {
-					let vpi = fac.vertPaneIds;
-					this.appContentFnc ( { 
-						do: 	'e2e-set-output',
-						result:	{ status: 		'ok' ,
-								  frameId:		fac.frameId,
-								  editorPaneId:	vpi.topPaneId,
-								  outputPaneId: o.paneId } } );
-					break; } 
-				break; }
-			break; }
-
 	}	//	register()
 
 	unregister ( o ) {
@@ -1337,7 +1316,7 @@ class ClassPanelessDemo {
 		let sW = 'App doAll() ' + o.do;
 		if ( o.to ) {
 			sW += ' to ' + o.to; }
-		cmn.log ( sW );
+	//	cmn.log ( sW );
 		switch ( o.do ) {
 			case 'check-content':
 			//	return this.checkContent ( o.sW );
