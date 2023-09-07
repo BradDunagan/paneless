@@ -4,6 +4,9 @@
 	import clone 		from 'clone';	//	In tsconfig.json, "allowjs": true	
 	import { cmn }    	from './common';
 
+	import dots_vert_img	from  "./images/split_vert_sml_1_gray.png";
+	import dots_horz_img	from  "./images/split_horz_sml_1_gray.png";
+
 	export let prpFrameId		= 0;
 	export let prpPaneId		= 0;
 	export let prpPaneFnc		= null;
@@ -37,7 +40,7 @@ let self = {
 
 	pointerDown ( evt ) {
 		const sW = 'paneless PaneSplitter pointerDown()';
-		cmn.log ( sW, 'top -  evt.pointerId ' + evt.pointerId );
+	//	cmn.log ( sW, 'top -  evt.pointerId ' + evt.pointerId );
 
 		let we: any  = evt; 
 		let shiftKey = we.shiftKey;
@@ -213,11 +216,8 @@ let self = {
 		if ( checkPrpStyle() ) {
 			self.state.styleString = cmn.stringifyStyle ( self.state.style ); }
 
-
-		self.hvsplitter = prpHV === 'h' ? '-hsplitter' : '-vsplitter';
-		self.img_path =    '/images/split_' 
-						+ (prpHV === 'h' ? 'horz' : 'vert')
-						+ '_sml_1_gray.png';
+		self.hvsplitter = prpHV === 'h' ? '-hsplitter'  : '-vsplitter';
+		self.img_path   = prpHV === 'h' ? dots_horz_img : dots_vert_img;
 	} )	//	beforeUpdate()
 
 </script>

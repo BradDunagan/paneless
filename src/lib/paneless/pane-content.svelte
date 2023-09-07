@@ -154,6 +154,7 @@ let self = {
 	.pane-content {
 		background-color: 	#fff;
 		height:				100%;
+		overflow: 			hidden;
 	}
 
 </style>

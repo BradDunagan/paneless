@@ -143,6 +143,7 @@ class ClassPanelessDemo {
 		this.register			= this.register.bind ( this );
 		this.unregister			= this.unregister.bind ( this );
 		this.showMenu			= this.showMenu.bind ( this );
+		this.splitterProperties	= this.splitterProperties.bind ( this );
 		this.doAll				= this.doAll.bind ( this );
 	}
 
@@ -1312,6 +1313,32 @@ class ClassPanelessDemo {
 		//				  after:		o.after } } );
 	}	//	showMenu()
 
+	splitterProperties ( o ) {
+		const sW = 'App splitterProperties()';
+	//	cmn.log ( sW );
+		
+		//	Find a/the properties frame, if any. Relay the do.
+		let a = this.registry['Properties'];
+		if ( (! a) || (a.length === 0) ) {
+			let ks = Object.keys ( this.registry );
+			let i = ks.findIndex ( k => {
+				try {
+					let r = JSON.parse ( k );
+					if ( r.frame === 'Properties' ) {
+						return true; }
+				} catch ( e ) { }
+				return false;
+			} );
+			if ( i >= 0 ) {
+				a = this.registry[ks[i]]; }
+			else {
+				cmn.log ( sW, 'no properties frame/pane is registered' );
+				return false; } }
+
+		//	Use the first.
+		return a[0].fnc ( o );
+	}	//	splitterProperties()
+
 	doAll ( o: any ) {
 		let sW = 'App doAll() ' + o.do;
 		if ( o.to ) {
@@ -1375,6 +1402,8 @@ class ClassPanelessDemo {
 				return this.unregister ( o );
 			case 'show-menu':
 				return this.showMenu ( o );
+			case 'properties-of-pane-splitter':
+				return this.splitterProperties ( o );
 			default:
 				cmn.error ( sW, 'unrecognized do "' + o.do + '"' );
 				return null; 

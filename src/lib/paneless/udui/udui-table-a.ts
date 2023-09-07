@@ -173,9 +173,9 @@ export var uTable = (function() {
 		var bd = parentPanelData.baseData[0];
 		var filledBy, sx = 0, sy = 0;
 
-		cmn.log ( sW, ' d.name: ' + d.name 
-					+ '   w h: ' + d.w + ' ' + d.h 
-					+ '   dx y: ' + dx + ' ' + dy );
+	//	cmn.log ( sW, ' d.name: ' + d.name 
+	//				+ '   w h: ' + d.w + ' ' + d.h 
+	//				+ '   dx y: ' + dx + ' ' + dy );
 
 		if ( tableData.fillsPanel ) {
 			if ( (dx > 0) && (bd.x < 0) ) {				//	scroll/pan first

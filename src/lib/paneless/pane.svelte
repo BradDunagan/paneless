@@ -411,6 +411,8 @@ let self = {
 		self.state.svSplitterStyleString = 
 								stringifyStyle ( self.state.svSplitterStyle );
 
+		cmn.log ( sW, 'setting top: ' + h2 + self.vsH + 'px' );
+
 		self.state.svBotStyle =	{ top:		h2 + self.vsH + 'px',
 								  left:		'0px',
 								  width:	w + 'px',
@@ -745,7 +747,8 @@ let self = {
 		return prpParentFnc ( { do: 	'is-right-pane',
 								paneId:	prpPaneId } );
 	},	//	isRightOfSplit()
-propagateDown_SizeOp ( o ) {
+
+	propagateDown_SizeOp ( o ) {
 		const sW = 'paneless Pane ' + prpPaneId + ' propagateDown_SizeOp() ' 
 				   + self.eleId + '  ' + o.do;
 	//	cmn.log ( sW );
@@ -923,6 +926,8 @@ propagateDown_SizeOp ( o ) {
 					s.width  = w + 'px';
 					s.height = h + 'px';
 
+				cmn.log ( sW, 'top ' + s.top + '  h ' + s.height );
+
 				self.state.style = s;
 				self.state.styleString = stringifyStyle ( self.state.style );
 
@@ -1005,6 +1010,8 @@ propagateDown_SizeOp ( o ) {
 						s.top = parseInt ( o.top ) + 'px'; }
 					if ( parseInt ( s.top ) < 0 ) {
 						cmn.error ( sW, 'top < 0' ); }
+
+				cmn.log ( sW, 'top ' + s.top + '  h ' + s.height );
 
 				self.state.style = s;
 				self.state.styleString = stringifyStyle ( self.state.style );
