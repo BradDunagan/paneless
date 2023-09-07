@@ -1011,7 +1011,7 @@ let self = {
 					if ( parseInt ( s.top ) < 0 ) {
 						cmn.error ( sW, 'top < 0' ); }
 
-				cmn.log ( sW, 'top ' + s.top + '  h ' + s.height );
+			//	cmn.log ( sW, 'top ' + s.top + '  h ' + s.height );
 
 				self.state.style = s;
 				self.state.styleString = stringifyStyle ( self.state.style );

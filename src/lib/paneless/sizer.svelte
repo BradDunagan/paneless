@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount }		from 'svelte';
+    import { cmn } from './common';
 	export let frameId			= 0;
     export let frameFnc: any	= null;
     export let frameEleId   	= '';
@@ -29,6 +30,7 @@ let self = {
 	doAll ( o: any ) {
 		let sW = frameId + ' Sizer doAll() ' + o.do;
 		if ( o.do === 'size' ) {
+			cmn.log ( sW, 'o.dX o.dY ' + o.dX + ' ' + o.dY );
 			self.state.style = {
 				left:	(self.sizeX0 + o.dX) + 'px',
 				top:	(self.sizeY0 + o.dY) + 'px',

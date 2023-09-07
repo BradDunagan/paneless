@@ -37,6 +37,9 @@
 
 	const headerH		= 19;
 	const footerH		= 19;
+	
+	const frameMinW 	= 100;
+	const frameMinH 	=  60;
 
 	function stringifyStyle ( style: any ): string {
 		let s = '';
@@ -132,7 +135,7 @@
 		footerFnc:		null,
 
 		rootPaneFnc:	null,
-		sizerFnc:		null,
+		sizerFnc: 		null,
 		iconFnc:		null,
 
 		mouseInTopPaneButtonBar:	false,
@@ -838,30 +841,50 @@
 			return;
 		}
 		case ( 'size' ): {
+		//	if ( isCentered ) {
+		//		o.dX *= 2;
+		//		o.dY *= 2; }
+			let dX = o.dX;
+			let dY = o.dY;
+			let w = self.sizeW0 + dX;
+			if ( w < frameMinW ) {
+				dX = frameMinW - self.sizeW0;
+				w  = frameMinW; }
+			let h = self.sizeH0 + dY;
+			if ( h < frameMinH ) {
+				dY = frameMinH - self.sizeH0;
+				h  = frameMinH; }
 			if ( isCentered ) {
-				o.dX *= 2;
-				o.dY *= 2; }
+				dX *= 2;
+				dY *= 2; }
+			cmn.log ( sW, 'dX dY ' + dX + ' ' + dY + '   w h ' + w + ' ' + h );
 			let sizingFrame = ! (   cmn.isBoolean ( o.noFrameSizing ) 
 								 && o.noFrameSizing);
 			function sizePane() {
-				let e = document.getElementById ( self.eleId );
+				let e = <HTMLElement>document.getElementById ( self.eleId );
 				o.parentCW = e.clientWidth;
 				o.parentCH = e.clientHeight
 							 - (self.isHeaderVisible() ? headerH : 0)
 							 - (self.isFooterVisible() ? footerH : 0);
 				o.top  = self.isHeaderVisible() ? headerH : 0;
 				o.left = 0;
+				let o2 = clone ( o );
+				o2.dX = dX;
+				o2.dY = dY;
 				if ( sizingFrame && cmn.isFunction ( self.sizerFnc ) ) {
-					self.sizerFnc ( o ); }
+					self.sizerFnc ( o2 ); }
 				if ( cmn.isFunction ( self.rootPaneFnc ) ) {
-					self.rootPaneFnc ( o ); }
+					self.rootPaneFnc ( o2 ); }
 			}
 			if ( ! sizingFrame ) {
 				sizePane();
 				return; }
-			self.state.style.width  = (self.sizeW0 + o.dX) + 'px';
-			self.state.style.height = (self.sizeH0 + o.dY) + 'px';
-			self.state.footerStyle.top = (self.sizeFtrTop0 + o.dY) + 'px';
+		//	self.state.style.width  = (self.sizeW0 + o.dX) + 'px';
+		//	self.state.style.height = (self.sizeH0 + o.dY) + 'px';
+		//	self.state.footerStyle.top = (self.sizeFtrTop0 + o.dY) + 'px';
+			self.state.style.width  = w + 'px';
+			self.state.style.height = h + 'px';
+			self.state.footerStyle.top = (self.sizeFtrTop0 + dY) + 'px';
 			self.state.styleString = stringifyStyle ( self.state.style );
 		//	appContentFnc ( { do: 'update-app-size-dictator' } );
 		//	Do this at the end of the size. See AppFrame mouseUp().
