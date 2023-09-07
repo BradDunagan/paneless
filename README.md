@@ -34,6 +34,14 @@ A dropdown menu for the pane should appear. Click on <b>Controls</b>. The pane w
 
 The dropdown menu for the pane will have changed. Click on <b>Add Control \></b>, <b>Button</b>.
 
+### Properties
+
+To create a properties pane create a new frame. Then in its's pane burger menu click on <b>Properties</b>.
+
+To set properties of a control (in another pane) shift click on the control. A popup menu should appear. Click on <b><u>P</u>roperties ...</b>.
+
+To set properties of a splitter shift click on the splitter.
+
 ## Tabs or Spaces?
 
 tabs
