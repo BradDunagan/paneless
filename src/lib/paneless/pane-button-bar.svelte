@@ -155,29 +155,6 @@ let self = {
 				prpPaneFnc ( o );	}
 			return;
 		}
-		if ( o.do === 'set-left-and-width' ) {
-			//	This command implies this button bar is part of the
-			//	transient title bar at the top of the frame.  I.e., the top 
-			//	of the pane borders the top of the frame.
-			let sss: any = self.state.style;
-			sss.left				= o.left  + 'px';
-			sss.width				= o.width + 'px';
-			sss.opacity			 	= '1.0';
-			sss['transition-property']  = 'none';
-			self.state.styleString = stringifyStyle ( self.state.style );
-			return;
-		}
-		if ( o.do === 'get-left-and-width' ) {
-			let style: any = self.state.style;
-			if ( style && style.left && style.width ) {
-				return { left: 	Number.parseInt ( style.left ),
-						 width:	Number.parseInt ( style.width ) }; }
-			return null;
-		}
-		if ( o.do === 'key-show' ) {
-			self.show();
-			return;
-		}
 		if ( o.do === 'disallow-pane-edits' ) {
 			self.disallowShow = true; 
 			let style = clone ( self.state.style );
@@ -187,9 +164,18 @@ let self = {
 			self.state.styleString = stringifyStyle ( self.state.style );
 			return;
 		}
+		if ( o.do === 'allow-pane-edits' ) {
+			self.disallowShow = false; 
+			let style = clone ( self.state.style );
+			style.display = 'null';
+
+			self.state.style = style;
+			self.state.styleString = stringifyStyle ( self.state.style );
+			return;
+		}
 	},	//	doAll()
 
-};
+};	//	self
 
 	self.isFrameHeaderTransient =
 		prpFrameFnc ( { do: 'is-header-transient' } );

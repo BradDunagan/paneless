@@ -1,6 +1,6 @@
 <script lang="ts">
 
-	import { onMount, beforeUpdate }	from 'svelte';
+	import { onMount, beforeUpdate, tick }	from 'svelte';
 	import clone 		from 'clone';	//	In tsconfig.json, "allowjs": true	
 	import { cmn }    	from './common';
 
@@ -24,12 +24,14 @@
 //		return s;
 //	}	//	stringifyStyle()
 
+let styleString = '';
+
 let self = {
 
 	state:  {
 		prvPrpStyle:	null,
 		style: 	        null,
-        styleString:    '',
+    //  styleString:    '',
 		locked:	        false,
 		img:	        false	},
 
@@ -37,6 +39,7 @@ let self = {
 
 	hvsplitter:	'',
 	img_path:	'',
+	minimized:	false,
 
 	pointerDown ( evt ) {
 		const sW = 'paneless PaneSplitter pointerDown()';
@@ -66,7 +69,7 @@ let self = {
 					{ name:		'three dots',		//	true, false
 						value:	self.state.img ? 'true' : 'false' },
 					{ name:		'locked',	//	vert: false, 'top', 'bottom'
-											//	hort: false, 'left', 'right'
+											//	horz: false, 'left', 'right'
 						value:	self.state.locked } ] } );
 				return; }
 
@@ -108,15 +111,15 @@ let self = {
 					   p.style['background-color'] = c; }
 
 				self.state.style = cmn.isUndefined ( p.style ) 
-											?  { 'background-color': null }
-											:  p.style;
+									?  { 'background-color': 'lightgray' }
+									:  p.style;
 				self.state.locked = cmn.isUndefined ( p.locked )
 											?  false
 											:  p.locked;
 				self.state.img = cmn.isUndefined ( p.img )
 											?  false
 											:  p.img;
-				self.state.styleString = cmn.stringifyStyle ( self.state.style );
+				styleString = cmn.stringifyStyle ( self.state.style );
 				break;
 			case 'set-property':
 				let style = clone ( self.state.style );
@@ -127,10 +130,9 @@ let self = {
 							 &&	(o.propValue.length >   0       ) ) {
 							style['background-color'] = o.propValue; }
 						else {
-							style['background-color'] = null; }
+							style['background-color'] = 'lightgray'; }
 						self.state.style = style;
-						self.state.styleString = 
-										cmn.stringifyStyle ( self.state.style );
+						styleString = cmn.stringifyStyle ( self.state.style );
 						break;
 					case 'three dots':
 						if ( 	cmn.isString ( o.propValue )
@@ -172,6 +174,25 @@ let self = {
 
 			case 'get-style':
 				return clone ( prpStyle );
+			case 'set-style': {
+				return new Promise ( ( res, rej ) => {
+					if ( cmn.isNumber ( o.top ) ) {
+						self.state.style.top = o.top + 'px'; }
+					if ( cmn.isNumber ( o.left ) ) {
+						self.state.style.left = o.left + 'px'; }
+					if ( cmn.isNumber ( o.width ) ) {
+						self.state.style.width = o.width + 'px'; }
+					if ( cmn.isNumber ( o.height ) ) {
+						self.state.style.height = o.height + 'px'; }
+					styleString = cmn.stringifyStyle ( self.state.style );
+					tick().then ( () => {
+						res ( 'ok' ); } );
+				} ); }
+			case 'set-minimized':
+				self.minimized = o.minimized;
+				return null;
+			case 'get-minimized':
+				return self.minimized;
 
 			default:
 				cmn.error ( sW, 'unrecognized do - "' + o.do + '"' );
@@ -183,8 +204,8 @@ let self = {
 
 	self.state.prvPrpStyle = prpStyle;
 	self.state.style = clone ( prpStyle );
-	self.state.style['background-color'] = null;
-	self.state.styleString = cmn.stringifyStyle ( self.state.style );
+	self.state.style['background-color'] = 'lightgray';
+	styleString = cmn.stringifyStyle ( self.state.style );
 
 
 	onMount ( () => {
@@ -214,7 +235,7 @@ let self = {
 	//	cmn.log ( sW );
 		
 		if ( checkPrpStyle() ) {
-			self.state.styleString = cmn.stringifyStyle ( self.state.style ); }
+			styleString = cmn.stringifyStyle ( self.state.style ); }
 
 		self.hvsplitter = prpHV === 'h' ? '-hsplitter'  : '-vsplitter';
 		self.img_path   = prpHV === 'h' ? dots_horz_img : dots_vert_img;
@@ -226,7 +247,7 @@ let self = {
 
 	{#if self.state.img }
 		<div id				= { prpPaneEleId + self.hvsplitter }
-			 style			= { self.state.styleString }
+			 style			= { styleString }
 			 class			= { 'pane' + self.hvsplitter }
 			 on:pointerdown	= { self.pointerDown } 
 			 on:pointerup	= { self.pointerUp } >
@@ -236,7 +257,7 @@ let self = {
 		</div>
 	{:else}
 		<div id				= { prpPaneEleId + self.hvsplitter }
-			 style			= { self.state.styleString }
+			 style			= { styleString }
 			 class			= { 'pane' + self.hvsplitter }
 			 on:pointerdown	= { self.pointerDown } 
 			 on:pointerup	= { self.pointerUp } >
