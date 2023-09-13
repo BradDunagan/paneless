@@ -168,10 +168,11 @@ class ClassPanelessDemo {
 		cmn.log ( sW, item.text );
 
 		let mnu: any [] = [];
-		mnu.push ( { type: 'item', disabled: false,
-					 text: 'New', 		fnc: this.newFrame } );
-		mnu.push ( { type: 'item', disabled: false,
-					 text: 'Example 1',	fnc: this.loadExample1 } );
+		mnu.push ( { type:	 'item', disabled: false,
+					 text:	 'New', 		fnc: this.newFrame,
+					 testId: 'paneless-app-menu-Frame-New' } );
+		mnu.push ( { type:	 'item', disabled: false,
+					 text:	 'Example 1',	fnc: this.loadExample1 } );
 		return mnu;
 	}	//	frameSubMenu()
 	
@@ -329,7 +330,8 @@ class ClassPanelessDemo {
 
 			{ type: 'item',	disabled: false,
 		 	  text:	'[F]rame >',			fnc: this.frameSubmenu,
-			  bSubmenu:	true },
+			  bSubmenu:	true,
+			  testId:	'paneless-app-menu-Frame' },
 
 			{ type: 'separator', 	text: '' },
 

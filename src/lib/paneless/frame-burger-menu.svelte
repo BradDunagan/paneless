@@ -47,6 +47,7 @@ let self = {
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
     <img alt            = "burger menu"
          id			    = { self.eleId }
+		 data-testid 	= "paneless-frame-burger"
          src		    = { burger_img }
          on:mousedown   = { self.mouseDown }
          on:mouseup     = { self.mouseUp }

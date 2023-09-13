@@ -220,14 +220,21 @@
 	//	cmn.log ( sW );
 		let fe = document.getElementById ( self.eleId );
 		let r  = fe.getBoundingClientRect();
-		let itemTextHdr = self.isHeaderVisible() ? 'Hide Header' 
-												 : 'Show Header';
-		let itemTextFtr = self.isFooterVisible() ? 'Hide Footer' 
-												 : 'Show Footer';
+		let hdrVisible = self.isHeaderVisible();
+		let itemTextHdr = hdrVisible ? 'Hide Header' : 'Show Header';
+		let itemTestIdHdr = 'paneless-frame-menu-'
+						  + (hdrVisible ? 'HideHeader' : 'ShowHeader');
+		let ftrVisible = self.isFooterVisible();
+		let itemTextFtr = ftrVisible ? 'Hide Footer' : 'Show Footer';
+		let itemTestIdFtr = 'paneless-frame-menu-'
+						  + (ftrVisible ? 'HideFooter' : 'ShowFooter');
 		let menuItems = [ 
-			{ type: 'item', 		text: 'Frame Name ...' },
-			{ type: 'item', 		text: itemTextHdr },
-			{ type: 'item', 		text: itemTextFtr } ];
+			{ type: 'item', 		text: 'Frame Name ...',
+									testId: 'paneless-frame-menu-FrameName' },
+			{ type: 'item', 		text: itemTextHdr,
+									testId: itemTestIdHdr },
+			{ type: 'item', 		text: itemTextFtr,
+									testId: itemTestIdFtr} ];
 
 		let clientItems = [];
 		clientFnc( {
@@ -1227,6 +1234,7 @@
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
         id              = { self.eleId }
+		data-testid 	= "paneless-frame"
 		class			= "frame-div"
 		style 			= { self.state.styleString }
 		on:mousedown	= { self.mouseDown } >

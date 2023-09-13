@@ -83,6 +83,7 @@ let self = {
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <sizer
 	id				= { self.eleId }
+	data-testid 	= "paneless-sizer"
 	style			= { self.state.styleString }
 	on:mousedown	= { self.mouseDown }
 	on:mouseup      = { self.mouseUp } >

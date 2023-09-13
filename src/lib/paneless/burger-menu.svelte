@@ -315,6 +315,7 @@ let self = {
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 			<li id		= { self.itemEleIdPrefix + i }
+				data-testid 	= { mi.testId }
 				on:mouseenter	= { self.mouseEnter.bind ( self, i ) }
 				on:mouseleave	= { self.mouseLeave.bind ( self, i ) }
 				on:click		= { self.click.bind ( self, i ) } >

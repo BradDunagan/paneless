@@ -15,7 +15,8 @@
 	{:else}
 		<span/>
     {/if}
-    <span class = "title-span">
+    <span class = "title-span"
+          data-testid = "paneless-app-title-text">
         { appTitle }
     </span>
 </app-header-title>

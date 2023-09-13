@@ -109,8 +109,9 @@ let self = {
 
 <dlg-name>
 
-	<div class = "dlg-name-dlg"
-			style = {self.state.styleMainString}>
+	<div data-testid = "paneless-dlg-name"
+		 class = "dlg-name-dlg"
+		 style = {self.state.styleMainString}>
 		<div class = "dlg-name-main">
 			<div class = "dlg-name-title">
 				{prpCtx.title ? prpCtx.title 
