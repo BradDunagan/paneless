@@ -3,14 +3,18 @@ import type { Locator } from '@playwright/test';
 
 import { frameNew }     from './common/frame';
 
-test('has title', async ({ page }) => {
-  await page.goto('localhost:5173');
+test ( 'has title', async ( { page } ) => {
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/paneless demo/);
-});
+	await page.waitForTimeout ( 2000 );
+	await page.goto ( 'localhost:5173' );
+
+	// Expect a title "to contain" a substring.
+	await expect(page).toHaveTitle(/paneless demo/);
+} );
 
 test ( 'frame w/header w/footer', async ( { page } ) => {
+
+	await page.waitForTimeout ( 2000 );
 	await page.goto('localhost:5173');
 
 	await frameNew ( page, "Test Frame" );
@@ -19,9 +23,11 @@ test ( 'frame w/header w/footer', async ( { page } ) => {
 	
 	expect ( await locatorFrame.screenshot() )
 		.toMatchSnapshot ( 'frame-w-header-w-footer.png' );
-} )
+} );
 
 test ( 'frame no/header w/footer', async ( { page } ) => {
+
+	await page.waitForTimeout ( 2000 );
 	await page.goto('localhost:5173');
 
 	await frameNew ( page, "Test Frame" );
@@ -39,6 +45,8 @@ test ( 'frame no/header w/footer', async ( { page } ) => {
 } )
 
 test ( 'frame w/header no/footer', async ( { page } ) => {
+
+	await page.waitForTimeout ( 2000 );
 	await page.goto('localhost:5173');
 
 	await frameNew ( page, "Test Frame" );
@@ -56,6 +64,8 @@ test ( 'frame w/header no/footer', async ( { page } ) => {
 } )
 
 test ( 'frame no/header no/footer', async ( { page } ) => {
+
+	await page.waitForTimeout ( 2000 );
 	await page.goto('localhost:5173');
 
 	await frameNew ( page, "Test Frame" );
@@ -79,6 +89,8 @@ test ( 'frame no/header no/footer', async ( { page } ) => {
 } )
 
 test('frame - size', async ({ page }) => {
+
+	await page.waitForTimeout ( 2000 );
 	await page.goto('localhost:5173');
 
 	//	New frame, get its bounding box.
