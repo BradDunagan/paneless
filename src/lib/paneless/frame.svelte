@@ -342,7 +342,8 @@
 						upFnc: 	self.doAll,
 						ctx: 	{ title:	'Frame Name',
 								  curName:	self.state.frameName,
-								  after: 	'name-frame-name' } } );
+								  after: 	'name-frame-name',
+								  blankOk:	true } } );
 	},	//	nameFrame()
 
 	nameFrameName ( o: any ) {

@@ -62,7 +62,7 @@ let self = {
 		prpAppFrameFnc ( { do: 'close-dlg' } );
 		prpUpFnc ( { 
 			do:   prpCtx.after ? prpCtx.after 
-									   : 'ok-record-name',
+							   : 'ok-record-name',
 			ctx:  prpCtx,
 			name: self.state.name } );
 	},
@@ -120,7 +120,8 @@ let self = {
 
 			<NameNotIdentifier prpDlg 		= { self.doAll }
 							   prpLabel		= { prpCtx.nameLabel }
-							   prpCurText	= { prpCtx.curName } />
+							   prpCurText	= { prpCtx.curName }
+							   prpBlankOk	= { prpCtx.blankOk } />
 			<div class = "dlg-name-buttons-container">
 					<button style = { "visibility: hidden;" }>
 					nothing

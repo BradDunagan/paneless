@@ -6,6 +6,7 @@
 	export let prpDlg 		= null;
 	export let prpLabel		= '';
 	export let prpCurText	= '';
+	export let prpBlankOk: null | boolean	= false;
 
 	function stringifyStyle ( style: any ): string {
 		let s = '';
@@ -41,7 +42,9 @@ let self = {
 	//	cmn.log ( sW,  e.target.value );
 		let name  = e.target.value;
 		self.nameText = name;
-		if ( name.length === 0 ) {
+		if ( 	(	(typeof prpBlankOk !== 'boolean')
+			 	 || (prpBlankOk === false))
+			 && (name.length === 0) ) {
 			self.error ( '' );
 			return;
 		}

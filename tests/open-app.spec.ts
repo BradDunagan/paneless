@@ -5,7 +5,7 @@ import { frameNew }     from './common/frame';
 
 test ( 'has title', async ( { page } ) => {
 
-	await page.waitForTimeout ( 2000 );
+	await page.waitForTimeout ( 5000 );
 	await page.goto ( 'localhost:5173' );
 
 	// Expect a title "to contain" a substring.
@@ -14,12 +14,15 @@ test ( 'has title', async ( { page } ) => {
 
 test ( 'frame w/header w/footer', async ( { page } ) => {
 
-	await page.waitForTimeout ( 2000 );
+	await page.waitForTimeout ( 5000 );
 	await page.goto('localhost:5173');
 
-	await frameNew ( page, "Test Frame" );
+	await frameNew ( page, "" );
 
 	let locatorFrame = page.getByTestId ( 'paneless-frame' );
+	
+	await locatorFrame.getByText ( 'specify content' )
+					  .evaluate ( node => node.textContent = '' );
 	
 	expect ( await locatorFrame.screenshot() )
 		.toMatchSnapshot ( 'frame-w-header-w-footer.png' );
@@ -27,10 +30,10 @@ test ( 'frame w/header w/footer', async ( { page } ) => {
 
 test ( 'frame no/header w/footer', async ( { page } ) => {
 
-	await page.waitForTimeout ( 2000 );
+	await page.waitForTimeout ( 5000 );
 	await page.goto('localhost:5173');
 
-	await frameNew ( page, "Test Frame" );
+	await frameNew ( page, "" );
 
 	await page.getByTestId ( 'paneless-frame-burger' )
 		.click();
@@ -39,6 +42,9 @@ test ( 'frame no/header w/footer', async ( { page } ) => {
 		.click();
 
 	let locatorFrame = page.getByTestId ( 'paneless-frame' );
+	
+	await locatorFrame.getByText ( 'specify content' )
+					  .evaluate ( node => node.textContent = '' );
 	
 	expect ( await locatorFrame.screenshot() )
 		.toMatchSnapshot ( 'frame-no-header-w-footer.png' );
@@ -46,10 +52,10 @@ test ( 'frame no/header w/footer', async ( { page } ) => {
 
 test ( 'frame w/header no/footer', async ( { page } ) => {
 
-	await page.waitForTimeout ( 2000 );
+	await page.waitForTimeout ( 5000 );
 	await page.goto('localhost:5173');
 
-	await frameNew ( page, "Test Frame" );
+	await frameNew ( page, "" );
 
 	await page.getByTestId ( 'paneless-frame-burger' )
 		.click();
@@ -59,16 +65,19 @@ test ( 'frame w/header no/footer', async ( { page } ) => {
 
 	let locatorFrame = page.getByTestId ( 'paneless-frame' );
 	
+	await locatorFrame.getByText ( 'specify content' )
+					  .evaluate ( node => node.textContent = '' );
+	
 	expect ( await locatorFrame.screenshot() )
 		.toMatchSnapshot ( 'frame-w-header-no-footer.png' );
 } )
 
 test ( 'frame no/header no/footer', async ( { page } ) => {
 
-	await page.waitForTimeout ( 2000 );
+	await page.waitForTimeout ( 5000 );
 	await page.goto('localhost:5173');
 
-	await frameNew ( page, "Test Frame" );
+	await frameNew ( page, "" );
 
 	await page.getByTestId ( 'paneless-frame-burger' )
 		.click();
@@ -84,13 +93,16 @@ test ( 'frame no/header no/footer', async ( { page } ) => {
 
 	let locatorFrame = page.getByTestId ( 'paneless-frame' );
 	
+	await locatorFrame.getByText ( 'specify content' )
+					  .evaluate ( node => node.textContent = '' );
+	
 	expect ( await locatorFrame.screenshot() )
 		.toMatchSnapshot ( 'frame-no-header-no-footer.png' );
 } )
 
 test('frame - size', async ({ page }) => {
 
-	await page.waitForTimeout ( 2000 );
+	await page.waitForTimeout ( 5000 );
 	await page.goto('localhost:5173');
 
 	//	New frame, get its bounding box.

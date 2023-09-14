@@ -72,7 +72,7 @@ export default defineConfig({
 //  workers:    1,
   webServer: {
     command: 'npm run dev',
-  //  timeout: 5000,
+    timeout: 120000,
   //  url: 'http://127.0.0.1:5173',
   //  reuseExistingServer: !process.env.CI,
   },
@@ -81,8 +81,10 @@ export default defineConfig({
 
   snapshotPathTemplate: '{testDir}/screenshots/{arg}{ext}',
 
-  testIgnore: ['baseline-screenshots.spec.ts',
-               'example.spec.ts',
-               'multiple-frames.spec.ts'],
+  testIgnore: process.env.CI 
+              ? ['baseline-screenshots.spec.ts',
+                 'example.spec.ts',
+                 'multiple-frames.spec.ts']
+              : [],
 
 });

@@ -21,7 +21,7 @@ export async function frameNew ( page:	 Page,
             .click();
         let locator = page.getByTestId ( 'paneless-dlg-name' );
 	    await locator.getByRole ( "textbox" )
-                     .fill ( "Test Frame" );
+                     .fill ( title );
 	    await locator.getByRole ( "button" )
                      .filter ( { hasText: "OK" } )
                      .click(); }
