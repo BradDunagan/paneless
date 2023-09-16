@@ -1,8 +1,9 @@
 <script lang="ts">
 
 	import { onMount, onDestroy, afterUpdate }	from 'svelte';
-	import clone 		from 'clone';	//	In tsconfig.json, "allowjs": true	
-	import { cmn }    	from './common';
+	import clone 			from 'clone';	//	In tsconfig.json, "allowjs": true	
+	import { cmn }    		from './common';
+	import split_restore_up	from  "./images/split-restore-up-17x10.png";
 
 	export let prpAtFrameTop	= false;
 	export let prpBsrId			= 0;        //  button split restore id
@@ -23,10 +24,9 @@ let self = {
 
 	state:	{
 		style: {
-			display:			'null',
+			display:			'none',
 			left:				'0px',
 			top:				'0px',
-			height:				'20px',
 			'background-color':	'transparent',
 			opacity:			'0.0',
 		},
@@ -52,7 +52,6 @@ let self = {
 			cmn.log ( sW, '    unshowing ...' ); }
 
 		let style: any = {
-			height:					'20px',
             display:                o.bShow ? 'null' : 'none',
 			'background-color':		'white',
 			opacity:                '0.9' };
@@ -129,22 +128,34 @@ let self = {
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div id				= { self.eleId }
-		 class			= 'rr-btn-split-restore' 
+		 class			= 'split-restore' 
 		 style 			= { self.state.styleString }
          on:click       = { self.click } >
-        restore
+		<img alt			= 'split restore up'
+			 class			= "split-restore-up"
+			 src			= { split_restore_up } >
 	</div>
 
 </btn-split-restore>
 
 <style>
 
-	.rr-btn-split-restore {
-		position:               absolute;
-		top:					0px;
-		width:					100%;
-		text-align:				center;
-		cursor:					default;
+	.split-restore {
+		position:			absolute;
+		top:				0px;
+		width:				100%;
+		text-align:			center;
+		cursor:				default;
+		height:				12px;
+		margin-top: 		-3px;
 	}
+
+	.split-restore-up {
+		position:			absolute;
+		width: 				17px;
+		height:				10px;
+		cursor: 			default;
+	}
+
 </style>
 

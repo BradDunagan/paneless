@@ -49,7 +49,10 @@
 		return s;
 	}	//	stringifyStyle()
 
+/*
 const paneMinH 		= 16;
+*/
+const paneMinH 		= 9;
 
 let self = {
 
