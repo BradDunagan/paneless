@@ -6,10 +6,11 @@
 
 	import dots_vert_img	from  "./images/split_vert_sml_1_gray.png";
 	import dots_horz_img	from  "./images/split_horz_sml_1_gray.png";
+	import split_restore_up	from  "./images/split-restore-up-17x10.png";
 
 	export let prpFrameId		= 0;
 	export let prpPaneId		= 0;
-	export let prpPaneFnc		= null;
+	export let prpPaneFnc: any	= null; 
 	export let prpClientFnc		= null;
 	export let prpPaneEleId		= '';
 	export let prpHV			= '';
@@ -24,22 +25,53 @@
 //		return s;
 //	}	//	stringifyStyle()
 
-let styleString = '';
+const vrbH 	= 12;		//	Restore Bar Height (for vertical splitter)
+const vrbW	= 22;		//	Restore Bar Width
+const hrbH 	= 22;		//	Restore Bar Height (for horizontal splitter)
+const hrbW	= 12;		//	Restore Bar Width
+
+let styleString		= '';
+let botRestoreStyleString 	= '';	//	Bottom ...	(above the splitter)
+let topRestoreStyleString 	= '';	//	Top ...		(below the splitter)
+let rgtRestoreStyleString 	= '';	//	Right ...	(left of the splitter)
+let lftRestoreStyleString 	= '';	//	Left ...	(right of the splitter)
 
 let self = {
 
 	state:  {
-		prvPrpStyle:	null,
-		style: 	        null,
-    //  styleString:    '',
-		locked:	        false,
-		img:	        false	},
+		prvPrpStyle:		null,
+		style: 	        	null,
+		botRestoreStyle: 	{ display:	'none',
+							  top:		'0px',
+							  left: 	'0px',
+							  height: 	vrbH + 'px',
+							  width: 	vrbW + 'px' },
+		topRestoreStyle: 	{ display:	'none',
+							  top:		'0px',
+							  left: 	'0px',
+							  height: 	vrbH + 'px',
+							  width: 	vrbW + 'px' },
+		lftRestoreStyle: 	{ display:	'none',
+							  top:		'0px',
+							  left: 	'0px',
+							  height: 	hrbH + 'px',
+							  width: 	hrbW + 'px' },
+		rgtRestoreStyle: 	{ display:	'none',
+							  top:		'0px',
+							  left: 	'0px',
+							  height: 	hrbH + 'px',
+							  width: 	hrbW + 'px' },
+    //  styleString:    	'',
+		locked:	        	false,
+		img:	        	false	},
 
 	name:		'',
 
 	hvsplitter:	'',
 	img_path:	'',
 	minimized:	false,
+//	bShowRestoreBar: 	false,
+    prevRatio:  0,
 
 	pointerDown ( evt ) {
 		const sW = 'paneless PaneSplitter pointerDown()';
@@ -92,11 +124,64 @@ let self = {
 		prpOnPointerUp ( evt, self.state.locked );
 	},	//	pointerUp()
 
+	setMinimized ( o ) {
+		const sW = 'paneless PaneSplitter setMinimized()';
+		if ( self.minimized === o.minimized ) {
+			return null; }
+		cmn.log ( sW, o.minimized );
+
+		if ( self.minimized && ! o.minimized ) {
+			cmn.log ( sW, '    not showing restore button ...' ); 
+			let s = self.state;
+			if ( self.minimized === 'bottom' ) {
+				s.botRestoreStyle.display = 'none';
+				botRestoreStyleString = cmn.stringifyStyle ( s.botRestoreStyle ); }
+			if ( self.minimized === 'top' ) {
+				s.topRestoreStyle.display = 'none';
+				topRestoreStyleString = cmn.stringifyStyle ( s.topRestoreStyle ); }
+			if ( self.minimized === 'right' ) {
+				s.rgtRestoreStyle.display = 'none';
+				rgtRestoreStyleString = cmn.stringifyStyle ( s.rgtRestoreStyle ); }
+			if ( self.minimized === 'left' ) {
+				s.lftRestoreStyle.display = 'none';
+				lftRestoreStyleString = cmn.stringifyStyle ( s.lftRestoreStyle ); }
+		} else {
+			cmn.log ( sW, '        showing restore button ...' ); 
+			let s = self.state;
+			if ( o.minimized === 'bottom' ) {
+				s.botRestoreStyle.display = 'unset';
+				botRestoreStyleString = cmn.stringifyStyle ( s.botRestoreStyle ); }
+			if ( o.minimized === 'top' ) {
+				s.topRestoreStyle.display = 'unset';
+				topRestoreStyleString = cmn.stringifyStyle ( s.topRestoreStyle ); }
+			if ( o.minimized === 'right' ) {
+				s.rgtRestoreStyle.display = 'unset';
+				rgtRestoreStyleString = cmn.stringifyStyle ( s.rgtRestoreStyle ); }
+			if ( o.minimized === 'left' ) {
+				s.lftRestoreStyle.display = 'unset';
+				lftRestoreStyleString = cmn.stringifyStyle ( s.lftRestoreStyle ); }
+		}
+        
+        if ( !! o.minimized) {
+            self.prevRatio = o.prevRatio; }
+       
+		self.minimized = o.minimized;
+        return null;
+	},	//	setMinimized()
+
+	click ( evt ) {
+		const sW = 'paneless PaneSplitter click()';
+		cmn.log ( sW );
+
+		prpPaneFnc ( { do: 		'splitter-restore',
+					   ratio:	self.prevRatio } );
+	},	//	click()
+
 	doAll ( o ) {
 		let sW = 'paneless PaneSplitter' + ' doAll() ' + o.do;
 		if ( o.to ) {
 			sW += ' to ' + o.to; }
-
+	//	cmn.log ( sW );
 		switch ( o.do ) {
 			case 'get-state':
 				return { style:		self.state.style,
@@ -189,8 +274,7 @@ let self = {
 						res ( 'ok' ); } );
 				} ); }
 			case 'set-minimized':
-				self.minimized = o.minimized;
-				return null;
+				return self.setMinimized ( o );
 			case 'get-minimized':
 				return self.minimized;
 
@@ -205,7 +289,12 @@ let self = {
 	self.state.prvPrpStyle = prpStyle;
 	self.state.style = clone ( prpStyle );
 	self.state.style['background-color'] = 'lightgray';
-	styleString = cmn.stringifyStyle ( self.state.style );
+	styleString		= cmn.stringifyStyle ( self.state.style );
+
+	topRestoreStyleString = cmn.stringifyStyle ( self.state.topRestoreStyle ); 
+	botRestoreStyleString = cmn.stringifyStyle ( self.state.botRestoreStyle ); 
+	lftRestoreStyleString = cmn.stringifyStyle ( self.state.lftRestoreStyle ); 
+	rgtRestoreStyleString = cmn.stringifyStyle ( self.state.rgtRestoreStyle ); 
 
 
 	onMount ( () => {
@@ -230,21 +319,101 @@ let self = {
 		return bChanged;
 	}	//	checkPrpStyle()
 
+	function setBBBStyle() {
+		const sW = 'panless PaneSplitter setBBBStyle()';
+		let s  = self.state;
+		let ss = self.state.style;
+		if ( prpHV === 'v' ) {
+			const eleId	= prpPaneEleId;
+			let e  = <HTMLElement>document.getElementById ( eleId );
+			if ( ! e ) {
+				cmn.log( sW, 'no pane element' );
+				return; }
+			let w  = e.getBoundingClientRect().width;
+
+			//	above the splitter
+			s.botRestoreStyle.top  = (parseInt ( ss.top ) - vrbH) + 'px';
+			s.botRestoreStyle.left = (w - vrbW) + 'px';
+			botRestoreStyleString = cmn.stringifyStyle ( s.botRestoreStyle ); 
+
+			//	below the splitter
+			s.topRestoreStyle.top  = (parseInt ( ss.top ) + cmn.vsH) + 'px';
+			s.topRestoreStyle.left = (w - vrbW) + 'px';
+			topRestoreStyleString = cmn.stringifyStyle ( s.topRestoreStyle ); }
+
+		if ( prpHV === 'h' ) {
+			//	left of the splitter
+			s.rgtRestoreStyle.top  = (parseInt ( ss.top ) + 25) + 'px';
+			s.rgtRestoreStyle.left = (parseInt ( ss.left ) - hrbW - 4) + 'px';
+			rgtRestoreStyleString = cmn.stringifyStyle ( s.rgtRestoreStyle ); 
+
+			//	right of the splitter
+			s.lftRestoreStyle.top  = (parseInt ( ss.top ) + 25) + 'px';
+			s.lftRestoreStyle.left = (parseInt ( ss.left ) + cmn.hsW) + 'px';
+			lftRestoreStyleString = cmn.stringifyStyle ( s.lftRestoreStyle ); }
+	}	//	setBBBStyle()
+
 	beforeUpdate ( () => {
 		const sW = 'panless PaneSplitter beforeUpdate()';
 	//	cmn.log ( sW );
-		
-		if ( checkPrpStyle() ) {
-			styleString = cmn.stringifyStyle ( self.state.style ); }
 
 		self.hvsplitter = prpHV === 'h' ? '-hsplitter'  : '-vsplitter';
 		self.img_path   = prpHV === 'h' ? dots_horz_img : dots_vert_img;
+
+		setBBBStyle();
+		if ( checkPrpStyle() ) {
+			styleString = cmn.stringifyStyle ( self.state.style ); }
 	} )	//	beforeUpdate()
 
 </script>
 
+
 <pane-splitter>
 
+	{#if prpHV === 'v'}
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<div id 			= { prpPaneEleId + '-vsplitter-brb' }
+			 class 			= 'pane-vsplitter-brb'
+			 style    		= { botRestoreStyleString } 
+         	 on:click       = { self.click } >
+			<img alt			= 'split restore up'
+				 class			= "split-restore-up"
+				 src			= { split_restore_up } >
+		</div>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<div id 			= { prpPaneEleId + '-vsplitter-trb' }
+			 class 			= 'pane-vsplitter-trb'
+			 style    		= { topRestoreStyleString }  
+         	 on:click       = { self.click } >
+			<img alt			= 'split restore down'
+				 class			= "split-restore-down"
+				 src			= { split_restore_up } >
+		</div>
+	{/if}
+	{#if prpHV === 'h'}
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<div id 			= { prpPaneEleId + '-hsplitter-rrb' }
+			 class 			= 'pane-hsplitter-rrb'
+			 style    		= { rgtRestoreStyleString } 
+         	 on:click       = { self.click } >
+			<img alt			= 'split restore left'
+				 class			= "split-restore-left"
+				 src			= { split_restore_up } >
+		</div>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<div id 			= { prpPaneEleId + '-hsplitter-lrb' }
+			 class 			= 'pane-hsplitter-lrb'
+			 style    		= { lftRestoreStyleString }  
+         	 on:click       = { self.click } >
+			<img alt			= 'split restore right'
+				 class			= "split-restore-right"
+				 src			= { split_restore_up } >
+		</div>
+	{/if}
 	{#if self.state.img }
 		<div id				= { prpPaneEleId + self.hvsplitter }
 			 style			= { styleString }
@@ -276,6 +445,64 @@ let self = {
 		background-color:	lightgray;
 		cursor:				col-resize;
 		overflow:			hidden;
+	}
+
+	.pane-vsplitter-brb {	/*	bottom restore bar	*/
+		position: 			absolute;
+		background-color:   white;
+		opacity: 			0.9;
+	}
+
+	.split-restore-up {
+		position:			absolute;
+		width: 				17px;
+		height:				10px;
+		cursor: 			default;
+	}
+
+	.pane-vsplitter-trb { 	/*	top restore bar		*/
+		position: 			absolute;
+		background-color:   white;
+		opacity: 			0.9;
+	}
+
+	.split-restore-down {
+		position:			absolute;
+		width: 				17px;
+		height:				10px;
+		cursor: 			default;
+		rotate:  			180deg;
+		top:				2px;
+	}
+
+	.pane-hsplitter-lrb { 	/*	left restore bar		*/
+		position: 			absolute;
+		background-color:   white;
+		opacity: 			0.9;
+	}
+
+	.split-restore-right {
+		position:			absolute;
+		width: 				17px;
+		height:				10px;
+		cursor: 			default;
+		rotate:  			90deg;
+		top:				2px;
+	}
+
+	.pane-hsplitter-rrb { 	/*	right restore bar		*/
+		position: 			absolute;
+		background-color:   white;
+		opacity: 			0.9;
+	}
+
+	.split-restore-left {
+		position:			absolute;
+		width: 				17px;
+		height:				10px;
+		cursor: 			default;
+		rotate:  			-90deg;
+		top:				2px;
 	}
 
 	.pane-vsplitter {

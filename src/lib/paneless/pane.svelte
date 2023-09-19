@@ -49,10 +49,8 @@
 		return s;
 	}	//	stringifyStyle()
 
-/*
-const paneMinH 		= 16;
-*/
-const paneMinH 		= 9;
+const paneMinW 		= 1;
+const paneMinH 		= 1;
 
 let self = {
 
@@ -107,7 +105,8 @@ let self = {
 	ccState:	null,
 
 	bbFnc:		null,
-	bsrFnc:		null,
+//	bsrFnc:		null,
+	bbbFnc:		null,
 
 	isShowingBurgerMenu: false,
 
@@ -128,8 +127,8 @@ let self = {
 	
 	splitterFnc:	null,
 
-	vsH:		6,
-	hsW:		6,
+//	vsH:		6,
+//	hsW:		6,
 
 	bPaneEditsAllowed:	true,
 
@@ -234,12 +233,16 @@ let self = {
 			//	cmn.log ( sW, 'sh - calling left.paneFnc()' );
 				cmd.top   = 0;
 				cmd.left  = 0;
+				if ( x < paneMinW ) {
+					x = paneMinW; }
 				cmd.width = x;
 				rtn.left = sh.left.paneFnc ( cmd ); }
 			if ( sh.right.paneFnc ) {
 			//	cmn.log ( sW, 'sh - calling right.paneFnc()' );
 				cmd.top   = 0;
-				cmd.left  = x + self.hsW;
+				cmd.left  = x + cmn.hsW;
+				if ( w < paneMinW ) {
+					w = paneMinW; }
 				cmd.width = w;
 				rtn.right = sh.right.paneFnc ( cmd ); }
 			return rtn;
@@ -257,7 +260,7 @@ let self = {
 				rtn.top = sv.top.paneFnc ( cmd ); }
 			if ( sv.bottom.paneFnc ) {
 			//	cmn.log ( sW, 'sv - calling bottom.paneFnc()' );
-				cmd.top    = y + self.vsH;
+				cmd.top    = y + cmn.vsH;
 				cmd.left   = 0;
 				if ( h < paneMinH ) {
 					h = paneMinH; }
@@ -348,14 +351,14 @@ let self = {
 
 		self.state.shSplitterStyle = { top:		'0px',
 									   left:	w2 + 'px',
-									   width:	self.hsW + 'px',
+									   width:	cmn.hsW + 'px',
 									   height:	'100%' };
 		self.state.shSplitterStyleString = 
 								stringifyStyle ( self.state.shSplitterStyle );
 
 		self.state.shRgtStyle =	{ top:		'0px',
-								  left:		w2 + self.hsW + 'px',
-								  width:	(w - w2 - self.hsW) + 'px',
+								  left:		w2 + cmn.hsW + 'px',
+								  width:	(w - w2 - cmn.hsW) + 'px',
 								  height:	h + 'px' };
 		self.state.shRgtStyleString = stringifyStyle ( self.state.shRgtStyle );
 
@@ -431,16 +434,16 @@ let self = {
 		self.state.svSplitterStyle = { top:		h2 + 'px',
 									   left:	'0px',
 									   width:	'100%',
-									   height:	self.vsH + 'px' };
+									   height:	cmn.vsH + 'px' };
 		self.state.svSplitterStyleString = 
 								stringifyStyle ( self.state.svSplitterStyle );
 
-		cmn.log ( sW, 'setting top: ' + h2 + self.vsH + 'px' );
+		cmn.log ( sW, 'setting top: ' + h2 + cmn.vsH + 'px' );
 
-		self.state.svBotStyle =	{ top:		h2 + self.vsH + 'px',
+		self.state.svBotStyle =	{ top:		h2 + cmn.vsH + 'px',
 								  left:		'0px',
 								  width:	w + 'px',
-								  height:	(h - h2 - self.vsH) + 'px' };
+								  height:	(h - h2 - cmn.vsH) + 'px' };
 		self.state.svBotStyleString = stringifyStyle ( self.state.svBotStyle );
 
 
@@ -713,7 +716,9 @@ let self = {
 		let shSS = clone ( self.state.shSplitterStyle );
 		let dX   = Math.round ( ev.pageX - self.splitX0 );
 		let lftW = self.splitLft0 + dX;
-		let maxW = w - self.hsW;
+		if ( lftW < paneMinW ) {
+			lftW = paneMinW; }
+		let maxW = w - cmn.hsW - paneMinW;
 		if ( lftW > maxW ) {
 			lftW = maxW; }
 	//	cmn.log ( sW, 'dX ' + dX + '   lftW ' + lftW );
@@ -722,16 +727,21 @@ let self = {
 		self.state.shSplitterStyleString = 
 							stringifyStyle ( self.state.shSplitterStyle );
 		tick().then ( () => {
-			let rgtW = w - lftW - self.hsW;
+			let rgtW = w - lftW - cmn.hsW;
 			let r = self.splitDrag ( dX, lftW, rgtW, 0, 0, 0 ); 
 			if ( r ) {
+				let e  = <HTMLElement>document.getElementById ( self.eleId );
+				let cr = e.getBoundingClientRect();
+				let	prevRatio = self.splitLft0 / cr.width;
 				if ( r.left && r.left.bMinimized ) {
 					self.splitterFnc ( { do: 		'set-minimized',
-										 minimized:	'left' } ); }
+										 minimized:	'left',
+										 prevRatio:	prevRatio } ); }
 				else
 				if ( r.right && r.right.bMinimized ) {
 					self.splitterFnc ( { do: 		'set-minimized',
-										 minimized:	'right' } ); }
+										 minimized:	'right',
+										 prevRatio:	prevRatio } ); }
 				else
 					self.splitterFnc ( { do: 		'set-minimized',
 										 minimized:	false } ); 
@@ -748,7 +758,7 @@ let self = {
 		let topH = self.splitTop0 + dY;
 		if ( topH < paneMinH ) {
 			topH = paneMinH; }
-		let maxH = h - self.vsH - paneMinH;
+		let maxH = h - cmn.vsH - paneMinH;
 		if ( topH > maxH ) {
 			topH = maxH; }
 	//	cmn.log ( sW, 'dY ' + dY + '   topH ' + topH );
@@ -757,16 +767,21 @@ let self = {
 		self.state.svSplitterStyleString = 
 							stringifyStyle ( self.state.svSplitterStyle );
 		tick().then ( () => {
-			let botH = h - topH - self.vsH;
+			let botH = h - topH - cmn.vsH;
 			let r = self.splitDrag ( 0, 0, 0, dY, topH, botH ); 
 			if ( r ) {
+				let e  = <HTMLElement>document.getElementById ( self.eleId );
+				let cr = e.getBoundingClientRect();
+				let	prevRatio = self.splitTop0 / cr.height;
 				if ( r.top && r.top.bMinimized ) {
 					self.splitterFnc ( { do: 		'set-minimized',
-										 minimized:	'top' } ); }
+										 minimized:	'top',
+										 prevRatio:	prevRatio } ); }
 				else
 				if ( r.bottom && r.bottom.bMinimized ) {
 					self.splitterFnc ( { do: 		'set-minimized',
-										 minimized:	'bottom' } ); }
+										 minimized:	'bottom',
+										 prevRatio:	prevRatio } ); }
 				else
 					self.splitterFnc ( { do: 		'set-minimized',
 										 minimized:	false } ); 
@@ -803,7 +818,7 @@ let self = {
 				   + self.eleId + '  ' + o.do;
 	//	cmn.log ( sW );
 		let rtn = { bError:		true,
-					bMiminized:	false };
+					bMinimized:	false };
 		if ( ! self.mounted ) {
 			cmn.error ( sW, 'not mounted' );
 			return rtn; }
@@ -827,6 +842,9 @@ let self = {
 		if ( sh ) {
 			let locked = self.splitterFnc 
 								? self.splitterFnc ( { do: 'get-locked' } )
+								: false;
+			let minimized = self.splitterFnc 
+								? self.splitterFnc ( { do: 'get-minimized' } )
 								: false;
 			while ( o.do === 'size-start' ) {
 				self.w0    = parseFloat ( self.state.style.width );
@@ -853,6 +871,11 @@ let self = {
 				else {
 					h = self.h0 + o.dY; }
 
+				if ( 	((w <= paneMinW) || (h <= paneMinH))
+					 && ! o.minimized ) {
+					rtn.bMinimized = true;
+				}
+
 				let lftW;
 				if ( locked === 'right' ) {
 					if ( typeof o.dX === 'undefined' ) {
@@ -864,8 +887,14 @@ let self = {
 				if ( locked === 'left' ) {
 					lftW = self.lftW0; }
 				else {
+				if ( minimized === 'left' ) {
+					lftW = paneMinW; }
+				else {
+				if ( minimized === 'right' ) {
+					lftW = self.prevCW - cmn.hsW - paneMinW; }
+				else {
 					let wp = self.lftW0 / self.w0;
-					lftW = Math.round ( w * wp ); } }
+					lftW = Math.round ( w * wp ); } } } }
 				//	cmn.log ( sW, 'w ' + w 
 				//				+ '  wp ' + wp 
 				//				+ '  lftW ' + lftW ); } }
@@ -897,7 +926,7 @@ let self = {
 
 					o.dX	 = -o.dX;
 					o.dY	 = h - self.h0;
-					o.left   = lftW + self.hsW;
+					o.left   = lftW + cmn.hsW;
 					o.width  = w - o.left;
 					o.height = h;
 					sh.right.paneFnc ( o ); 
@@ -941,6 +970,11 @@ let self = {
 				else {
 					h = self.h0 + (bos ? -o.dY : o.dY); }
 
+				if ( 	((w <= paneMinW) || (h <= paneMinH))
+					 && ! o.minimized ) {
+					rtn.bMinimized = true;
+				}
+
 				let topH;
 				if ( locked === 'bottom' ) {
 					let dY = o.dY;
@@ -963,10 +997,10 @@ let self = {
 					topH = paneMinH; }
 				else {
 				if ( minimized === 'bottom' ) {
-					topH = self.prevCH - self.vsH - paneMinH; }
+					topH = self.prevCH - cmn.vsH - paneMinH; }
 				else {
 					let hp = self.topH0 / self.h0;
-					topH = Math.round ( h * hp );  } } } }
+					topH = Math.round ( h * hp );  } } } } 
 				//	cmn.log ( sW, 'h ' + h 
 				//				+ '  hp ' + hp 
 				//				+ '  topH ' + topH ); } }
@@ -981,7 +1015,7 @@ let self = {
 					s.width  = w + 'px';
 					s.height = h + 'px';
 
-				cmn.log ( sW, 'top ' + s.top + '  h ' + s.height );
+			//	cmn.log ( sW, 'top ' + s.top + '  h ' + s.height );
 
 				self.state.style = s;
 				self.state.styleString = stringifyStyle ( self.state.style );
@@ -999,7 +1033,7 @@ let self = {
 					sv.top.paneFnc ( o );
 
 					o.dY	 = -o.dY;
-					o.top	 = topH + self.vsH;
+					o.top	 = topH + cmn.vsH;
 					o.width  = w;
 					o.height = h - o.top;
 					sv.bottom.paneFnc ( o ); 
@@ -1062,6 +1096,8 @@ let self = {
 					cmn.error ( sW, 'h is null' );
 					break; }
 
+				if ( w < paneMinW ) {
+					w = paneMinW; }
 				if ( h < paneMinH ) {
 					h = paneMinH; }
 
@@ -1077,28 +1113,23 @@ let self = {
 					if ( parseInt ( s.top ) < 0 ) {
 						cmn.error ( sW, 'top < 0' ); }
 
-				cmn.log ( sW, 'top ' + s.top 
-							+ '  h ' + s.height 
-							+ '  w ' + s.width);
+			//	cmn.log ( sW, 'top ' + s.top 
+			//				+ '  h ' + s.height 
+			//				+ '  w ' + s.width);
 				
-				if ( (h <= paneMinH) && ! o.minimized ) {
+				if ( 	((w <= paneMinW) || (h <= paneMinH))
+					 && ! o.minimized ) {
 					if ( 	self.bPaneEditsAllowed 
 						 && cmn.isFunction ( self.bbFnc ) ) {
 						self.bbFnc ( { do:	'disallow-pane-edits' } ); }
-					if ( cmn.isFunction ( self.bsrFnc ) ) {
-						self.bsrFnc ( { do: 	'show',
-										bShow:	true,
-							prevRatio:	o.splitTop0 
-										/ self.splitParentCH } );
-						rtn.bMinimized = true; } }
+					rtn.bMinimized = true;
+				}
 				else {
 				if ( ! o.minimized ) {
 					if ( 	self.bPaneEditsAllowed 
 						 && cmn.isFunction ( self.bbFnc ) ) {
 						self.bbFnc ( { do:	'allow-pane-edits' } ); }
-					if ( cmn.isFunction ( self.bsrFnc ) ) {
-						self.bsrFnc ( { do: 	'show',
-										bShow:	false } ); } } }
+				} }
 
 				self.state.style = s;
 				self.state.styleString = stringifyStyle ( self.state.style );
@@ -1328,14 +1359,14 @@ let self = {
 			self.state.svSplitterStyle = { top:		topH + 'px',
 										   left:	'0px',
 										   width:	'100%',
-										   height:	self.vsH + 'px' };
+										   height:	cmn.vsH + 'px' };
 			self.state.svSplitterStyleString =
 								stringifyStyle ( self.state.svSplitterStyle );
 
-			self.state.svBotStyle = { top:		topH + self.vsH + 'px',
+			self.state.svBotStyle = { top:		topH + cmn.vsH + 'px',
 									  left:		'0px',
 									  width:	w + 'px',
-									  height:	(h - topH - self.vsH) + 'px' };
+									  height:	(h - topH - cmn.vsH) + 'px' };
 			self.state.svBotStyleString = 
 								stringifyStyle ( self.state.svBotStyle );
 		}
@@ -1364,14 +1395,14 @@ let self = {
 
 				self.state.shSplitterStyle = { top:		'0px',
 											   left:	lftW + 'px',
-											   width:	self.hsW + 'px',
+											   width:	cmn.hsW + 'px',
 											   height:	'100%' };
 				self.state.shSplitterStyleString =
 								stringifyStyle ( self.state.shSplitterStyle );
 
 				self.state.shRgtStyle = { top:		'0px',
-										  left:		lftW + self.hsW + 'px',
-										  width: (w - lftW - self.hsW) + 'px',
+										  left:		lftW + cmn.hsW + 'px',
+										  width: (w - lftW - cmn.hsW) + 'px',
 										  height:	h + 'px' };
 				self.state.shRgtStyleString =
 								stringifyStyle ( self.state.shRgtStyle );
@@ -1411,8 +1442,6 @@ let self = {
 		if ( self.bbFnc ) {
 			self.bbFnc ( o ); }
 
-	//	if ( self.bsrFnc ) {
-	//		self.bsrFnc ( o ); }
 	},	//	disallowPaneEdits()
 
 	maximize ( o ) {
@@ -1437,9 +1466,7 @@ let self = {
 		const sW = 'paneless Pane maximizeChildPane()';
 	//	cmn.log ( sW );
 
-		let sh = self.state.splitHorz;
-		if ( ! sh ) {
-			return; }
+		let sh = self.state.splitHorz; if ( ! sh ) { return; }
 
 		if ( sh.left.paneId !== o.childPaneId ) {
 			return }
@@ -1452,7 +1479,7 @@ let self = {
 		
 		let w = parseInt ( self.state.style.width );
 		let shSS = clone ( self.state.shSplitterStyle );
-		let lftW = w - self.hsW;
+		let lftW = w - cmn.hsW;
 		let dX   = lftW - parseInt ( shSS.left );
 	//	cmn.log ( sW, '   lftW ' + lftW );
 		shSS.left = lftW + 'px';
@@ -1462,7 +1489,7 @@ let self = {
 								stringifyStyle ( self.state.shSplitterStyle );
 		tick().then ( () => {
 			window.setTimeout ( () => {
-				let rgtW = w - lftW - self.hsW;
+				let rgtW = w - lftW - cmn.hsW;
 				self.splitDrag ( dX, lftW, rgtW, 0, 0, 0 ); }, 0 );
 		 } );
 	},	//	maximizeChildPane()
@@ -1494,12 +1521,12 @@ let self = {
 		
 		let w = parseInt ( self.state.style.width );
 		let shSS = clone ( self.state.shSplitterStyle );
-		let maxW = w - self.hsW;
+		let maxW = w - cmn.hsW;
 		let rgtW = o.width;
 		if ( rgtW > maxW ) {
 			rgtW = maxW; }
 	//	cmn.log ( sW, '   rgtW ' + rgtW );
-		let lftW = w - self.hsW - rgtW;
+		let lftW = w - cmn.hsW - rgtW;
 		shSS.left = lftW + 'px';
 
 		self.state.shSplitterStyle = shSS;
@@ -1521,7 +1548,7 @@ let self = {
 			if ( sh.right.paneFnc ) {
 	//			cmn.log ( sW, 'sh - calling right.paneFnc()' );
 				cmd.top   = 0;
-				cmd.left  = lftW + self.hsW;
+				cmd.left  = lftW + cmn.hsW;
 				cmd.width = rgtW;
 				sh.right.paneFnc ( cmd ); }
 		 } );
@@ -1539,41 +1566,51 @@ let self = {
 						ev: 				null,
 						bSplitterMoving:	true } );
 
-	//	let w  = parseInt ( self.state.style.width );
-		let h  = parseInt ( self.state.style.height );
-		let h2 = Math.round ( h * o.ratio );
+		if ( self.state.splitHorz ) {
+			let w = parseInt ( self.state.style.width );
+			let w2 = Math.round ( w * o.ratio );
 
-	//	let svSS = clone ( self.state.svSplitterStyle );
-	//	svSS.top    = h2 + 'px';
-	//	self.state.svSplitterStyle = svSS;
-	//	self.state.svSplitterStyleString = 
-	//						stringifyStyle ( self.state.svSplitterStyle );
-	//
-	//	let sv = self.state.splitVert;
-	//	
-	//	return sv.top.paneFnc ( { do: 		'set-style',
-	//					   		  height:	h2 } ).then ( () => {
-	//		return sv.bottom.paneFnc ( { do:	'set-style',
-	//									 top:	h2 + self.vsH } );
-	//	} );
+			let shSS = clone ( self.state.shSplitterStyle );
+			let dX   = w2 - parseInt ( shSS.left );
+			let lftW = w2;
+			if ( lftW < paneMinW ) {
+				lftW = paneMinW; }
+			let maxW = w - cmn.hsW - paneMinW;
+			if ( lftW > maxW ) {
+				lftW = maxW; }
+			shSS.left = lftW + 'px';
+			self.state.shSplitterStyle = shSS;
+			self.state.shSplitterStyleString = 
+								stringifyStyle ( self.state.shSplitterStyle );
+			tick().then ( () => {
+				let rgtW = w - lftW - cmn.hsW;
+				self.splitDrag ( dX, lftW, rgtW, 0, 0, 0 ); 
+			} );
+			return; }
 
-	//	let h = parseInt ( self.state.style.height );
-		let svSS = clone ( self.state.svSplitterStyle );
-		let dY   = h2 - parseInt ( svSS.top );
-		let topH = h2;
-		if ( topH < paneMinH ) {
-			topH = paneMinH; }
-		let maxH = h - self.vsH - paneMinH;
-		if ( topH > maxH ) {
-			topH = maxH; }
-		svSS.top = topH + 'px';
-		self.state.svSplitterStyle = svSS;
-		self.state.svSplitterStyleString = 
-							stringifyStyle ( self.state.svSplitterStyle );
-		tick().then ( () => {
-			let botH = h - topH - self.vsH;
-			self.splitDrag ( 0, 0, 0, dY, topH, botH ); 
-		 } );
+		if ( self.state.splitVert ) {
+			let h  = parseInt ( self.state.style.height );
+			let h2 = Math.round ( h * o.ratio );
+
+			let svSS = clone ( self.state.svSplitterStyle );
+			let dY   = h2 - parseInt ( svSS.top );
+			let topH = h2;
+			if ( topH < paneMinH ) {
+				topH = paneMinH; }
+			let maxH = h - cmn.vsH - paneMinH;
+			if ( topH > maxH ) {
+				topH = maxH; }
+			svSS.top = topH + 'px';
+			self.state.svSplitterStyle = svSS;
+			self.state.svSplitterStyleString = 
+								stringifyStyle ( self.state.svSplitterStyle );
+			tick().then ( () => {
+				let botH = h - topH - cmn.vsH;
+				self.splitDrag ( 0, 0, 0, dY, topH, botH ); 
+			} );
+			return; }
+
+		cmn.error ( sW, 'not split' );
 	},	//	splitterRestore()
 
 	getInfo ( o ) {
@@ -1693,8 +1730,12 @@ let self = {
 				self.bbFnc = o.bbFnc;
 				return;
 			}
-			if ( o.to === 'btn-split-restore' ) {
-				self.bsrFnc = o.bsrFnc;
+		//	if ( o.to === 'btn-split-restore' ) {
+		//		self.bsrFnc = o.bsrFnc;
+		//		return;
+		//	}
+			if ( o.to === 'bottom-btn-bar' ) {
+				self.bbbFnc = o.bbbFnc;
 				return;
 			}
 			if ( o.to === 'splitter' ) {
@@ -1753,12 +1794,6 @@ let self = {
 			return self.propagateDown_SizeOp ( o );
 		}
 		case 'splitter-restore': {
-			if ( o.b0 ) {
-				if ( ! cmn.isFunction ( prpParentFnc ) ) {
-					cmn.error ( sW, 'prpParentFnc is not set' );
-					return null; }
-				o.b0 = false;
-				return prpParentFnc ( o ); }
 			return self.splitterRestore ( o );
 		}
 		case 'enum-panes': {
@@ -2085,16 +2120,6 @@ let self = {
 					prpParentFnc 		= { self.doAll } 
 					prpAtFrameTop		= { prpAtFrameTop }
 					prpClientFnc		= { prpClientFnc } />
-				<PaneSplitter
-					prpFrameId			= { prpFrameId }
-					prpPaneId			= { prpPaneId }
-					prpPaneFnc			= { self.doAll }
-					prpClientFnc		= { prpClientFnc }
-					prpPaneEleId		= { self.eleId }
-					prpHV				= 'v'
-					prpStyle			= { self.state.svSplitterStyle }
-					prpOnPointerDown	= { self.vsplitterPointerDown }
-					prpOnPointerUp		= { self.vsplitterPointerUp } />
 				<svelte:self
 					prpFrameId	 		= { prpFrameId }
 					prpPaneId		= { self.state.splitVert.bottom.paneId }
@@ -2108,6 +2133,16 @@ let self = {
 					prpParentFnc 		= { self.doAll } 
 					prpAtFrameTop		= { false } 
 					prpClientFnc		= { prpClientFnc } />
+				<PaneSplitter
+					prpFrameId			= { prpFrameId }
+					prpPaneId			= { prpPaneId }
+					prpPaneFnc			= { self.doAll }
+					prpClientFnc		= { prpClientFnc }
+					prpPaneEleId		= { self.eleId }
+					prpHV				= 'v'
+					prpStyle			= { self.state.svSplitterStyle }
+					prpOnPointerDown	= { self.vsplitterPointerDown }
+					prpOnPointerUp		= { self.vsplitterPointerUp } />
 			</div>
 		</div>
 	{:else if self.state.splitHorz }
@@ -2128,16 +2163,6 @@ let self = {
 					prpParentFnc 		= { self.doAll } 
 					prpAtFrameTop		= { prpAtFrameTop }
 					prpClientFnc		= { prpClientFnc } />
-				<PaneSplitter
-					prpFrameId			= { prpFrameId }
-					prpPaneId			= { prpPaneId }
-					prpPaneFnc			= { self.doAll }
-					prpClientFnc		= { prpClientFnc }
-					prpPaneEleId		= { self.eleId }
-					prpHV				= 'h'
-					prpStyle			= { self.state.shSplitterStyle }
-					prpOnPointerDown	= { self.hsplitterPointerDown }
-					prpOnPointerUp		= { self.hsplitterPointerUp } />
 				<svelte:self 
 					prpFrameId 			= { prpFrameId }
 					prpPaneId			= { self.state.splitHorz.right.paneId }
@@ -2151,6 +2176,16 @@ let self = {
 					prpParentFnc	 	= { self.doAll } 
 					prpAtFrameTop		= { prpAtFrameTop } 
 					prpClientFnc		= { prpClientFnc } />
+				<PaneSplitter
+					prpFrameId			= { prpFrameId }
+					prpPaneId			= { prpPaneId }
+					prpPaneFnc			= { self.doAll }
+					prpClientFnc		= { prpClientFnc }
+					prpPaneEleId		= { self.eleId }
+					prpHV				= 'h'
+					prpStyle			= { self.state.shSplitterStyle }
+					prpOnPointerDown	= { self.hsplitterPointerDown }
+					prpOnPointerUp		= { self.hsplitterPointerUp } />
 			</div>
 		</div>
 	{:else if prpParentFnc }
@@ -2186,10 +2221,11 @@ let self = {
 								 prpAppContentFnc	
 											= { prpAppContentFnc }
 								 prpClientFnc	= { prpClientFnc } />
-					<BtnSplitRestore prpAtFrameTop	= { prpAtFrameTop } 
+			<!--	<BtnSplitRestore prpAtFrameTop	= { prpAtFrameTop } 
 								     prpBsrId		= { prpPaneId }
 								     prpPaneFnc		= { self.doAll } 
 								     prpFrameFnc	= { prpFrameFnc } />
+			-->
 					<PaneButtonBar prpAtFrameTop	= { prpAtFrameTop } 
 								   prpBbId			= { prpPaneId }
 								   prpPaneFnc		= { self.doAll } 
@@ -2231,10 +2267,11 @@ let self = {
 								 prpAppContentFnc	
 											= { prpAppContentFnc }
 								 prpClientFnc	= { prpClientFnc } />
-					<BtnSplitRestore prpAtFrameTop	= { prpAtFrameTop } 
+			<!--	<BtnSplitRestore prpAtFrameTop	= { prpAtFrameTop } 
 								     prpBsrId		= { prpPaneId }
 								     prpPaneFnc		= { self.doAll } 
 								     prpFrameFnc	= { prpFrameFnc } />
+			-->
 					<PaneButtonBar prpAtFrameTop	= { prpAtFrameTop } 
 								   prpBbId			= { prpPaneId }
 								   prpPaneFnc		= { self.doAll } 
@@ -2274,10 +2311,6 @@ let self = {
 							 prpAppContentFnc	= { prpAppContentFnc }
 							 prpClientFnc		= { prpClientFnc }
 							 prpTabs			= { false } />
-				<BtnSplitRestore prpAtFrameTop	= { prpAtFrameTop } 
-							     prpBsrId		= { prpPaneId }
-							     prpPaneFnc		= { self.doAll } 
-							     prpFrameFnc	= { prpFrameFnc } />
 				<PaneButtonBar prpAtFrameTop	= { prpAtFrameTop } 
 							   prpBbId			= { prpPaneId }
 							   prpPaneFnc		= { self.doAll } 

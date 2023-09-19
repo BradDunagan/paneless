@@ -2,6 +2,9 @@ import { uc } 			from './udui-common';
 
 export let cmn = {
 
+	vsH: 		6,
+	hsW:		6,
+	
 	isUndefined ( a: any ): boolean {
 		return (typeof a === 'undefined');
 	},	//	isDefined()

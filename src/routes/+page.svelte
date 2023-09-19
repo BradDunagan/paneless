@@ -144,6 +144,7 @@ class ClassPanelessDemo {
 		this.unregister			= this.unregister.bind ( this );
 		this.showMenu			= this.showMenu.bind ( this );
 		this.splitterProperties	= this.splitterProperties.bind ( this );
+		this.fixPaneId			= this.fixPaneId.bind ( this );
 		this.doAll				= this.doAll.bind ( this );
 	}
 
@@ -1341,6 +1342,43 @@ class ClassPanelessDemo {
 		return a[0].fnc ( o );
 	}	//	splitterProperties()
 
+	fixPaneId ( o ) {
+		const sW = 'App fixPaneId()  cur ' + o.curPaneId 
+								+ '  new ' + o.newPaneId;
+		cmn.log ( sW );
+		
+		let content = this.content[o.curPaneId];
+		if ( ! content ) {
+			cmn.error ( sW, 'unrecognized paneId' );
+			return; }
+		delete this.content[o.curPaneId];
+		this.content[o.newPaneId] = content;
+
+		if ( content.install ) {
+			//	Note that the component name is in c.type.name which in this
+			//	case is (for now) assumed to be ContentExample1.
+			//
+			//	Can't figure out where/how c.type.name is ever set.
+			//	Should this be c.typeName?
+			cmn.error ( sW, 'c.type.name?' ); 		//	for now
+		}
+
+		if ( o.reason === 'split' ) {
+			//	The current pane is now split.  We need to maintain a content
+			//	object for that pane - even though it no longer has "content"
+			//	it will still have state. The state will be set later.
+			this.content[o.curPaneId] = { frameId:			o.frameId,
+										  ccEleId:			'',
+										  paneContentFnc:	null,
+										  paneFnc:			null,
+										  initialized:		false,		//	?
+										  install:			null,
+										  contentFnc:		null,
+										  state: 			null,
+										  typeName:			null }; }
+		return null;
+	}	//	fixPaneId()
+
 	doAll ( o: any ) {
 		let sW = 'App doAll() ' + o.do;
 		if ( o.to ) {
@@ -1406,6 +1444,12 @@ class ClassPanelessDemo {
 				return this.showMenu ( o );
 			case 'properties-of-pane-splitter':
 				return this.splitterProperties ( o );
+			case 'store-pane-state':
+				return null;
+			case 'fix-pane-id':
+				return this.fixPaneId ( o );
+			case 'define-pane-content':
+				return this.definePaneContent ( o, 0, false );
 			default:
 				cmn.error ( sW, 'unrecognized do "' + o.do + '"' );
 				return null; 
