@@ -30,6 +30,7 @@
     "@sveltejs/kit": "^1.20.4",
     "@sveltejs/package": "^2.0.0",
     "@types/clone": "^2.1.1",
+    "monaco-editor": "file:monaco/monaco-editor-0.13.1.tgz",
     "publint": "^0.1.9",
     "svelte": "^4.0.5",
     "svelte-check": "^3.4.3",
@@ -43,8 +44,7 @@
   "dependencies": {
     "@types/d3": "^7.4.0",
     "clone": "^2.1.2",
-    "d3": "^7.8.5",
-    "monaco-editor": "file:monaco/monaco-editor-0.13.1.tgz"
+    "d3": "^7.8.5"
   },
   "author": {
     "name": "Brad Dunagan"
