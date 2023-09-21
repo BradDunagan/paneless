@@ -5,6 +5,7 @@ import { getFrameId }		from '$lib/paneless/frame-id';
 import { getPaneId }		from '$lib/paneless/pane-id';
 import type { Item }	    from '$lib/paneless/interfaces';
 import { uc } 				from '$lib/paneless/udui/udui-common';
+import { uCD } 				from '$lib/paneless/udui/udui-control-data-a';
 import { uLabel } 			from '$lib/paneless/udui/udui-label-b';
 import { uList } 			from '$lib/paneless/udui/udui-list-b';
 import { uPanel }			from '$lib/paneless/udui/udui-panel-f';
@@ -17,6 +18,7 @@ export { cmn,
          getFrameId, 
          getPaneId,
 		 uc,
+		 uCD,
 		 uLabel,
 		 uList,
 		 uPanel,
