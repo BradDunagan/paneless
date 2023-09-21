@@ -318,10 +318,6 @@ export var uTabs = (function() {
 
 	}	//	TabData()
 
-//	TabData.prototype = uCD.newControlData();
-//	TabData.prototype.constructor = TabData;
-//	See createTabData().
-
 	function createTabData ( o ) {
 
 	//	if ( TabData.prototype.constructor.name === 'TabData' ) {
@@ -614,10 +610,6 @@ export var uTabs = (function() {
 		this.onSizeStart  = sizeStart;
 
 	}	//	TabsData()
-
-	TabsData.prototype = uCD.newControlData();
-
-	TabsData.prototype.constructor = TabsData;
 
 	TabsData.prototype.createPanelData = function ( td, o ) {
 		let tsd = this;
