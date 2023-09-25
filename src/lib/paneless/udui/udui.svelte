@@ -1737,7 +1737,7 @@ class ClassUDUI {
 
 	instantiateCode ( codeName, state ) { 
 		const sW = 'UDUI instantiateCode()'
-		let code = null;
+		let code: any = null;
 		if ( (! uc.isString ( codeName )) || (codeName.length === 0) ) {
 			return null; }
 		if ( this.rpd.code ) {
@@ -1748,12 +1748,15 @@ class ClassUDUI {
 								   state:		state,
 								   frameId:		prpFrameId,
 								   uduiFnc:		this.doAll,
-								   rpd: 		this.rpd } );
-		if ( code ) {
+								   rpd: 		this.rpd,
+								   title:		title } );
+		if ( code && code.code ) {
 			this.rpd.codeName = codeName;
-			this.rpd.code = code; }	
+			this.rpd.code = code.code; }	
+		if ( code && code.title ) {
+			this.setTitle ( { name: code.title } );	}
 			
-		return code;
+		return code && code.code ? code.code : null;
 
 	}	//	instantiateCode()
 

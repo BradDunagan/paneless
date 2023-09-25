@@ -1481,6 +1481,10 @@ export var uPanel = (function () {
 
 	function sized3 ( d, w, h, g, hasBorder ) {
 		var sW = serviceId + ' sized3()';
+		if ( (d.minWidth > 0) && (w < d.minWidth) ) {
+			w = d.minWidth; }
+		if ( (d.minHeight > 0) && (h < d.minHeight) ) {
+			h = d.minHeight; }
 		var dx = w - d.w;
 		var dy = h - d.h;
 		d.w = w;
@@ -1625,7 +1629,11 @@ export var uPanel = (function () {
 		var sW = serviceId + ' sized2()';
 		var g2;
 		d.w += dx;
+		if ( (d.minWidth > 0) && (d.w < d.minWidth) ) {
+			d.w = d.minWidth; }
 		d.h += dy;
+		if ( (d.minHeight > 0) && (d.h < d.minHeight) ) {
+			d.h = d.minHeight; }
 	//	if ( hasBorder )		done with szied2() at bottom here
 	//		g.select ( '#' + d.eleId + '-panel-border' )
 	//			.attr ( 'width',  function ( d ) { return d.w - uc.PANEL_BORDER_WIDTH; } )
@@ -1935,6 +1943,9 @@ export var uPanel = (function () {
 		//		  rcvFm: 	[<id>, ...],
 		//		  sndTo: 	[<id>, ...] }
 		this.regSpec = '';
+		
+		this.minHeight	= cmn.isNumber ( o.minHeight ) ? o.minHeight : 0;
+		this.minWidth	= cmn.isNumber ( o.minWidth )  ? o.minWidth  : 0;
 
 		this.hostFnc  = uc.isFunction ( o.hostFnc ) ? o.hostFnc : null;
 
@@ -2146,7 +2157,8 @@ export var uPanel = (function () {
 		}	//	longRegSpec()
 
 		var whiteList = [ 'borderColor', 'panningEnabled', 'bVertSB', 'bHorzSB',
-						  'panX', 'panY', 'codeName', 'regSpec' ];
+						  'panX', 'panY', 'codeName', 'regSpec', 'minHeight', 
+						  'minWidth' ];
 		var value, displayName, longTextCB, props = uCD.listProperties ( this );
 	//	for ( var key in this ) {
 	//		if ( ! whiteList.includes ( key ) )
@@ -2186,6 +2198,10 @@ export var uPanel = (function () {
 									break;
 				case 'regSpec':		displayName = 'registration';	
 									longTextCB  = longRegSpec;
+									break;
+				case 'minWidth':	displayName = 'min width';
+									break;
+				case 'minHeight':	displayName = 'min height';
 									break;
 			}
 		//	cmn.log ( sW, '   key: ' + key + '  value: ' + value );
@@ -2279,6 +2295,30 @@ export var uPanel = (function () {
 					this[name] = value; }
 				catch ( err ) {
 					cmn.error ( sW, err ); } } }
+		while ( name === 'minWidth' ) {
+			let v = parseInt ( value );
+			if ( (! cmn.isNumber ( v )) || (v < 0) ) {
+				return -1; }
+			this[name] = v;
+			if ( v === 0 ) {
+				break; }
+			if ( this.w < v ) {
+				let w = v, h = this.h;
+				let g = d3.select ( '#' + pd.eleId );
+				sized3 ( pd, w, h, g, false ); }
+			break; }
+		while ( name === 'minHeight' ) {
+			let v = parseInt ( value );
+			if ( (! cmn.isNumber ( v )) || (v < 0) ) {
+				return -1; }
+			this[name] = v; 
+			if ( v === 0 ) {
+				break; }
+			if ( this.h < v ) {
+				let w = this.w, h = v;
+				let g = d3.select ( '#' + pd.eleId );
+				sized3 ( pd, w, h, g, false ); }
+			break; }
 		return 0;
 	}	//	PanelData.prototype.setProperty()
 
@@ -2464,6 +2504,7 @@ export var uPanel = (function () {
 	svc.nextEleId = 0;
 
 	Panel.prototype.addControl = function ( ctrlData ) {
+		const sW = serviceId + ' PanelData.prototype.addControl()';
 		var panel = this, child = null;
 
 		ctrlData.parentPanel = panel;
@@ -2550,7 +2591,10 @@ export var uPanel = (function () {
 			dragSclred2.call ( ele[0], ele[0].__data__, 0, ele, { dx: 0, dy: 0 } );
 
 		//	In case the child x, y, w and/or h need to be evaluated ...
-		ctrlData.parentSized();
+		if ( ! cmn.isFunction ( ctrlData.parentSized ) ) {
+			cmn.error ( sW, 'function ctrlData.parentSized is not set' ); }
+		else {
+			ctrlData.parentSized(); }
 
 		return child;
 	};	//	Panel.prototype.addControl()

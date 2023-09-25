@@ -1,6 +1,6 @@
 <script lang="ts">
 
-	import { onMount, beforeUpdate, afterUpdate }	from 'svelte';
+	import { onMount, beforeUpdate, afterUpdate, tick }	from 'svelte';
 	import { cmn }    			from './common';
 	import MenuItemsSeparator 	from './menu-item-separator.svelte';
 	import MenuItem 			from './menu-item.svelte';
@@ -91,11 +91,13 @@ let self = {
 		prpScreenFnc ( { do: 'menu-dismiss' } );
 	//	self.setGlobalActiveMenuFnc ( self.prevGAMF );
 		self.setGlobalActiveMenuFnc ( null );
-		if ( item.fnc ) {
-			item.fnc ( item ); 
-			return; }
-		prpUpFnc ( { do: 			prpCtx.after,
-							 menuItemText:	item.text } );
+		tick().then ( () => {
+			if ( item.fnc ) {
+				item.fnc ( item ); 
+				return; }
+			prpUpFnc ( { do: 			prpCtx.after,
+						 menuItemText:	item.text } );
+		} );
 	},	//	selectItem()
 
 	setCurItem ( i: number, ele? : any ) {

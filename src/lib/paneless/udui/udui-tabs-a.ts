@@ -444,7 +444,11 @@ export var uTabs = (function() {
 				panelData = d.panel.data;	//	of, for example, adding a 
 				panelData.baseData = []; }	//	splitter?
 			else {
-				panelData = tsd.createPanelData ( d ); }
+				if ( ! cmn.isFunction ( tsd.createPanelData ) ) {
+					cmn.error ( sW, 
+								'function tsd.createPanelData is not set' ); }
+				else {
+					panelData = tsd.createPanelData ( d ); } }
 
 			panelData.parent = thisCtrl;
 
@@ -611,7 +615,8 @@ export var uTabs = (function() {
 
 	}	//	TabsData()
 
-	TabsData.prototype.createPanelData = function ( td, o ) {
+//	TabsData.prototype.createPanelData = function ( td, o ) {
+	function TabsData_createPanelData ( td, o ) {
 		let tsd = this;
 		let rpd = tsd.rpd;
 		let a = { rpd:			rpd,
@@ -647,7 +652,8 @@ export var uTabs = (function() {
 		return panelData;
 	}	//	TabsData.prototype.createPanelData()
 
-	TabsData.prototype.listProperties = function() {
+//	TabsData.prototype.listProperties = function() {
+	function TabsData_listProperties() {
 		var sW = serviceId + ' TabsData.prototype.listProperties()';
 		var whiteList = [ 'tabs', 'ff', 'fs' ];
 		var value, displayName, props = uCD.listProperties ( this );
@@ -674,7 +680,8 @@ export var uTabs = (function() {
 		return props;
 	};	//	TabsData.prototype.listProperties()
 
-	TabsData.prototype.setProperty = function ( name, value ) {
+//	TabsData.prototype.setProperty = function ( name, value ) {
+	function TabsData_setProperty ( name, value ) {
 		var sW = serviceId + ' TabsData.prototype.setProperty()';
 		var rtn, n, sel, i;
 		rtn = uCD.setProperty ( this, name, value );
@@ -706,7 +713,8 @@ export var uTabs = (function() {
 		}
 	};	//	TabsData.prototype.setProperty()
 	
-	TabsData.prototype.getSelectedTabPanel = function() {
+//	TabsData.prototype.getSelectedTabPanel = function() {
+	function TabsData_getSelectedTabPanel() {
 		const sW = serviceId + ' TabsData.prototype.getSelectedTabPanel()';
 		cmn.log ( sW );
 		if ( this.tabs.iSelected < 0 ) {
@@ -726,6 +734,16 @@ export var uTabs = (function() {
 
 
 	svc.createTabsData = function ( o ) {
+	//	if ( TabData.prototype.constructor.name === 'TabData' ) {
+	//		//	Do this once, here to avoid cir ref issue
+			TabsData.prototype = uCD.newControlData();
+			TabsData.prototype.constructor = TabsData;
+			TabsData.prototype.createPanelData = TabsData_createPanelData;
+			TabsData.prototype.listProperties = TabsData_listProperties;
+			TabsData.prototype.setProperty = TabsData_setProperty;
+			TabsData.prototype.getSelectedTabPanel = TabsData_getSelectedTabPanel;
+	//	}
+
 		return new TabsData ( o );
 	};	//	svc.createTabsData()
 

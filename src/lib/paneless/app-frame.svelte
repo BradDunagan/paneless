@@ -1,6 +1,6 @@
 
 <script lang="ts">
-	import { onMount }		from 'svelte';
+	import { onMount, tick }		from 'svelte';
 	import { cmn }		    from './common';
 	import AppHeader		from './app-header.svelte';
 	import AppContent		from './app-content.svelte';
@@ -72,6 +72,8 @@ class ClassAppFrame {
 			startY: 			0
 		};
 
+		this.keyDown	= this.keyDown.bind ( this );
+		this.keyUp		= this.keyUp.bind ( this );
 		this.mouseMove	= this.mouseMove.bind ( this );
 		this.mouseUp	= this.mouseUp.bind ( this );
 		this.doAll		= this.doAll.bind ( this );
@@ -236,51 +238,53 @@ class ClassAppFrame {
 		clientFnc ( { do:		'set-state-menu-or-dialog',
 					  depth:	this.dlgList.length } );
 		let self = this;
-		appDialog = self.dlgList.map ( ( r, i ) => {
-			if ( r.dlg === 'app-dialog-frame' ) {
-			//	return ( <AppDialog key 		  = { i }
-			//						appFrameFnc   = { this.doAll }
-			//						appContentFnc = { this.appContentFnc }
-			//						clientFnc	  = { this.props.clientFnc }
-			//						frameType	  = { r.frameType }
-			//						frame 		  = { r.frame } /> );
-				return { key:	i,
-						 props:	{ prpAppFrameFnc:	self.doAll,
-								  prpAppContentFnc:	self.appContentFnc,
-								  prpClientFnc:		clientFnc,
-								  prpFrame:			r.frame,
-								  prpOtherData:		r.otherData } };
-			}
-			if ( r.dlg === 'app-dialog' ) {
-			//	return ( <AppDialog key 		= { i }
-			//						appFrameFnc = { this.doAll }
-			//						comp 		= { r.comp }
-			//						screenClass	= { r.screenClass } /> );
-				return { key:	i,
-						 props:	{ prpAppFrameFnc:	self.doAll,
-						 		  prpComp:			r.comp,
-								  prpScreenClass:	r.screenClass } };
-			}
-			if ( ! r.mnu ) {
-			//	return ( <AppDialog key = {i}
-			//						appFrameFnc = {this.doAll}
-			//						upFnc = {r.upFnc}
-			//						ctx = {r.ctx}
-			//						dlg = {r.dlg}
-			//						mnu = {r.mnu} /> );
-				return { key:	i,
-						 props:	{ prpAppFrameFnc:	self.doAll,
-								  prpUpFnc:			r.upFnc,
-						  		  prpCtx:			r.ctx,
-								  prpDlg:			r.dlg,
-								  prpMnu:			r.mnu  } };
-			} else {
-				return { key:	i,
-						 props:	{ prpAppFrameFnc:	self.doAll,
-								  prpDlg:			r.dlg,
-								  prpMnu:			r.mnu } };
-			}
-		} );
+		tick().then ( () => {
+			appDialog = self.dlgList.map ( ( r, i ) => {
+				if ( r.dlg === 'app-dialog-frame' ) {
+				//	return ( <AppDialog key 		  = { i }
+				//						appFrameFnc   = { this.doAll }
+				//						appContentFnc = { this.appContentFnc }
+				//						clientFnc	  = { this.props.clientFnc }
+				//						frameType	  = { r.frameType }
+				//						frame 		  = { r.frame } /> );
+					return { key:	i,
+							 props:	{ prpAppFrameFnc:	self.doAll,
+									  prpAppContentFnc:	self.appContentFnc,
+									  prpClientFnc:		clientFnc,
+									  prpFrame:			r.frame,
+									  prpOtherData:		r.otherData } };
+				}
+				if ( r.dlg === 'app-dialog' ) {
+				//	return ( <AppDialog key 		= { i }
+				//						appFrameFnc = { this.doAll }
+				//						comp 		= { r.comp }
+				//						screenClass	= { r.screenClass } /> );
+					return { key:	i,
+							 props:	{ prpAppFrameFnc:	self.doAll,
+									  prpComp:			r.comp,
+									  prpScreenClass:	r.screenClass } };
+				}
+				if ( ! r.mnu ) {
+				//	return ( <AppDialog key = {i}
+				//						appFrameFnc = {this.doAll}
+				//						upFnc = {r.upFnc}
+				//						ctx = {r.ctx}
+				//						dlg = {r.dlg}
+				//						mnu = {r.mnu} /> );
+					return { key:	i,
+							 props:	{ prpAppFrameFnc:	self.doAll,
+									  prpUpFnc:			r.upFnc,
+									  prpCtx:			r.ctx,
+									  prpDlg:			r.dlg,
+									  prpMnu:			r.mnu  } };
+				} else {
+					return { key:	i,
+							 props:	{ prpAppFrameFnc:	self.doAll,
+									  prpDlg:			r.dlg,
+									  prpMnu:			r.mnu } };
+				}
+			} );
+		} );	//	tick().then
 	}	//	updateDialogState()
 
 	doAll ( o ) {
