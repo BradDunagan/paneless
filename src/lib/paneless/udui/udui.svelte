@@ -188,6 +188,7 @@ class ClassUDUI {
 		this.enable				= this.enable.bind ( this );
 		this.setChecked			= this.setChecked.bind ( this );
 		this.listAddItem		= this.listAddItem.bind ( this );
+		this.listClear			= this.listClear.bind ( this );
 		this.setText			= this.setText.bind ( this );
 		this.getText			= this.getText.bind ( this );
 		this.getSelected		= this.getSelected.bind ( this );
@@ -759,12 +760,14 @@ class ClassUDUI {
 		this.clickFocus ( { paneId: d.getPaneId() } );
 	}	//	click()
 
-	onProperties ( d ) {
+	onProperties ( d, bNoFncOk? : boolean ) {
 		let sW = 'UDUI onProperties()';
 		cmn.log ( sW, d.name );
 	//	if ( ! this.prpsFnc ) {
 	//		return; }
-		let fnc = cmn.oneCallee ( sW, this.callees, 'properties' );
+		let bCritical = cmn.isBoolean ( bNoFncOk ) ? ! bNoFncOk 
+												   : true;
+		let fnc = cmn.oneCallee ( sW, this.callees, 'properties', bCritical );
 		if ( ! cmn.isFunction ( fnc ) ) {
 			return; }
 		let title = 'Properties';
@@ -1033,7 +1036,7 @@ class ClassUDUI {
 										  paneFnc:	content.paneFnc } } );
 			pushPanels ( o.ctrlD );
 			o.ctrlD.focus();
-			this.onProperties ( o.ctrlD ); }	//	show properties
+			this.onProperties ( o.ctrlD, true ); }	//	show properties
 		else {
 		//	prpAppContentFnc ( { do:		'set-pane-focus',
 		//						 frameId:	prpFrameId,
@@ -1485,16 +1488,43 @@ class ClassUDUI {
 		return { status: 'error', msg: 'control not found' };
 	}	//	setChecked()
 
+	listClear ( o ) {
+		const sW = 'UDUI listClear()';
+		let ctrlName = o["control-name"];
+		let ctrlD    = this.rpd.getControl ( uc.TYPE_LIST, ctrlName );
+		if ( ! cmn.isObject ( ctrlD ) ) {
+			//	Is it a tree control?
+			ctrlD = this.rpd.getControl ( uc.TYPE_TREE, ctrlName );
+			if ( ! cmn.isObject ( ctrlD ) ) {
+				let msg = 'list or tree "' + ctrlName + '" not found';
+				cmn.error ( sW + msg );
+				return { status: 'error', msg: msg }; } }
+		ctrlD.clear();
+		return { status: 'ok' }; 
+	}	//	listClear()
+	
 	listAddItem ( o ) {
 		const sW = 'UDUI listAddItem()';
-		let listD = this.rpd.getControl ( uc.TYPE_LIST, o.list_name );
-		if ( ! uc.isObject ( listD ) ) {
-			let msg = 'list "' + o.list_name + '" not found';
-			cmn.error ( sW + msg );
-			return { status: 'error', msg: msg }; }
-		let itemD = uList.createListItemData ( o.item_text_id, o.item_text );
-		listD.itemData.push ( itemD );
-		listD.update();
+	//	let ctrlD = this.rpd.getControl ( uc.TYPE_LIST, o.list_name );
+		let ctrlName = o["control-name"];
+		let ctrlD    = this.rpd.getControl ( uc.TYPE_LIST, ctrlName );
+		if ( ! cmn.isObject ( ctrlD ) ) {
+			//	Is it a tree control?
+		//	ctrlD = this.rpd.getControl ( uc.TYPE_TREE, o.list_name );
+			ctrlD = this.rpd.getControl ( uc.TYPE_TREE, ctrlName );
+			if ( ! uc.isObject ( ctrlD ) ) {
+				let msg = 'list or tree "' + ctrlName + '" not found';
+				cmn.error ( sW + msg );
+				return { status: 'error', msg: msg }; }
+			let itemD = ctrlD.addItem ( { parentTextId:	0,
+										  newTextId:	o['text-id'],
+										  newText:		o['text'],
+										  expandParent:	false } );
+			ctrlD.update();
+			return { status: 'ok', itemId: itemD.id }; }
+		let itemD = uList.createListItemData ( o['text-id'], o['text'] );
+		ctrlD.itemData.push ( itemD );
+		ctrlD.update();
 		return { status: 'ok', itemId: itemD.id };
 	}	//	listAddItem()
 	
@@ -1575,7 +1605,12 @@ class ClassUDUI {
 			case 'set-checked':
 				cmdResult = this.setChecked ( ai );
 				break;
+			case 'list-clear':
+			case 'tree-clear':
+				cmdResult = this.listClear ( ai );
+				break;
 			case 'list-add-item':
+			case 'tree-add-item':
 				cmdResult = this.listAddItem ( ai );
 				break;
 			case 'clear':
@@ -1884,10 +1919,11 @@ class ClassUDUI {
 			prpClientAppFnc ( o );
 			return; }
 		if ( o.do === 'set-registered-callee' ) {
-			cmn.log ( sW, '  ' + o.paneKind + '  ' + o.pane );
 			if ( ! cmn.isObject ( this.regSpec ) ) {
 				cmn.error ( sW, 'this.regSpec is not set' );
 				return; }
+			cmn.log ( sW, '  this pane: ' + this.regSpec.pane 
+						+ '    it kind: ' + o.paneKind + '  it pane: ' + o.pane );
 			let fnc = cmn.setRegisteredCallee ( sW, this.regSpec, 
 													this.callees, o );
 			if ( ! cmn.isFunction ( fnc ) ) {
@@ -1919,7 +1955,8 @@ class ClassUDUI {
 		//	if ( o.pane === this.regSpec.sndTo['properties'].pane ) {
 		//		this.prpsFnc = null;
 		//		return; }
-			cmn.log ( sW, ' ' + o.paneKind + '  ' + o.pane ); 
+			cmn.log ( sW, '  this pane: ' + this.regSpec.pane 
+						+ '    it kind: ' + o.paneKind + '  it pane: ' + o.pane );
 			cmn.unsetRegisteredCallee ( sW, this.regSpec, 
 											this.callees, o );
 			return;

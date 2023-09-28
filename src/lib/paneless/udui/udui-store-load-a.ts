@@ -134,7 +134,7 @@ let globalWhiteList = [ 'x', 'y', 'w', 'h', 'scale', 'name', 'eleId',
 	'fillsPanel', 'xcolumns', 'hasConnectors', 'pathData', 'pathId', 
 	'dir', 'startPoint', 'endPoint', 'panelName', 'panningEnabled',
 	'panX', 'panY', 'borderColor', 'image', 'imageX', 'imageY', 
-	'imageScale', 'title', 'itemStyle' ];
+	'imageScale', 'title', 'itemStyle', 'minWidth', 'minHeight' ];
 let tableColsWhiteList = [ 'iCol', 'colStyleId', 'divStyleId', 
 						   'tdStyleId', 'hasDiv', 'isSplitter' ];
 
@@ -527,7 +527,8 @@ export let uSL = (function() {
 			return pd;	//	Return copy of pd0 with storeName in childData.data.
 		}	//	setChildPanelStoreNames()			
 
-		const replacer =  ( key, value ) => {
+	//	const replacer =  ( key, value ) => {
+		function replacer ( key, value ) {
 
 			//	Some keys (not in the white list) of certain controls ...
 			if ( this.type === uc.TYPE_TABLE ) {

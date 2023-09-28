@@ -313,7 +313,8 @@ export let cmn = {
 			return null; }
 		let sndTo = rs.sndTo[o.paneKind];
 		if ( ! sndTo ) {
-			cmn.error ( sW, 'pane kind "' + o.paneKind + '" is not '
+			cmn.error ( sW, ' this pane: ' + rs.pane
+						+   '   it pane kind: "' + o.paneKind + '" is not '
 						+	'registered here' );
 			return null; }
 		let fncs = callees[o.paneKind];
@@ -344,7 +345,8 @@ export let cmn = {
 	unsetRegisteredCallee ( sW, rs, callees, o ) {
 		let sndTo = rs.sndTo[o.paneKind];
 		if ( ! sndTo ) {
-			cmn.error ( sW, 'pane kind "' + o.paneKind + '" is not '
+			cmn.error ( sW, ' this pane: ' + rs.pane
+						+   '   it pane kind: "' + o.paneKind + '" is not '
 						+	'registered here' );
 			return; }
 		let fncs = callees[o.paneKind];

@@ -656,7 +656,11 @@ export var uCD = (function() {
 															: 'visible');
 		d3.select ( '#' + d.eleId + '-vsclr-track' )	
 			.attr ( 'x',	  svc.vsclrX )
-			.attr ( 'height', ( d: any ) => d.hasBorder ? d.h - 1 : d.h )
+			.attr ( 'height', ( d: any ) => {
+				let h = d.hasBorder ? d.h - 1 : d.h;
+				if ( h < 0 ) {
+					h = 0; }
+				return h; } )
 			.attr ( 'style',  style );
 		d3.select ( '#' + d.eleId + '-vsclr-thumb' )	
 			.attr ( 'x',      svc.vsclrX )
@@ -684,7 +688,11 @@ export var uCD = (function() {
 
 		d3.select ( '#' + d.eleId + '-vsclr-track' )	
 			.attr ( 'x',	  svc.vsclrX )
-			.attr ( 'height', ( d: any ) => d.hasBorder ? d.h - 1 : d.h )
+			.attr ( 'height', ( d: any ) => {
+				let h = d.hasBorder ? d.h - 1 : d.h;
+				if ( h < 0 ) {
+					h = 0; }
+				return h; } )
 			.attr ( 'style',  style );
 		d3.select ( '#' + d.eleId + '-vsclr-thumb' )	
 			.attr ( 'x',      svc.vsclrX )
@@ -742,7 +750,11 @@ export var uCD = (function() {
 
 		d3.select ( '#' + d.eleId + '-hsclr-track' )	
 			.attr ( 'y',	  svc.hsclrY )
-			.attr ( 'width',  ( d: any ) => d.hasBorder ? dw - 1 : dw )
+			.attr ( 'width',  ( d: any ) => {
+				let w = d.hasBorder ? dw - 1 : dw;
+				if ( w < 0 ) {
+					w = 0; }
+				return w; } )
 			.attr ( 'style',  styleH );
 		d3.select ( '#' + d.eleId + '-hsclr-thumb' )	
 			.attr ( 'x',      ( d: any ) => d.hasBorder ? iX + 0.5 : iX )
@@ -770,7 +782,11 @@ export var uCD = (function() {
 
 		d3.select ( '#' + d.eleId + '-vsclr-track' )	
 			.attr ( 'x',	  svc.vsclrX )
-			.attr ( 'height', ( d: any ) => d.hasBorder ? dh - 1 : dh )
+			.attr ( 'height', ( d: any ) => {
+				let h = d.hasBorder ? d.h - 1 : d.h;
+				if ( h < 0 ) {
+					h = 0; }
+				return h; } )
 			.attr ( 'style',  styleV );
 		d3.select ( '#' + d.eleId + '-vsclr-thumb' )	
 			.attr ( 'x',      svc.vsclrX )

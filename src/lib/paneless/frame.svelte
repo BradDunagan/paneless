@@ -865,7 +865,7 @@
 			if ( isCentered ) {
 				dX *= 2;
 				dY *= 2; }
-			cmn.log ( sW, 'dX dY ' + dX + ' ' + dY + '   w h ' + w + ' ' + h );
+		//	cmn.log ( sW, 'dX dY ' + dX + ' ' + dY + '   w h ' + w + ' ' + h );
 			let sizingFrame = ! (   cmn.isBoolean ( o.noFrameSizing ) 
 								 && o.noFrameSizing);
 			function sizePane() {
