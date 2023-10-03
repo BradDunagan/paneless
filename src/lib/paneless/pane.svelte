@@ -1464,7 +1464,7 @@ let self = {
 
 	maximizeChildPane ( o ) {
 		const sW = 'paneless Pane maximizeChildPane()';
-	//	cmn.log ( sW );
+		cmn.log ( sW );
 
 		let sh = self.state.splitHorz; if ( ! sh ) { return; }
 
@@ -1479,7 +1479,14 @@ let self = {
 		
 		let w = parseInt ( self.state.style.width );
 		let shSS = clone ( self.state.shSplitterStyle );
-		let lftW = w - cmn.hsW;
+		let lftW = w - cmn.hsW;	
+
+		if ( lftW < paneMinW ) {
+			lftW = paneMinW; }
+		let maxW = w - cmn.hsW - paneMinW;
+		if ( lftW > maxW ) {
+			lftW = maxW; }
+
 		let dX   = lftW - parseInt ( shSS.left );
 	//	cmn.log ( sW, '   lftW ' + lftW );
 		shSS.left = lftW + 'px';

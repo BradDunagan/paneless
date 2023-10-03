@@ -654,7 +654,7 @@ class ClassUDUI {
 		//	td is the tree data
 		cmn.log ( sW, '  tree: ' + d.td.name + '  item: ' + d.text );
 		
-		if ( this.maybeExecute ( d, -1, evt.target ) ) {
+		if ( this.maybeExecute ( d.td, -1, evt.target ) ) {
 			return; }
 		let code = this.getCode();
 		if ( code ) {
@@ -1471,7 +1471,7 @@ class ClassUDUI {
 	enable ( o ) {
 		const sW = 'UDUI enable()';
 		let ctrlD;
-		ctrlD = this.rpd.getControl ( uc.TYPE_ANY, o['ctrl-name'] );
+		ctrlD = this.rpd.getControl ( uc.TYPE_ANY, o['control-name'] );
 		if ( ctrlD ) {
 			ctrlD.enable ( o.enable ); 
 			return { status: 'ok' }; }
@@ -1481,7 +1481,7 @@ class ClassUDUI {
 	setChecked ( o ) {
 		const sW = 'UDUI setChecked()';
 		let ctrlD;
-		ctrlD = this.rpd.getControl ( uc.TYPE_CHECKBOX, o['ctrl-name'] );
+		ctrlD = this.rpd.getControl ( uc.TYPE_CHECKBOX, o['control-name'] );
 		if ( ctrlD ) {
 			ctrlD.setChecked ( o.checked ); 
 			return { status: 'ok' }; }
@@ -1505,12 +1505,10 @@ class ClassUDUI {
 	
 	listAddItem ( o ) {
 		const sW = 'UDUI listAddItem()';
-	//	let ctrlD = this.rpd.getControl ( uc.TYPE_LIST, o.list_name );
 		let ctrlName = o["control-name"];
 		let ctrlD    = this.rpd.getControl ( uc.TYPE_LIST, ctrlName );
 		if ( ! cmn.isObject ( ctrlD ) ) {
 			//	Is it a tree control?
-		//	ctrlD = this.rpd.getControl ( uc.TYPE_TREE, o.list_name );
 			ctrlD = this.rpd.getControl ( uc.TYPE_TREE, ctrlName );
 			if ( ! uc.isObject ( ctrlD ) ) {
 				let msg = 'list or tree "' + ctrlName + '" not found';
@@ -1531,12 +1529,12 @@ class ClassUDUI {
 	setText ( o ) {
 		const sW = 'UDUI setText()';
 		let ctrlD;
-		ctrlD = this.rpd.getControl ( uc.TYPE_LABEL, o['ctrl-name'] );
+		ctrlD = this.rpd.getControl ( uc.TYPE_LABEL, o['control-name'] );
 		if ( ctrlD ) {
 			ctrlD.setText ( o.text ); 
 			return { status: 'ok' }; }
 		else {
-			ctrlD = this.rpd.getControl ( uc.TYPE_INPUT, o['ctrl-name'] );
+			ctrlD = this.rpd.getControl ( uc.TYPE_INPUT, o['control-name'] );
 			if ( ctrlD ) {
 				ctrlD.setText ( o.text ); 
 				return { status: 'ok' } } }
@@ -1546,11 +1544,11 @@ class ClassUDUI {
 	getText ( o ) {
 		const sW = 'UDUI getText()';
 		let ctrlD;
-		ctrlD = this.rpd.getControl ( uc.TYPE_LABEL, o['ctrl-name'] );
+		ctrlD = this.rpd.getControl ( uc.TYPE_LABEL, o['control-name'] );
 		if ( ctrlD ) {
 			return { status: 'ok', text: ctrlD.text }; }
 		else {
-			ctrlD = this.rpd.getControl ( uc.TYPE_INPUT, o['ctrl-name'] );
+			ctrlD = this.rpd.getControl ( uc.TYPE_INPUT, o['control-name'] );
 			if ( ctrlD ) {
 				return { status: 'ok', text: ctrlD.value } } }
 		return { status: 'error', msg: 'control not found' };
@@ -1558,8 +1556,10 @@ class ClassUDUI {
 	
 	getSelected ( o ) {
 		const sW = 'UDUI getSelected()';
-		let ctrlD;
-		ctrlD = this.rpd.getControl ( uc.TYPE_LIST, o['ctrl-name'] );
+		let ctrlName = o["control-name"];
+		let ctrlD = this.rpd.getControl ( uc.TYPE_LIST, ctrlName );
+		if ( ! cmn.isObject ( ctrlD ) ) {
+			ctrlD = this.rpd.getControl ( uc.TYPE_TREE, ctrlName ); }
 		if ( ctrlD ) {
 			if ( ctrlD.itemSelected ) {
 				return { status:	'ok',
@@ -1685,6 +1685,10 @@ class ClassUDUI {
 			let sRS: null | string = null;
 			self.rpd.panningEnabled = cmn.isBoolean ( data.panningEnabled )
 										? data.panningEnabled : false;
+			self.rpd.minWidth  = cmn.isNumber ( data.minWidth )
+										? data.minWidth  : 0;
+			self.rpd.minHeight = cmn.isNumber ( data.minHeight )
+										? data.minHeight : 0;
 			sRS = data.regSpec;
 			let code = self.instantiateCode ( data.codeName, self.state );
 			self.loadChildren ( sW, data.childData.data );
@@ -1819,8 +1823,9 @@ class ClassUDUI {
 				let rs = JSON.parse ( state.regSpec );
 				if ( ! code ) {
 					this.updateRPDRegistration ( rs ); }
-				else {
-					code.updateRegistration ( rs ); }
+			//	else {
+			//		code.updateRegistration ( rs ); }
+			//	Should not the code have its own regSpec?
 				this.rpd.regSpec = rs; } 
 			catch ( e ) {
 				cmn.error ( sW, 'failed to parse rpd regSpec' ); 
@@ -1830,8 +1835,9 @@ class ClassUDUI {
 		if ( cmn.isObject ( state.regSpec ) ) {
 			if ( ! code ) {
 				this.updateRPDRegistration ( state.regSpec ); }
-			else {
-				code.updateRegistration ( state.regSpec ); }
+		//	else {
+		//		code.updateRegistration ( state.regSpec ); }
+		//	Should not the code have its own regSpec?
 			this.rpd.regSpec = state.regSpec;
 		}
 		else 
@@ -1840,8 +1846,9 @@ class ClassUDUI {
 				let rs = JSON.parse ( state.codeRegSpec ); 
 				if ( ! code ) {
 					this.updateRPDRegistration ( rs ); }
-				else {
-					code.updateRegistration ( rs ); }
+			//	else {
+			//		code.updateRegistration ( rs ); }
+			//	code will set/update registration when it is loaded
 				this.rpd.regSpec = rs; }
 			catch ( e ) {
 				cmn.error ( sW, 'failed to parse rpd regSpec' ); 
@@ -1851,8 +1858,9 @@ class ClassUDUI {
 		if ( cmn.isObject ( state.codeRegSpec ) ) {
 			if ( ! code ) {
 				this.updateRPDRegistration ( state.codeRegSpec ); }
-			else {
-				code.updateRegistration ( state.codeRegSpec ); }
+		//	else {
+		//		code.updateRegistration ( state.codeRegSpec ); }
+		//	code will set/update registration when it is loaded
 			this.rpd.regSpec = state.codeRegSpec; 
 		}
 		else {
@@ -1866,12 +1874,15 @@ class ClassUDUI {
 			this.loadChildren ( sW, state.controls ); 
 			code.loaded();
 			if ( cmn.isFunction ( code.gotProperties ) ) {
-			//	code.gotProperties ( cmn.isFunction ( this.prpsFnc ) ); } 
 				let fnc = cmn.oneCallee ( sW, this.callees, 
-											  'properties' );
+											  'properties', false );
 				code.gotProperties ( cmn.isFunction ( fnc ) ); } 
 			code.isLoaded = true; 
 			this.insertNameInTopEleIds ( state.codeName ); }
+		this.rpd.minWidth  = cmn.isNumber ( state.minWidth )
+									? state.minWidth  : 0;
+		this.rpd.minHeight = cmn.isNumber ( state.minHeight )
+									? state.minHeight : 0;
 		this.setRootPanelWH();
 	}	//	doSetState()
 
@@ -1974,6 +1985,8 @@ class ClassUDUI {
 				panningEnabled:	this.rpd.panningEnabled,
 				uduiRegSpec:	this.regSpec,
 				codeRegSpec:	this.rpd.regSpec,
+				minWidth:		this.rpd.minWidth,
+				minHeight:		this.rpd.minHeight
 			};
 		}
 		if ( 	(o.do === 'set-state'  )
@@ -2269,7 +2282,7 @@ class ClassUDUI {
 		//						 paneId:	prpPaneId,
 		//						 ctrlD:		o.ctrlD,
 		//						 title:		o.title  } ); }
-			let fnc = cmn.oneCallee ( sW, this.callees, 'properties' );
+			let fnc = cmn.oneCallee ( sW, this.callees, 'properties', false );
 			if ( ! cmn.isFunction ( fnc ) ) {
 				return; }
 			fnc ( { do: 		'properties-of-control',
@@ -2285,7 +2298,7 @@ class ClassUDUI {
 		//						 paneId:	prpPaneId,
 		//						 ctrlD:		null,
 		//						 title:		o.title  } ); }
-			let fnc = cmn.oneCallee ( sW, this.callees, 'properties' );
+			let fnc = cmn.oneCallee ( sW, this.callees, 'properties', false );
 			if ( ! cmn.isFunction ( fnc ) ) {
 				return; }
 			fnc ( { do: 		'properties-of-control',

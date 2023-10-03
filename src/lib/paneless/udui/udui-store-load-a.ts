@@ -665,7 +665,9 @@ export let uSL = (function() {
 						  panX:				itemD.panX,
 						  panY:				itemD.panY,
 						  hasConnectors:	itemD.hasConnectors,
-						  pathData:			itemD.pathData };
+						  pathData:			itemD.pathData,
+						  minWidth: 		itemD.minWidth,
+						  minHeight:		itemD.minHeight };
 
 				o.root.panelData = o.panelSvc.restorePanelData ( d );
 
@@ -713,7 +715,9 @@ export let uSL = (function() {
 						  panY:				itemD.panY,
 						  hasConnectors:	itemD.hasConnectors,
 						  pathData:			itemD.pathData,
-						  codeName:			itemD.codeName };
+						  codeName:			itemD.codeName,
+						  minWidth: 		itemD.minWidth,
+						  minHeight:		itemD.minHeight };
 
 				let pd = o.panelSvc.restorePanelData ( d );
 

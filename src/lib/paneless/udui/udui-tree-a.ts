@@ -693,9 +693,9 @@ export var uTree = (function() {
 	function TreeData_listProperties() {
 		var sW = serviceId + ' TreeData.prototype.listProperties()';
 		var value, displayName, props = uCD.listProperties ( this );
-		var whiteTree = [ 'style', 'itemStyle', 'ff', 'fs' ];
+		var whiteList = [ 'execute', 'style', 'itemStyle', 'ff', 'fs' ];
 		for ( var key in this ) {
-			if ( ! whiteTree.includes ( key ) )
+			if ( ! whiteList.includes ( key ) )
 				continue;
 			value = this[key];
 			if ( value === undefined )
@@ -724,6 +724,9 @@ export var uTree = (function() {
 		rtn = uCD.setProperty ( this, name, value );
 		if ( rtn )
 			return rtn;
+		if ( name === 'execute' ) {
+			this[name] = value;
+		}
 		if ( name === 'ff' ) {
 			this[name] = value;
 			this.updateStyle();
