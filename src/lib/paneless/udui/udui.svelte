@@ -353,9 +353,15 @@ class ClassUDUI {
 		let fnc = cmn.oneCallee ( sW, this.callees, 'pe', false );
 		if ( ! cmn.isFunction ( fnc ) ) {
 			return false; }
+
+		//	Prevent ("disable") any other event on the panel while executing.
+		let pp = d.parentPanel
+		pp.screen();
+
 		fnc ( { do: 	'execute',
 				cmd:	d.execute } )
 			.then ( () => {
+				pp.unscreen();
 				cmn.log ( sW, 'PE execute completed' );
 			} )
 			.catch ( () => {

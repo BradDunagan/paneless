@@ -2675,6 +2675,34 @@ export var uPanel = (function () {
 	};	//	Panel.prototype.rmvControl()
 
 
+	Panel.prototype.screen = function ( dlg ) {
+		let sW = serviceId + ' screen()';
+		let panel = this;
+
+		let g = d3.select ( '#' + panel.data.eleId );
+		g
+			.append ( 'rect' ) 
+			.attr ( 'id',		panel.data.eleId + '-screen' )
+			.attr ( 'x',		0 + uc.OFFS_4_1_PIX_LINE )
+			.attr ( 'y',		0 + uc.OFFS_4_1_PIX_LINE )
+			.attr ( 'width',	( d: any ) => d.w - uc.PANEL_BORDER_WIDTH )
+			.attr ( 'height',	( d: any ) => d.h - uc.PANEL_BORDER_WIDTH )
+			.attr ( 'fill',		'white' )
+			.attr ( 'opacity',	0.5 );
+
+	};	//	Panel.prototype.screen()
+
+	Panel.prototype.unscreen = function() {
+		let sW = serviceId + ' unscreen()';
+		let panel = this;
+
+		let g = d3.select ( '#' + panel.data.eleId );
+		g
+			.select ( '#' + panel.data.eleId + '-screen' )
+			.remove();
+	};	//	Panel.prototype.unscreen()
+
+
 	Panel.prototype.appendDialog = function ( dlg ) {
 		var sW = serviceId + ' appendDialog()';
 		var panel = this;		//	we should be the app's root panel
@@ -2687,6 +2715,8 @@ export var uPanel = (function () {
 
 	//	if ( dlg.invokingPanel.data.eleId !== panel.data.eleId ) {		//	if invoker is not the root panel
 		//	2017-Aug
+		//	2023-Oct	If this is ever used again, see screen(), above if
+		//				there are any problems. E.g., u34-dialog-screen?
 		if (    (dlg.invokingPanel.data.eleId !== panel.data.eleId)		//	if invoker is not the root panel
 			 && ! uc.isAppScreenPanel ( dlg.invokingPanel ) ) {			//	and is not the app screen
 			//	A screen to make the invoking panel appear disabled and to capture its 
