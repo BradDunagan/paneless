@@ -22,6 +22,7 @@
 		 	prpClientFnc		= { prpClientFnc }
 			prpItemName			= { item.name }
 			prpItemSelection	= { item.selection }
+			prpEnabled			= { item.enabled } 
 			prpOnClick			= { item.onClick } />
 	{/each}
 	<AppHeaderSignIn

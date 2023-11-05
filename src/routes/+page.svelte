@@ -21,12 +21,15 @@
     let HdrItems: HdrItem[] = [
 		{ name: 		'',
 		  selection:	'',
+		  enabled:		true,
 		  onClick:		null },
 		{ name: 		'',
 		  selection:	'',
+		  enabled:		true,
 		  onClick:		null },
 		{ name: 		'',
 		  selection:	'',
+		  enabled:		true,
 		  onClick:		null },
     ];
 

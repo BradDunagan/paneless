@@ -3,7 +3,7 @@
 	import { cmn }		    	from './common';
     import AppHeaderUser        from './app-header-user.svelte';
 
-	export let prpClientFnc		= null;
+	export let prpClientFnc: any	= null;
 
 	let displayName = null;
 
@@ -45,9 +45,17 @@ class ClassAppHeaderSignIn {
 	{:else}
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<!--
 		<div 
 			class = "app-header-sign-in"
 			on:click = { self.clickSignIn } >
+			Sign In
+		</div>
+		-->
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<div 
+			class = "app-header-sign-in">
 			Sign In
 		</div>
 	{/if}
@@ -61,7 +69,11 @@ class ClassAppHeaderSignIn {
 		display:        flex;
 		padding-top:    6px;
 		padding-right:  5px;
+		/*
 		cursor:         pointer;    
+		*/
+		cursor:			default;
+		color:  		lightgray;
 	}
 </style>
 
