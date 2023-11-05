@@ -558,6 +558,8 @@ export var uTree = (function() {
 		this.itemStyle    = uc.isString ( o.itemStyle )      ? o.itemStyle 
 															 : '';
 
+		if ( (o.ff === 'consolas') || (o.ff === 'Consolas') ) {
+			o.ff = 'Courier New'; }
 		this.ff = uc.isString ( o.ff ) ? o.ff : 'verdana';	//	font family
 		this.fs = uc.isNumber ( o.fs ) ? o.fs : 12;			//	size, pixels
 		this.classText = 'u34-tree-text';
@@ -1611,7 +1613,7 @@ export var uTree = (function() {
 				.attr ( 'width',  td.w          + 'px' )
 				.attr ( 'height', td.itemHeight + 'px' )
 				.append ( 'xhtml:body' )
-				.style ( 'font', '12px "consolas"' )
+				.style ( 'font', '12px "Courier New"' )
 			//	.html ( menuItemHTML )
 				.html ( uc.textHTML )
 				.on ( 'click',    clickItem );
@@ -1649,7 +1651,7 @@ export var uTree = (function() {
 						.style ( 'padding-left', '4px' )
 						.style ( 'padding-top', '3px' )
 						.append ( 'xhtml:body' )
-							.style ( 'font', '12px "consolas"' )
+							.style ( 'font', '12px "Courier New"' )
 							.html ( ( d: any, i ) => {
 								return uc.varValHTML ( d, i ); 
 				 			} );
