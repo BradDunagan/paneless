@@ -34,7 +34,7 @@ export var uTextarea = (function() {
 
 	function onChange ( evt, d ) {
 		var sW = serviceId + ' onChange()';
-		cmn.log ( sW );
+	//	cmn.log ( sW );
 		//	Called when focus is lost or when Enter key is pressed.
 		var textareaEle = evt.target.children[0];
 		d.value = textareaEle.value;
@@ -58,7 +58,7 @@ export var uTextarea = (function() {
 
 	function mousedown ( evt, d ) {
 		var sW = serviceId + ' mousedown()';
-		cmn.log ( sW, 'Name: ' + d.name );
+	//	cmn.log ( sW, 'Name: ' + d.name );
 	//	evt.stopPropagation();
 	}	//	mousedown()
 
@@ -70,13 +70,13 @@ export var uTextarea = (function() {
 
 	function mouseup ( evt, d ) {
 		var sW = serviceId + ' mouseup()';
-		cmn.log ( sW, 'Name: ' + d.name );
+	//	cmn.log ( sW, 'Name: ' + d.name );
 	//	evt.stopPropagation();
 	}	//	mouseup()
 
 	function click ( evt: PointerEvent, d: any ) {
 		var sW = serviceId + ' click()';
-		cmn.log ( sW, 'Name: ' + d.name );
+	//	cmn.log ( sW, 'Name: ' + d.name );
 		evt.stopPropagation();
 		if ( evt.shiftKey && uc.isFunction ( d.shiftClickCB ) ) {
 			let otherMenuItems = null;
@@ -88,7 +88,7 @@ export var uTextarea = (function() {
 	//
 	function moved ( d, i, ele, x, y ) {
 		var sW = serviceId + ' moved()';
-		cmn.log ( sW, ' d.name: ' + d.name + '   x y: ' + x + ' ' + y );
+	//	cmn.log ( sW, ' d.name: ' + d.name + '   x y: ' + x + ' ' + y );
 		d3.select ( ele.parentNode )
 			.attr ( 'transform', function ( d: any, i ) { 
 				return 'translate(' + (d.x = x) + ',' + (d.y = y) + ')'; 
@@ -250,9 +250,10 @@ export var uTextarea = (function() {
 
 	//	cmn.log ( sW, '   dy: ' + dy 
 	//				+ '   dY: ' + dY
+	//				+ '   content.h: ' + d.content.h
 	//				+ '   content.y: ' + d.content.y
 	//				+ '   y: ' + y
-	//				+ '   d.h + 2 -y: ' + (d.h + 2 - y) );
+	//				+ '   d.h + 2 - y: ' + (d.h + 2 - y) );
 		updateSclrs ( d );
 	}	//	scroll_v()
 
@@ -387,7 +388,7 @@ export var uTextarea = (function() {
 				case 'letterSpacing':	displayName = 'letter spacing';	break;
 				case 'lineHeight':		displayName = 'line height';	break;
 			}
-			cmn.log ( sW, '   key: ' + key + '  value: ' + value );
+		//	cmn.log ( sW, '   key: ' + key + '  value: ' + value );
 			props.push ( { property: key, value: value, displayName: displayName } );
 		}
 		return props;
@@ -491,12 +492,10 @@ export var uTextarea = (function() {
 				.attr ( 'style',  style ); }
 	}	//	TextareaData_setStyle()
 
-	function TextareaData_setText ( text ) {
+	function TextareaData_setText ( text, opts?: any ) {
 	//	var sW = serviceId + ' TextareaData_setText()';
 		this.value = text;
-	//	d3.select ( '#' + this.eleId + '-textarea' )
-	//		.html ( text );
-		this.setContent();
+		this.setContent ( opts );
 	}	//	TextareaData_setText()
 
 
@@ -547,7 +546,7 @@ export var uTextarea = (function() {
 
 	window.customElements.define ( 'rr-topic-anchor', RRTopicAnchor );
 
-	function TextareaData_setContent() {
+	function TextareaData_setContent ( opts?: any ) {
 		const sW = serviceId + ' TextareaData_setContent()';
 		let d = this;
 		let e = window.document.getElementById ( '' + d.eleId + '-body' );
@@ -606,14 +605,23 @@ export var uTextarea = (function() {
 								+ 'letter-spacing: ' + d.letterSpacing + 'px; '
 								+ 'line-height: ' + lineH + '; '
 					//			+ 'padding: 0px; '
-								+ 'resize: none;">'
+								+ 'resize: none; '
+								+ 'overflow: hidden;">'
 						+ d.value 
 						+ '</textarea>'; } 
 		
 		d.content.y = 0;
 	//	updateSclrs ( d );
 		var lg = d3.select ( '#' + d.eleId + '-items' );
-		scroll_v ( d, 0, [lg.node()], 0 );
+		if ( 	cmn.isObject ( opts )
+			 && cmn.isBoolean ( opts.bScrollToBottom ) 
+			 && opts.bScrollToBottom ) {
+			let ch = getContentH ( sW, d );
+			let dy = d.h - ch;
+			scroll_v ( d, 0, [lg.node()], dy ); }
+		else {
+			scroll_v ( d, 0, [lg.node()], 0 ); }
+
 
 	//	if ( d.markdown ) {
 	//		d3.select ( '#' + d.eleId + '-foreignobject' )

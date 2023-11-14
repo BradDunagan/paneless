@@ -1824,7 +1824,9 @@ class ClassUDUI {
 			cmn.error ( sW, 'code has no updateRegistration()' ); 
 			return; }	
 
-		if ( cmn.isString ( state.regSpec ) && ! code ) {
+		if ( 	cmn.isString ( state.regSpec ) 
+			 && (state.regSpec.length > 0) 
+			 && ! code ) {
 			try {
 				let rs = JSON.parse ( state.regSpec );
 				if ( ! code ) {
