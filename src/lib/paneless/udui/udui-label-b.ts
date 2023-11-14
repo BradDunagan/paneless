@@ -161,6 +161,10 @@ export var uLabel = (function() {
 		this.onProperties = uc.isFunction ( o.onProperties ) ? o.onProperties 
 															 : null;
 		this.ff = uc.isString ( o.ff ) ? o.ff : 'verdana';	//	font family
+		let ff = this.ff.toLowerCase();
+		if ( ff === 'consolas' ) {
+			this.ff = 'courier new'; }
+		
 		this.fs = uc.isNumber ( o.fs ) ? o.fs : 12;			//	size, pixels
 		this.classText = 'u34-label-text';
 

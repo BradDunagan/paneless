@@ -558,9 +558,11 @@ export var uTree = (function() {
 		this.itemStyle    = uc.isString ( o.itemStyle )      ? o.itemStyle 
 															 : '';
 
-		if ( (o.ff === 'consolas') || (o.ff === 'Consolas') ) {
-			o.ff = 'Courier New'; }
 		this.ff = uc.isString ( o.ff ) ? o.ff : 'verdana';	//	font family
+		let ff = this.ff.toLowerCase();
+		if ( ff === 'consolas' ) {
+			this.ff = 'courier new'; }
+
 		this.fs = uc.isNumber ( o.fs ) ? o.fs : 12;			//	size, pixels
 		this.classText = 'u34-tree-text';
 

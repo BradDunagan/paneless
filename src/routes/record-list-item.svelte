@@ -38,7 +38,7 @@
 		padding-left:		3px;
 		padding-top:		3px;
 		padding-bottom: 	0px;
-		font-family: 		consolas;
+		font-family: 		"courier new";
 		color:				black;
 		cursor:				pointer;
 	}

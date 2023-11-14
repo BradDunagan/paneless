@@ -201,7 +201,11 @@ export var uInput = (function() {
 		this.onProperties = uc.isFunction ( o.onProperties ) ? o.onProperties : null;
 
 		this.border 	= uc.isString ( o.border ) ? o.border : 'solid 1px lightgray';
-		this.ff   		= uc.isString ( o.ff ) ? o.ff : 'consolas';				//	font family
+		this.ff   		= uc.isString ( o.ff ) ? o.ff : 'verdana';				//	font family
+		let ff = this.ff.toLowerCase();
+		if ( ff === 'consolas' ) {
+			this.ff = 'courier new'; }
+		
 		this.fs   		= uc.isNumber ( o.fs ) ? o.fs : 12;						//	font size, pixels
 		this.textAlign	= uc.isString ( o.textAlign ) ? o.textAlign : 'right';
 
@@ -410,7 +414,7 @@ export var uInput = (function() {
 				//	h + 2 (border top, bottom)
 				.attr ( 'height', d => { return (d.h + 2) + 'px'; } )
 				.append ( 'xhtml:body' )
-					.style ( 'font', '12px "consolas"' )
+					.style ( 'font', '12px "courier new"' )
 					.html ( function ( d, i ) {
 						return '<input '
 								+  'id="' + d.eleId + '-input" '
