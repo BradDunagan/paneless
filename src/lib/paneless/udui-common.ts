@@ -7,6 +7,7 @@ let uc = {
 	TYPE_LABEL: 			'label',
 	TYPE_TEXTAREA: 			'textarea',
 	TYPE_EDITOR:			'editor',
+	TYPE_CANVAS:			'canvas',
 	TYPE_LIST: 				'list',
 	TYPE_LISTITEM:			'list-item',
 	TYPE_TREE: 				'tree',

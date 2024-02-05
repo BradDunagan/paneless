@@ -826,5 +826,31 @@ background-color: 	#fff;
 	border:			solid orange;
 }
 
+.u34-canvas-foreignobject {
+}
+
+.u34-canvas-foreignobject-with-border {
+	border:			solid 1px gray;
+}
+
+.u34-canvas-div {
+	width:			200px;
+	height:			150px;
+	overflow:		hidden;
+	border:			solid orange;
+}
+
+.u34-canvas {
+	padding-left:	0px;
+	padding-right:	0px;
+	padding-top: 	0px;
+	padding-bottom: 0px;
+	width:			100%;
+	height:  		100%;
+}
+
+
+
+
 
 

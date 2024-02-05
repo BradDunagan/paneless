@@ -24,6 +24,7 @@ import { uTabs } 		from './udui-tabs-a';
 import { uTable } 		from './udui-table-a';
 import { uTextarea } 	from './udui-textarea-a';
 import { uEditor }		from './udui-editor-a';
+import { uCanvas }		from './udui-canvas-a';
 
 import './udui.css';
 
@@ -2508,16 +2509,11 @@ export var uPanel = (function () {
 		var panel = this, child = null;
 
 		ctrlData.parentPanel = panel;
-	//	ctrlData.eleId       = panel.data.eleId + '-' + ctrlData.name;
-	//	ctrlData.eleId       = panel.data.eleId + '-' + (++svc.nextEleId);
 		if ( ! ctrlData.eleId )	{	//	for e2e tests, eleId may already be set to something fixed, known
-		//	ctrlData.eleId = panel.data.eleId + '-' + (++svc.nextEleId);
-			ctrlData.eleId = 'rr-'                  + (++svc.nextEleId);
+			ctrlData.eleId = 'rr-' + (++svc.nextEleId);
 		 	//	E2e tests or no, add type name to eleId.
 			if ( cmn.isString ( ctrlData.type ) ) {
-				ctrlData.eleId += '-' + ctrlData.type; }
-			if ( cmn.isString ( ctrlData.name ) ) {
-				ctrlData.eleId += '-' + ctrlData.name; } }
+				ctrlData.eleId += '-' + ctrlData.type; } }
 
 		let pd = panel.data;
 
@@ -2570,6 +2566,9 @@ export var uPanel = (function () {
 
 		if ( ctrlData.type === uc.TYPE_EDITOR ) {
 			child = uEditor.defineEditor( panel ); }
+
+		if ( ctrlData.type === uc.TYPE_CANVAS ) {
+			child = uCanvas.defineCanvas( panel ); }
 
 	//	updateVsclr0 ( panel.data.eleId );
 	//	updateHsclr0 ( panel.data.eleId );

@@ -115,6 +115,7 @@ import { uTable } 		from './udui-table-a';
 import { uTabs }		from './udui-tabs-a';
 import { uTextarea }	from './udui-textarea-a';
 import { uEditor }		from './udui-editor-a';
+import { uCanvas } 		from './udui-canvas-a';
 
 
 let rrLS = null;
@@ -886,6 +887,13 @@ export let uSL = (function() {
 			panel.addControl ( uEditor.createEditorData ( itemD ) );
 		}	//	buildEditor()
 
+		function buildCanvas ( itemD, panel ) {
+			itemD.eleId = 0;			
+			itemD.rpd 	= rpd;
+			o.setUpCB ( itemD );
+			panel.addControl ( uCanvas.createCanvasData ( itemD ) );
+		}	//	buildCanvas()
+
 		function buildTable ( itemD, panel ) {
 			let styles = JSON.parse ( itemD.styles );	itemD.styles = [];
 			let cols   = JSON.parse ( itemD.cols );		itemD.cols   = [];
@@ -977,6 +985,9 @@ export let uSL = (function() {
 			else
 			if ( itemD.type === uc.TYPE_EDITOR ) {
 				buildEditor ( itemD, panel ); }
+			else
+			if ( itemD.type === uc.TYPE_CANVAS ) {
+				buildCanvas ( itemD, panel ); }
 			else
 			if ( itemD.type === uc.TYPE_TABLE ) {
 				buildTable ( itemD, panel ); }

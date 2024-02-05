@@ -19,6 +19,7 @@
 	import { uTabs }			from './udui-tabs-a';
 	import { uTextarea }		from './udui-textarea-a';
 	import { uEditor }			from './udui-editor-a';
+	import { uCanvas } 			from './udui-canvas-a';
 	import { uSL }				from './udui-store-load-a';
 
 	import uDsrcGraph			from './udui-dsrc-graph-a';
@@ -790,6 +791,7 @@ class ClassUDUI {
 			case uc.TYPE_TEXTAREA:	title = 'Text Area Properties';	break;
 			case uc.TYPE_TREE:		title = 'Tree Properties';		break;
 			case uc.TYPE_EDITOR:	title = 'Editor Properties';	break;
+			case uc.TYPE_CANVAS:	title = 'Canvas Properties';	break;
 			default:
 				cmn.error ( sW, 'unrecognized control type '
 							  + '(uc.TYPE_XXXXX ' + d.type + ')' ); }
@@ -961,6 +963,7 @@ class ClassUDUI {
 		mnu.push ( { type: 'item',  text: 'Text' } );
 		mnu.push ( { type: 'item',	text: 'Tree' } );
 		mnu.push ( { type: 'item',	text: 'Editor' } );
+		mnu.push ( { type: 'item',	text: 'Canvas' } );
 		return mnu;
 	}	//	subMenu()
 
@@ -1116,6 +1119,8 @@ class ClassUDUI {
 				break;
 			case uc.TYPE_TABS:
 				d.cb = this.tbsCallback; 
+				break;
+			case uc.TYPE_CANVAS:
 				break;
 			default:
 				cmn.error ( sW, ' Error: unrecognized control type '
@@ -1432,6 +1437,9 @@ class ClassUDUI {
 				o.inputCB 	= this.edtInputCallback;
 				o.changeCB	= this.edtChangeCallback;
 				ctrlD = uEditor.createEditorData ( o );
+				break;
+			case 'canvas':
+				ctrlD = uCanvas.createCanvasData ( o );
 				break;
 			default:
 				cmn.error ( sW, 'unrecognized kind "' 
@@ -2244,6 +2252,14 @@ class ClassUDUI {
 				} );
 				if ( edtD ) {
 					this.onProperties ( edtD ); }
+				return true; }
+			if ( o.menuItemText === 'Canvas' ) {
+				let cvsD = this.addControl ( {
+					kind:  'canvas',	x: 5,  y: 5,  w: 70,  h: 70,
+					name:  'cvsName',
+				} );
+				if ( cvsD ) {
+					this.onProperties ( cvsD ); }
 				return true; }
 			if ( o.menuItemText === 'Save ...' ) {
 				this.save();
