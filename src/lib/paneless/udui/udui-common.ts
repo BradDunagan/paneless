@@ -158,6 +158,7 @@ export let uc = (function() {
 	svc.TYPE_LABEL 				= 'label';
 	svc.TYPE_TEXTAREA 			= 'textarea';
 	svc.TYPE_EDITOR				= 'editor';
+	svc.TYPE_CANVAS				= 'canvas';
 	svc.TYPE_LIST 				= 'list';
 	svc.TYPE_LISTITEM			= 'list-item';
 	svc.TYPE_TREE 				= 'tree';

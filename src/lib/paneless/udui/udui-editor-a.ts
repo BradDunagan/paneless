@@ -1,5 +1,5 @@
 
-//  app/partials/udui/udui-textarea-a.js
+//  app/partials/udui/udui-editor-a.js
 
 import * as d3 		from 'd3';
 
