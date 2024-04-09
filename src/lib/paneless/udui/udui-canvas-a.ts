@@ -7,8 +7,19 @@ import { cmn }		from '../common';
 import { uc } 		from './udui-common';
 import { uCD } 		from './udui-control-data-a';
 
+interface CanvasContexts {
+	[key: string|number]:		CanvasRenderingContext2D;
+}
 
-export var uCanvas = (function() { 
+//	https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray
+//
+interface BytePixels {
+	w: number;
+	h: number;
+	b: Uint8Array;
+}
+
+var uCanvas = (function() { 
 
 	'use strict';
 
@@ -45,8 +56,9 @@ export var uCanvas = (function() {
 	}	//	mousedown()
 
 	function mousemove ( evt: PointerEvent, d: any ) {
-//		var sW = serviceId + ' mousemove()';
-//		cmn.log ( sW, 'Name: ' + d.name + '  event.altKey: ' + event.altKey );
+		let sW = serviceId + ' mousemove()';
+		cmn.log ( sW, 'Name: ' + d.name + '  evt.altKey: ' + evt.altKey
+					+ '    clientX Y: ' + evt.clientX + ' ' + evt.clientY );
 		evt.stopPropagation();
 	}	//	mousemove()
 
@@ -78,7 +90,36 @@ export var uCanvas = (function() {
 		d.parentPanel.updateSclrs();
 	}	//	moved()
 
-	//	Canvas Size
+	function canvasSize ( d, w, h, doPropCB:boolean = true) {
+		let sW = serviceId + ' canvasSize()';
+		//	Size of the canvas.
+		//	Not necessarily the size of the control which is the size of the
+		//	svg foreign object and html body.
+		//	Something like that.
+		let cvs = <HTMLCanvasElement>window.document.getElementById ( 
+														d.eleId + '-canvas' );
+		if ( ! cvs ) {
+			cmn.error ( sW, 'canvas not found' );
+			return; }
+		//	https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/width
+		cvs.width  = d.canvasW = w;		//	Just a number. Not a string, like, 
+		cvs.height = d.canvasH = h;		//	e.g., "400px".
+		if ( doPropCB && cmn.isFunction ( d.propCB ) ) {
+			d.propCB ( 'canvasW', cvs.width );
+			d.propCB ( 'canvasH', cvs.height );
+		}
+	}	//	canvasSize()
+
+	function canvasSizeByControl ( d ) {
+		if ( ! d.bSzCvsIsSzCtrl ) {
+			return; }
+		let w = d.w, h = d.h;
+		if ( d.hasBorder ) {
+			w -= 2;	h -= 2;	}			
+		canvasSize ( d, w, h ); 
+	}	//	canvasSizeByControl()
+
+	//	Canvas Control Size
 	//
 	function sized2 ( d, g, dx, dy ) {
 		var sW = serviceId + ' sized2()';
@@ -89,6 +130,9 @@ export var uCanvas = (function() {
 		g.select ( 'foreignObject' )
 			.attr ( 'width',  d =>  d.w )
 			.attr ( 'height', d =>  d.h );
+
+		if ( d.bSzCvsIsSzCtrl ) {
+			canvasSizeByControl ( d ); }
 
 		d.setStyle();
 
@@ -130,7 +174,6 @@ export var uCanvas = (function() {
 		return d.h - uc.SIZE_HANDLE_HEIGHT;
 	}	//	sizeY()
 
-
 	function CanvasData ( o ) {
 	//	o.x += uc.OFFS_4_1_PIX_LINE;
 	//	o.y += uc.OFFS_4_1_PIX_LINE;
@@ -145,17 +188,17 @@ export var uCanvas = (function() {
 
 
 		//	Properties unique to this control -
-		this.bVertSB	  = uc.isBoolean ( o.bVertSB ) ? o.bVertSB : true;
-
 		this.value        = uc.isString ( o.value )          ? o.value 
                                                              : 'Canvas';
 		this.shiftClickCB = uc.isFunction ( o.shiftClickCB ) ? o.shiftClickCB 
 															 : null;
 		this.onProperties = uc.isFunction ( o.onProperties ) ? o.onProperties 
 															 : null;
-
-		this.content = { y:		0,
-						 h:		0 };
+		this.bSzCvsIsSzCtrl	= cmn.isBoolean ( o.bSzCvsIsSzCtrl )  
+							? o.bSzCvsIsSzCtrl
+							: false;
+		this.canvasW		= cmn.isNumber ( o.canvasW ) ? o.canvasW : null;
+		this.canvasH		= cmn.isNumber ( o.canvasH ) ? o.canvasH : null;
 
 		//	Override some "base" properties -
 		this.onSize  = sized;
@@ -164,6 +207,12 @@ export var uCanvas = (function() {
 		this.onMouseOver  = mouseOver;
 		this.onMouseLeave = mouseLeave;
 	//	this.onVScroll = vscrolled;
+		
+		this.context		= <CanvasContexts> {};
+		this.imageData		= <BytePixels | null> null;
+		this.bIsEnlarged	= false;
+		this.enlargedPS		= 0;		//	Pixel Size
+		this.feats			= null;
 
 	}	//	CanvasData()
 
@@ -175,7 +224,7 @@ export var uCanvas = (function() {
 
 	function CanvasData_listProperties() {
 		var sW = serviceId + ' CanvasData.prototype.listProperties()';
-		var whiteList = [ 'hasBorder' ];
+		var whiteList = [ 'hasBorder', 'bSzCvsIsSzCtrl', 'canvasW', 'canvasH' ];
 		var value, displayName, props = uCD.listProperties ( this );
 		for ( var key in this ) {
 			if ( ! whiteList.includes ( key ) )
@@ -189,7 +238,18 @@ export var uCanvas = (function() {
 		//		continue;
 			displayName = key;
 			switch ( key ) {
-				case 'hasBorder': 		displayName = 'has border';		break;
+				case 'hasBorder': 	
+					displayName = 'has border';		
+					break;
+				case 'bSzCvsIsSzCtrl':	
+					displayName = 'canvas size == control size';
+					break;
+				case 'canvasW':
+					displayName = 'canvas width';
+					break;
+				case 'canvasH':
+					displayName = 'canvas height';
+					break;
 			}
 			cmn.log ( sW, '   key: ' + key + '  value: ' + value );
 			props.push ( { property: key, value: value, displayName: displayName } );
@@ -219,6 +279,42 @@ export var uCanvas = (function() {
 				clses += ' u34-canvas-foreignobject-with-border'; }
 			g.select ( 'foreignObject' )
 				.attr ( 'class', clses );
+			canvasSizeByControl ( this );
+			return 1; }
+		if ( name === 'bSzCvsIsSzCtrl' ) {
+			if ( uc.booleanify ( value ) ) {
+				if ( this.bSzCvsIsSzCtrl ) {
+					return 1; }
+				this.bSzCvsIsSzCtrl = true;
+				canvasSizeByControl ( this ); }
+			else {
+				if ( ! this.bSzCvsIsSzCtrl ) {
+					return 1; }
+				this.bSzCvsIsSzCtrl = false; }
+			return 1; }
+		if ( name === 'canvasW' ) {
+			n = Number ( value );
+			if ( Number.isNaN ( n ) || n < 1 ) {
+				return 1; }
+			if ( this.bSzCvsIsSzCtrl ) {
+				let  g = d3.select ( '#' + d.eleId );
+				let dw = n - this.canvasW;
+				let dh = 0;
+				sized2 ( this, g, dw, dh ); }
+			else {
+				canvasSize ( this, n, this.canvasH, false ); }
+			return 1; }
+		if ( name === 'canvasH' ) {
+			n = Number ( value );
+			if ( Number.isNaN ( n ) || n < 1 ) {
+				return 1; }
+			if ( this.bSzCvsIsSzCtrl ) {
+				let  g = d3.select ( '#' + d.eleId );
+				let dw = 0;
+				let dh = n - this.canvasH;
+				sized2 ( this, g, dw, dh ); }
+			else {
+				canvasSize ( this, this.canvasW, n, false ); }
 			return 1; }
 
 		return 0;
@@ -229,21 +325,14 @@ export var uCanvas = (function() {
 	//	let style = 'width:' + (d.w - 14) + 'px; ';
 	//	d3.select ( '#' + d.eleId + '-canvas' )
 	//		.attr ( 'style',  style ); 
+		
+		//	width, height of the canvas is set via the width, height
+		//	properties of the canvas. Right?  See CanvasData_size().
 	}	//	CanvasData_setStyle()
 
 	function CanvasData_setContent() {
 		const sW = serviceId + ' setContent()';
 		let d = this;
-	//	let e = <HTMLIFrameElement>window.document.getElementById ( '' + d.eleId + '-iframe' );
-	//
-	//	if ( ! e ) {
-	//		cmn.error ( sW, 'iframe is null' );
-	//		return; }
-	//
-	//	e.style.border = 'none';
-	//
-	//	//	e is an iframe. Need the body ...
-	//	let b = e.contentDocument?.getElementsByTagName ( 'body' )[0];
 		let b = window.document.getElementById ( d.eleId + '-body' );
         
         if ( ! b ) {
@@ -257,18 +346,223 @@ export var uCanvas = (function() {
                     + 'id="' + d.eleId + '-canvas" '
                     + 'class="' + d.class + '">'
                     + '</canvas>';  
-
+					
 	}	//	CanvasData_setContent()
 
-	function CanvasData_getContainer() {
-		const sW = serviceId + ' getContainer()';
+	function CanvasData_getContext() : number {
+		const sW = serviceId + ' getContext()';
 		cmn.log ( sW );
-	//	return d3.select ( '#' + this.eleId + '-canvas-div' ).node();
-		return this.contentNode;
-	}	//	CanvasData_getContainer()
+		let  d   = this;
+		let  cvs = <HTMLCanvasElement>
+				   window.document.getElementById ( d.eleId + '-canvas' );
+		if ( ! cvs ) {
+			cmn.error ( sW, 'canvas not found' );
+			return 0; }
+		let hCtx = 1;
+		d.context[hCtx] = <CanvasRenderingContext2D>cvs.getContext ( "2d" );
+		return hCtx;
+	}	//	CanvasData_getContext()
+
+	function CanvasData_size ( hContext: number, w: number, h: number ) {
+		const sW = serviceId + ' size()';
+		cmn.log ( sW );
+		let d = this;
+		if ( d.bSzCvsIsSzCtrl ) {
+			let  cvs = <HTMLCanvasElement>
+					   window.document.getElementById ( d.eleId + '-canvas' );
+			if ( ! cvs ) {
+				cmn.error ( sW, 'canvas not found' );
+				return; }
+			let dw = w - cvs.width;
+			let dh = h - cvs.height;
+			let  g = d3.select ( '#' + d.eleId );
+			sized2 ( d, g, dw, dh ); }
+		else {
+			canvasSize ( d, w, h ); }
+	}	//	CanvasData_size()
+
+	function CanvasData_enlarge ( hContext: number, pixelSize: number ) {
+		const sW = serviceId + ' enlarge()';
+		cmn.log ( sW );
+		let d = this;
+		
+		//	Get the current image data.
+		//		If the pixels are not currently enlarged.
+		//		Else, having the image data from a previous enlargement, this
+		//		is unnecessary.
+		//	Resize the canvas.
+		//	Rectangle fill each enlarged pixel according to each's data.
+
+		//	Image data is maintained separately from the canvas as just one
+		//	byte per pixel.
+		let	 bab: BytePixels | null = this.getImageData ( hContext );
+		if ( ! bab ) {
+			cmn.error ( sW, 'failed to get image data' );
+			return; }
+
+		const PB	= 1;
+		const PW	= pixelSize;
+		const PH	= pixelSize;
+		const ImgW	= bab.w;
+		const ImgH	= bab.h;
+		const 	w	= PB + ((PW + PB) * ImgW);
+		const	h 	= PB + ((PH + PB) * ImgH);
+
+		d.size ( hContext, w, h );
+
+		let  ctx = d.context[hContext];
+
+		for ( let j = 0; j < ImgH; j++ ) {
+		for ( let i = 0; i < ImgW; i++ ) {
+			let b = bab.b[(j * bab.w) + i];
+			ctx.fillStyle = "rgb(" + b + " " + b + " " + b + " / 100%";
+			ctx.fillRect ( (i * (PW + PB) + PB), 	//	x
+						   (j * (PH + PB) + PB),	//	y
+						   PW, PH ); } }
+
+		d.bIsEnlarged	= true;
+		d.enlargedPS	= pixelSize;
+	}	//	CanvasData_enlarge()
+
+	function CanvasData_setFillstyle ( hContext, style ) {
+		const sW = serviceId + ' setFillstyle()';
+		cmn.log ( sW );
+		let d   = this;
+		let ctx = d.context[hContext];
+		ctx.fillStyle = style;
+	}	//	CanvasData_setFillstyle()
+
+	function CanvasData_fillRect ( hContext, x, y, w, h ) {
+		const sW = serviceId + ' fillRect()';
+		cmn.log ( sW );
+		let d   = this;
+		let ctx = d.context[hContext];
+		ctx.fillRect ( x, y, w, h );	
+	}	//	CanvasData_fillRect()
+
+	function CanvasData_translate ( hContext, x, y ) {
+		const sW = serviceId + ' translate()';
+		cmn.log ( sW );
+		let d   = this;
+		let ctx = d.context[hContext];
+		ctx.translate ( x, y );	
+	}	//	CanvasData_translate()
+
+	function CanvasData_rotate ( hContext, a ) {
+		const sW = serviceId + ' rotate()';
+		cmn.log ( sW );
+		let d   = this;
+		let ctx = d.context[hContext];
+		ctx.rotate ( a );	
+	}	//	CanvasData_rotate()
+
+	function CanvasData_getImageData ( hContext, x, y, w, h ) {
+		const sW = serviceId + ' getImageData()';
+		cmn.log ( sW );
+		let d   = this;
+		if ( d.imageData ) {
+			return d.imageData; }
+		if ( d.bIsEnlarged ) {
+			cmn.error ( sW, 'no image data, but is enlarged' );
+			return null; }
+		let  cvs = <HTMLCanvasElement>
+				   window.document.getElementById ( d.eleId + '-canvas' );
+		if ( ! cvs ) {
+			cmn.error ( sW, 'canvas not found' );
+			return; }
+		let  ctx = d.context[hContext];
+		let data = <ImageData>ctx.getImageData ( 0, 0, cvs.width, cvs.height );
+		//	Byte Array Buffer
+		//	I.e., for now, deal with just 8 bits per pixel. I.e., gray scale.
+		let	  nb = data.width * data.height;
+		let  bab = new Uint8Array ( nb );
+		for ( let i = 0; i < nb; i++ ) {
+			bab[i] = data.data[i * 4]; }
+
+		d.imageData = { w:	data.width,
+						h:	data.height,
+						b:	bab };
+		return d.imageData;
+	}	//	CanvasData_getImageData()
+
+	function CanvasData_edge ( hContext ) {
+		const sW = serviceId + ' edge()';
+		cmn.log ( sW );
+		let d    = this;
+		let data: BytePixels | null = null;
+		if ( d.imageData ) {
+			data = d.imageData; }
+		else {
+			if ( d.bIsEnlarged ) {
+				cmn.error ( sW, 'no image data, but is enlarged' );
+				return null; }
+			data = d.getImageData ( hContext ); }
+		if ( ! data ) {
+			return null; } 
+
+
+		//	N-S differences.
+		
+		let ImgW = data.w;
+		let ImgH = data.h;
+		let pix	 = data.b;
+
+		let feats : { i: number; j: number; d: number } [] = [];
+
+		const nsH  = 7;
+		const nsH2 = Math.floor ( nsH / 2 );
+
+		for ( let j = nsH; j < ImgH - nsH; j += nsH2 )
+		for ( let i = 0; i < ImgW; i++ ) {
+			let maxD = 0;	let maxDk = -1;
+			for ( let k = -nsH2; k < nsH2; k++ ) {
+				let aj = j + k;
+				let ip = (aj * ImgW) + i;
+				let a0 = pix[ip + (0 * ImgW)];
+				let a1 = pix[ip + (1 * ImgW)];
+				let a2 = pix[ip + (2 * ImgW)];
+				let a  = Math.floor ( (a0 + a1 + a2) / 3 );
+				let b0 = pix[ip + (4 * ImgW)];
+				let b1 = pix[ip + (5 * ImgW)];
+				let b2 = pix[ip + (6 * ImgW)];
+				let b  = Math.floor ( (b0 + b1 + b2) / 3 );
+				let diff = Math.abs ( b - a );
+				if ( diff > maxD ) {
+					maxD  = diff;
+					maxDk = k; }
+			}
+			if ( maxD > 40 ) {
+				feats.push ( { i: i, j: j + maxDk + 3, d: maxD } );
+			}
+		}
+
+		if ( d.bIsEnlarged ) {
+			let  cvs = <HTMLCanvasElement>
+					   window.document.getElementById ( d.eleId + '-canvas' );
+			if ( ! cvs ) {
+				cmn.error ( sW, 'canvas not found' );
+				return null; }
+
+			let  ctx = d.context[hContext];
+
+			ctx.fillStyle = "rgb(0 255 0 / 100%";
+
+			let PW = d.enlargedPS;
+			let PH = d.enlargedPS;
+			let PB = 1;
+
+			feats.forEach ( f => {
+				ctx.fillRect ( (f.i * (PW + PB) + PB) + 3, 	//	x
+							   (f.j * (PH + PB) + PB) + 3,	//	y
+							   3, 3 ); 
+			} ); }
+
+		d.feats = feats;
+		
+		return null;
+	}	//	CanvasData_edge()
 
 	svc.createCanvasData = function ( o ) {
-
 	//	if ( CanvasData.prototype.constructor.name === 'CanvasData' ) {
 	//		//	Do this once, here to avoid cir ref issue
 			CanvasData.prototype = uCD.newControlData();
@@ -277,9 +571,24 @@ export var uCanvas = (function() {
 			CanvasData.prototype.setStyle = CanvasData_setStyle;
 			CanvasData.prototype.setProperty = CanvasData_setProperty;
 			CanvasData.prototype.setContent = CanvasData_setContent;
-			CanvasData.prototype.getContainer = CanvasData_getContainer;
-	//	}
+			CanvasData.prototype.getContext = CanvasData_getContext;
+			CanvasData.prototype.size = CanvasData_size;
+			CanvasData.prototype.enlarge = CanvasData_enlarge;
+			CanvasData.prototype.setFillstyle = CanvasData_setFillstyle;
+			CanvasData.prototype.fillRect = CanvasData_fillRect;
+			CanvasData.prototype.translate = CanvasData_translate;
+			CanvasData.prototype.rotate = CanvasData_rotate;
+			CanvasData.prototype.getImageData = CanvasData_getImageData;
+			
+			//	Features ?
+			//	-	edge
+			//		-	average intensity
+			//		-	pattern (e.g., noisyness)
+			//	-	corner ?
+			//	-	gradient
 
+			CanvasData.prototype.edge = CanvasData_edge;
+	//	}
 		return new CanvasData ( o );
 	};	//	svc.createCanvasData()
 
@@ -307,12 +616,12 @@ export var uCanvas = (function() {
 			.on ( 'mouseover', uCD.mouseover )
 			.on ( 'mouseout',  uCD.mouseleave )
 			.on ( 'mousedown', mousedown )
-			.on ( 'mousemove', mousemove )
+		//	.on ( 'mousemove', mousemove )
 			.on ( 'mouseup',   mouseup )
 		//	.on ( 'wheel',     onWheel )
 			.on ( 'click',     click );
 
-		let bodyD = null;
+		let bodyD: any = null;
 
 		ctrlEles.append ( 'g' )
 			.attr ( 'id',         function ( d, i ) { return d.eleId + '-foreignobject'; } )
@@ -336,18 +645,30 @@ export var uCanvas = (function() {
 						bodyD = d;
 						return '';
 					} )
-			//	.append ( 'xhtml:iframe' )
-			//		.attr ( 'id', d => d.eleId + '-iframe' )
-			//		.attr ( 'style', 'border:none;' )
-			//		.html ( function ( d, i ) {
-			//			bodyD = d;
-			//			return '';
-			//		} );
 
-		if ( bodyD  ) {
-			bodyD.setContent(); }
+		while ( bodyD  ) {
+			bodyD.setContent(); 
+			let cvs = <HTMLCanvasElement>
+					  document.getElementById ( bodyD.eleId + '-canvas' );
+			if ( ! cvs ) {
+				break; }
+			if ( bodyD.canvasW === null ) {
+				bodyD.canvasW = cvs.width; }
+			else {
+				cvs.width = bodyD.canvasW; }
+			if ( bodyD.canvasH === null ) {
+				bodyD.canvasH = cvs.height; }
+			else {
+				cvs.height = bodyD.canvasH; }
+				
+		//	cvs.onmousemove = mousemove;
+			(<any>cvs).__data__ = bodyD;
+			d3.select ( cvs )
+				.on ( 'mousemove', mousemove );
 
-		ctrlEles.append ( 'rect' )				//	size handle - invisible until mouse is over
+			break; }
+
+		ctrlEles.append ( 'rect' )		//	size handle - invisible until mouse is over
 			.attr ( 'id',     function ( d, i ) { return d.eleId + '-size'; } )
 			.attr ( 'x',      sizeX ) 
 			.attr ( 'y',      sizeY )
@@ -376,4 +697,6 @@ export var uCanvas = (function() {
 
 	return svc;
 })();
+
+export { uCanvas,  type BytePixels };
 

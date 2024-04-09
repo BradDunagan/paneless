@@ -36,7 +36,8 @@ let self = {
 			if ( o.selected ) {
 				self.state.style = {
 					'border-top':	'solid 1px white',
-					'padding-top':	'3px' };
+					'padding-top':	'3px',
+					'color':		'blue' };
 				self.state.styleString = stringifyStyle ( self.state.style ); 
 			} else {
 				self.state.style = {};

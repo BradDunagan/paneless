@@ -240,7 +240,9 @@
 				appFrameFnc ( { do:		'set-focused-frame-fnc',
 								focus:	focus } ); 
 				clientFnc ( { do:	'set-state-changed',
-							  what:	'frame-added' } ); } );
+							  what:	'frame-added' } ); 
+				clientFnc ( { do:		'relayout-frames',
+							  frameIds:	[o.frameId] } ); } );
 
 			return o.frameId;
 		}	//	addFrame()
@@ -248,6 +250,7 @@
 		addFrames ( a: [any] ) {
 			const sW = 'AppContent addFrames()';
 			let props: any = null, fa: any [] = [];
+			let frameIds: number [] = [];
 			for ( let i = 0; i < a.length; i++ ) {
 				let o = a[i];
 				props = { hdrVisible:	o.hdrVisible,
@@ -268,6 +271,7 @@
 									  iconSlot:	null,
 									  props:	props };
 				fa.push ( frames[o.frameId] );
+				frameIds.push ( o.frameId );
 			}	//	for ( ... )
 
 			aframes = fa;
@@ -277,7 +281,9 @@
 
 			tick().then ( () => {
 				clientFnc ( { do:	'set-state-changed',
-							  what:	'frame-added' } ); } );
+							  what:	'frame-added' } );
+				clientFnc ( { do:		'relayout-frames',
+							  frameIds:	frameIds } ); } );
 		}	//	addFrames()
 
 		destroyFrame ( o: any ) {

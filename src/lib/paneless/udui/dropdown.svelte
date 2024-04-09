@@ -25,6 +25,8 @@
 	export let prpItems: any			= null;
 	export let prp_bAsTree: boolean		= false;
 	export let prp_cbPopulated: any		= null;
+	export let prp_selectedParentId: number = 0;
+	export let prp_selectedItemId: number 	= 0;
 
 class ClassDropdown {
 
@@ -182,6 +184,8 @@ class ClassDropdown {
 								   items: 		prpItems,
 								   bAsTree:		prp_bAsTree,
 								   cbPopulated:	prp_cbPopulated,
+								   selectedParentId:	prp_selectedParentId,
+								   selectedItemId:		prp_selectedItemId,
 								   panel:		this.rootPanel } );
 	}	//	dropdown()
 

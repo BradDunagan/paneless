@@ -134,6 +134,8 @@ let self = {
 
 	//	Data associated with any element.  Keys are the elements' id.
 	eleData:	{},
+	
+	bRelayoutAfterMount:	false,
 
 	burgerClick() {
 		let sW = 'paneless Pane burgerClick()';
@@ -1671,13 +1673,21 @@ let self = {
 						sv.bottom.paneFnc = o.fnc; } }
 			}
 			if ( o.to === 'tabs' ) {
+				cmn.log ( sW, 'setting tabsFnc' );
 				self.tabsFnc = o.tabsFnc;
+				return;
 			}
 		//	if ( o.to === 'tab-pages' ) {
 		//		self.tabPagesFnc = o.tabPagesFnc;
 		//	}
 			if ( o.to === 'tab-page-pane' ) {
+			//	cmn.log ( sW, 'setting tabPagesPane[' + o.tabId + ']' );
 				self.tabPagePanes[o.tabId] = { paneFnc:	o.tabPaneFnc };
+				if ( self.mounted && cmn.isFunction ( o.tabPaneFnc ) ) {
+					prpFrameFnc ( { do: 'relayout' } ); }
+				else {
+					self.bRelayoutAfterMount = true; }
+				return;
 			}
 			if ( o.to === 'empty-client-content' ) {
 				if ( o.paneId === prpPaneId ) {
@@ -2037,7 +2047,8 @@ let self = {
 	}
 
 	onMount ( () => {
-		const sW = 'paneless Pane ' + prpPaneId + ' onMount()';
+		const sW = 'paneless Frame ' + prpFrameId + '  '
+				 + 'Pane ' + prpPaneId + ' onMount()';
 	//	cmn.log ( sW );
 		prpClientFnc ( { do: 'check-content', sW: sW  + ' top' } );
 		let e    = document.getElementById ( self.eleId );
@@ -2055,6 +2066,9 @@ let self = {
 	
 		self.mounted = true;
 		prpClientFnc ( { do: 'check-content', sW: sW  + ' bot' } );
+				
+		if ( self.bRelayoutAfterMount ) {
+			prpFrameFnc ( { do: 'relayout' } ); }
 	} )	//	onMount()
 
 	afterUpdate ( self.afterUpdate );

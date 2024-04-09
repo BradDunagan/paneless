@@ -453,6 +453,10 @@ export var uShiftClick = (function() {
 				if ( cmn.isFunction ( o.cbPopulated ) ) {
 					o.cbPopulated ( { status:	'ok',
 									  treeD:	treeD } ); }
+				if ( o.selectedItemId > 0 ) {
+					treeD.showSelected ( o.selectedParentId, 
+										 o.selectedItemId );
+					treeD.scrollIntoView ( o.selectedItemId ); }
 			}	//	addItems()
 			
 			if ( cmn.isPromise ( o.items ) ) {

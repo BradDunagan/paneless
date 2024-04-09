@@ -694,6 +694,30 @@ export var uTree = (function() {
 		return d;
 	}	//	TreeData.prototype.selectItem()
 
+	function TreeData_showSelected ( itemParentId, itemId ) {
+		const sW = serviceId + ' TreeData.prototype.showSelected()';
+		let td = this;
+		function expandParent ( pId ) {
+			if ( ! pId ) {
+				return true; }
+			let itemD = td.findItem ( pId );
+			if ( ! itemD ) {
+				cmn.error ( sW, 'parent not found' );
+				return false; }
+			if ( itemD.parent ) {
+				if ( ! expandParent ( itemD.parent.textId ) ) {
+					return false; } }
+			td.expandItem ( pId ); 
+			td.update();
+			return true;
+		}	//	expandParent()
+
+		if ( ! expandParent ( itemParentId ) ) {
+			return false; }
+		td.selectItem ( itemId ); 
+		return true;
+	}	//	TreeData.prototype.showSelected()
+
 	function TreeData_listProperties() {
 		var sW = serviceId + ' TreeData.prototype.listProperties()';
 		var value, displayName, props = uCD.listProperties ( this );
@@ -2124,6 +2148,7 @@ export var uTree = (function() {
 		p.constructor		= TreeData;
 		p.scrollIntoView	= TreeData_scrollIntoView;
 		p.selectItem		= TreeData_selectItem;
+		p.showSelected		= TreeData_showSelected;
 		p.listProperties	= TreeData_listProperties;
 		p.setProperty		= TreeData_setProperty;
 		p.clear				= TreeData_clear;

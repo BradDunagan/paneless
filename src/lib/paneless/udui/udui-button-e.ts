@@ -168,8 +168,19 @@ export var uButton = (function() {
 		this.onSize2 = sized2;
 		this.onMove  = moved;
 
-		this.execute = uc.isString ( o.execute ) ? o.execute : '';
-		this.onclick = uc.isObject ( o.onclick ) ? o.onclick : null;
+		this.execute	= uc.isString ( o.execute )   ? o.execute   : '';
+		this.onclick	= uc.isObject ( o.onclick )   ? o.onclick   : null;
+
+		//	2024-Mar-25
+		//	Need something to specify which pane the button click is to be
+		//	executed in.  The default will be the PE pane that is in the same
+		//	frame as the pane the button is in.
+		//	Or -
+		//	Not this. But expand execute to optionally include a pane 
+		//	specifier -
+		//		this.execute = [<pane>:]<fnc-name>;
+		this.executeIn	= uc.isString ( o.executeIn ) ? o.executeIn : '';
+		this.pane		= uc.isString ( o.pane )      ? o.pane:       '';
 
 		//	When clicked show a menu (list) below?
 		if ( uc.isNumber ( o.bDropdown ) ) {

@@ -1181,6 +1181,9 @@
 		case ( 'show-name-dlg' ) : {
 			return self.appFnc ( o );
 		}
+		case ( 'relayout' ) : {
+			return self.relayout ( o );
+		}
 	}	//	switch
         },  //  doAll()
 

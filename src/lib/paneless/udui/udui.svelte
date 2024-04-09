@@ -19,7 +19,8 @@
 	import { uTabs }			from './udui-tabs-a';
 	import { uTextarea }		from './udui-textarea-a';
 	import { uEditor }			from './udui-editor-a';
-	import { uCanvas } 			from './udui-canvas-a';
+	import { uCanvas,
+			 type BytePixels }	from './udui-canvas-a';
 	import { uSL }				from './udui-store-load-a';
 
 	import uDsrcGraph			from './udui-dsrc-graph-a';
@@ -193,6 +194,16 @@ class ClassUDUI {
 		this.setText			= this.setText.bind ( this );
 		this.getText			= this.getText.bind ( this );
 		this.getSelected		= this.getSelected.bind ( this );
+		this.prepCanvasOp		= this.prepCanvasOp.bind ( this );
+		this.getCanvasContext	= this.getCanvasContext.bind ( this );
+		this.canvasSetFillstyle	= this.canvasSetFillstyle.bind ( this );
+		this.canvasFillRect		= this.canvasFillRect.bind ( this );
+		this.canvasSize 		= this.canvasSize.bind ( this );
+		this.canvasEnlarge		= this.canvasEnlarge.bind ( this );
+		this.canvasTranslate	= this.canvasTranslate.bind ( this );
+		this.canvasRotate 		= this.canvasRotate.bind ( this );
+		this.canvasGetImageData	= this.canvasGetImageData.bind ( this );
+		this.canvasEdge			= this.canvasEdge.bind ( this );
 		this.showJointValues	= this.showJointValues.bind ( this );
 		this.jsonizeRPD			= this.jsonizeRPD.bind ( this );
 		this.save				= this.save.bind ( this );
@@ -351,16 +362,27 @@ class ClassUDUI {
 	//		return false; }
 	//	this.peFnc ( { do: 	'execute',
 	//				   cmd:	d.execute } )
-		let fnc = cmn.oneCallee ( sW, this.callees, 'pe', false );
-		if ( ! cmn.isFunction ( fnc ) ) {
-			return false; }
+		let exeFnc = d.execute;
+		//	d.execute like [<pane-name>:]<fnc-name>?
+		let e = d.execute.split ( ':' );
+		if ( e.length > 1 ) {
+			exeFnc = e[1]; }
+		let paneFnc = cmn.oneCallee ( sW, this.callees, 'pe', false );
+		if ( ! cmn.isFunction ( paneFnc ) ) {
+			if ( e.length < 2 ) {
+				return false; }
+			let o = prpClientAppFnc ( { do: 'find-pane-by-name',
+										name:	e[0] } );
+			if ( ! o ) {
+				return false; }						
+			paneFnc = o.paneFnc; }
 
 		//	Prevent ("disable") any other event on the panel while executing.
 		let pp = d.parentPanel
 		pp.screen();
 
-		fnc ( { do: 	'execute',
-				cmd:	d.execute } )
+		paneFnc ( { do: 	'execute',
+					cmd:	exeFnc } )
 			.then ( () => {
 				pp.unscreen();
 				cmn.log ( sW, 'PE execute completed' );
@@ -380,6 +402,8 @@ class ClassUDUI {
 		let items		= null;
 		let bAsTree		= true;
 		let cbPopulated	= null;
+		let selectedParentId	= 0;
+		let selectedItemId		= 0;
 
 		let code = this.getCode();
 		if ( code && cmn.isFunction ( code.dropDown ) ) {
@@ -392,7 +416,14 @@ class ClassUDUI {
 				items = rsp.items; }
 			bAsTree = rsp.bAsTree; 
 			cbPopulated = cmn.isFunction ( rsp.cbPopulated ) ? rsp.cbPopulated
-															 : null; }
+															 : null; 
+			selectedParentId = cmn.isNumber ( rsp.selectedParentId ) 
+										? rsp.selectedParentId
+										: 0;
+			selectedItemId = cmn.isNumber ( rsp.selectedItemId ) 
+										? rsp.selectedItemId
+										: 0;
+		}
 		else {
 			if ( ! (uc.isString ( d.menu ) && (d.menu.length > 0)) ) {
 				return false; }
@@ -444,7 +475,9 @@ class ClassUDUI {
 							itemClick: 		itemClick, 
 							items: 			items,
 							bAsTree:		bAsTree,
-							cbPopulated:	cbPopulated } );
+							cbPopulated:	cbPopulated,
+							selectedParentId:	selectedParentId,
+							selectedItemId:		selectedItemId } );
 
 		return true;
 	}	//	dropdown()
@@ -1584,7 +1617,141 @@ class ClassUDUI {
 			return { status: 'item not selected' }; }
 		return { status: 'error', msg: 'control not found' };
 	}	//	getSelected()
+
+	prepCanvasOp ( o ) {
+		let p: { cvsD: any; result: any } = { cvsD:		null,
+				  							  result:	null };
+
+		let pnlName = o["panel"];
+		if ( ! cmn.isString ( pnlName ) ) {
+			p.result = { status: 'error', msg: 'expected panel name' }; 
+			return p; }
+		let pnlD = this.rpd.name === pnlName
+					? this.rpd
+					: this.rpd.getControl ( uc.TYPE_PANEL, pnlName );
+		if ( ! pnlD ) {
+			p.result = { status: 'error', msg: 'panel not found' }; 
+			return p; }
+		let cvsName = o["canvas"];
+		if ( ! cmn.isString ( cvsName ) ) {
+			p.result = { status: 'error', msg: 'expected canvas name' }; 
+			return p; }
+		let cvsD = pnlD.getControl ( uc.TYPE_CANVAS, cvsName );
+		if ( ! cvsD ) {
+			p.result = { status: 'error', msg: 'canvas not found' }; 
+			return p; }
+
+		p.cvsD   = cvsD;
+		p.result = 	{ cmd:		o["cmd"],
+					  status:	'ok', 
+					  'context-object':	o['context-object'],
+					  'result':	'success' };
+		return p;
+	}	//	prepCanvasOp()
 	
+	getCanvasContext ( o ) {
+		const sW = 'UDUI getCanvasContext()';
+		let p = this.prepCanvasOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return p.result; }	
+
+		p.result["context-handle"] = p.cvsD.getContext();		
+		return p.result;
+	}	//	getCanvasContext()
+
+	canvasSetFillstyle ( o ) {
+		const sW = 'UDUI canvasSetFillstyle()';
+		let p = this.prepCanvasOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return p.result; }	
+
+		let hContext  = o["context-handle"];
+		let fillstyle = o["fillstyle"];
+		p.cvsD.setFillstyle ( hContext, fillstyle );		
+		return p.result;
+	}	//	canvasSetFillstyle()
+
+	canvasFillRect ( o ) {
+		const sW = 'UDUI canvasFillRect()';
+		let p = this.prepCanvasOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return p.result; }	
+
+		let hContext  = o["context-handle"];
+		p.cvsD.fillRect ( hContext, o.x, o.y, o.w, o.h );		
+		return p.result;
+	}	//	canvasFillRect()
+
+	canvasSize ( o ) {
+		const sW = 'UDUI canvasSize()';
+		let p = this.prepCanvasOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return p.result; }	
+
+		let hContext  = o["context-handle"];
+		p.cvsD.size ( hContext, o.w, o.h );		
+		return p.result;
+	}	//	canvasSize()
+
+	canvasEnlarge ( o ) {
+		const sW = 'UDUI canvasEnlarge()';
+		let p = this.prepCanvasOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return p.result; }	
+
+		let hContext  = o["context-handle"];
+		p.cvsD.enlarge ( hContext, o['pixel-size'] );		
+		return p.result;
+	}	//	canvasEnlarge()
+
+	canvasTranslate ( o ) {
+		const sW = 'UDUI canvasTranslate()';
+		let p = this.prepCanvasOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return p.result; }	
+
+		let hContext  = o["context-handle"];
+		p.cvsD.translate ( hContext, o.x, o.y );
+		return p.result;
+	}	//	canvasTranslate()
+
+	canvasRotate ( o ) {
+		const sW = 'UDUI canvasRotate()';
+		let p = this.prepCanvasOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return p.result; }	
+
+		let hContext  = o["context-handle"];
+		p.cvsD.rotate ( hContext, o.a );
+		return p.result;
+	}	//	canvasRotate()
+
+	canvasGetImageData ( o ) {
+		const sW = 'UDUI canvasGetImageData()';
+		let p = this.prepCanvasOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return p.result; }	
+
+		let hContext  = o["context-handle"];
+		let bp: BytePixels = p.cvsD.getImageData ( hContext, o.x, o.y, 
+															 o.w, o.h );
+		//	https://developer.mozilla.org/en-US/docs/Glossary/Base64
+		let s3 = btoa ( String.fromCodePoint ( ...bp.b ) )
+		p.result.result = s3;
+		return p.result;
+	}	//	canvasGetImageData()
+
+	canvasEdge ( o ) {
+		const sW = 'UDUI canvasEdge()';
+		let p = this.prepCanvasOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return p.result; }	
+
+		let hContext  = o["context-handle"];
+		p.cvsD.edge ( hContext );
+		return p.result;
+	}	//	canvasEdge()
+
 	doScript ( script ) {
 		const sW = 'UDUI doScript()';
 		let results: any [] = [];
@@ -1639,6 +1806,33 @@ class ClassUDUI {
 				break;
 			case 'get-selected':
 				cmdResult = this.getSelected ( ai );
+				break;
+			case 'get-canvas-context':
+				cmdResult = this.getCanvasContext ( ai );
+				break;
+			case 'canvas-set-fillstyle':
+				cmdResult = this.canvasSetFillstyle ( ai );
+				break;
+			case 'canvas-fill-rect':
+				cmdResult = this.canvasFillRect ( ai );
+				break;
+			case 'canvas-size':
+				cmdResult = this.canvasSize ( ai );
+				break;
+			case 'canvas-enlarge':
+				cmdResult = this.canvasEnlarge ( ai );
+				break;
+			case 'canvas-translate':
+				cmdResult = this.canvasTranslate ( ai );
+				break;
+			case 'canvas-rotate':
+				cmdResult = this.canvasRotate ( ai );
+				break;
+			case 'canvas-get-image-data':
+				cmdResult = this.canvasGetImageData ( ai );
+				break;
+			case 'canvas-edge':
+				cmdResult = this.canvasEdge ( ai );
 				break;
 			default:
 				let msg = 'unrecognized cmd "' + ai.cmd + '"';
@@ -1825,7 +2019,8 @@ class ClassUDUI {
 			this.updateUDUIRegistration ( state.uduiRegSpec ); }
 
 		let code = this.getCode ( state.codeName );
-		if ( ! code ) {
+		if ( (! code) && cmn.isString ( state.codeName)
+					  && (state.codeName.length > 0) ) {
 			code = this.instantiateCode ( state.codeName, state ); }
 
 		if ( code && ! cmn.isFunction ( code.updateRegistration ) ) {
@@ -1900,6 +2095,9 @@ class ClassUDUI {
 		this.rpd.minHeight = cmn.isNumber ( state.minHeight )
 									? state.minHeight : 0;
 		this.setRootPanelWH();
+		
+		if ( cmn.isString ( state.rootPanelName ) ) {
+			this.rpd.name = state.rootPanelName; }
 	}	//	doSetState()
 
 	getControl ( o ) {
@@ -1993,6 +2191,7 @@ class ClassUDUI {
 			let pd = this.jsonizeRPD ( sW );
 			return { 
 				state: 			null,
+				rootPanelName:	pd.name,
 				controls:		pd.childData.data,
 				style:			this.state.style,
 				title:			title,
