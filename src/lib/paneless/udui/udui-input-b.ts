@@ -233,7 +233,7 @@ export var uInput = (function() {
 	function InputData_listProperties() {
 		var sW = serviceId + ' InputData.prototype.listProperties()';
 		var whiteList = [ 'execute', 'border', 'ff', 'fs', 'textAlign', 
-						  'inputType', 'step', 'tabIndex' ];
+						  'inputType', 'step', 'tabIndex', 'decPlaces' ];
 		var value, displayName, props = uCD.listProperties ( this );
 		for ( var key in this ) {
 			if ( ! whiteList.includes ( key ) )
@@ -252,6 +252,7 @@ export var uInput = (function() {
 				case 'textAlign':	displayName = 'text align';		break;
 				case 'inputType': 	displayName = 'input type';		break;
 				case 'tabIndex':	displayName = 'tab index';		break;
+				case 'decPlaces':	displayName = 'dec places';		break;
 			}
 			cmn.log ( sW, '   key: ' + key + '  value: ' + value );
 			props.push ( { property: key, value: value, displayName: displayName } );
@@ -272,7 +273,9 @@ export var uInput = (function() {
 		if ( ['border', 'ff', 'fs', 'textAlign'].indexOf ( name ) >= 0 ) {
 			if ( name === 'fs' ) {
 				n = Number ( value );
-				if ( n !== n ) { 	//	Good Grief!  ... testing for NaN ...	got'a love JS :(	
+			//	if ( n !== n ) { 	//	Good Grief!  ... testing for NaN ...	got'a love JS :(	
+			//		return 1; }
+				if ( Number.isNaN ( n ) ) {
 					return 1; }
 				this[name] = n; }
 			else {
@@ -297,7 +300,9 @@ export var uInput = (function() {
 		}
 		if ( name === 'step' ) {
 			n = Number ( value );
-			if ( n !== n ) { 	//	Good Grief!  ... testing for NaN ...	got'a love JS :(	
+		//	if ( n !== n ) { 	//	Good Grief!  ... testing for NaN ...	got'a love JS :(	
+		//		return 1; }
+			if ( Number.isNaN ( n ) ) {
 				return 1; }
 			this[name] = n; 
 			g.select ( 'input' )
@@ -306,9 +311,21 @@ export var uInput = (function() {
 				} );
 			return 1;
 		}
+		if ( name === 'decPlaces' ) {
+			n = Number ( value );
+			if ( Number.isNaN ( n ) ) {
+				return 1; }
+			this[name] = n; 
+		//	g.select ( 'input' )
+		//		.attr ( 'dec places',  function ( d: any, i ) { 		?
+		//			return d.step;
+		//		} );
+			return 1;
+		}
 		if ( name === 'tabIndex' ) {
 			n = Number ( value );
-			if ( n !== n ) { 	//	Good Grief!  ... testing for NaN ...	got'a love JS :(	
+		//	if ( n !== n ) { 	//	Good Grief!  ... testing for NaN ...	got'a love JS :(	
+			if ( Number.isNaN ( n ) ) {
 				this[name] = '';
 				g.select ( 'input' )
 					.attr ( 'tabIndex',  '' );
@@ -344,12 +361,14 @@ export var uInput = (function() {
 			(<HTMLInputElement>n).value = text; }
 	}	//	InputData.prototype.setText()
 
-	function InputData_setNumber ( n ) {
+	function InputData_setNumber ( n : number ) {
 		var sW = serviceId + ' InputData.prototype.setNumber()';
-		cmn.log ( sW );
-		let f    = this.decPlaces * 10;
-		let text = '' + Math.round ( n * f ) / f;
-		this.setText ( text );
+	//	cmn.log ( sW );
+		if ( (! cmn.isInteger ( this.decPlaces )) || (this.decPlaces <= 0)
+												  || (this.decPlaces > 99) ) {
+			cmn.error ( sW, 'bad decPlaces: ' + this.decPlaces );
+			return; }
+		this.setText ( n.toPrecision ( this.decPlaces ) );
 	}	//	InputData.prototype.setNumber()
 
 	svc.createInputData = function ( o ) {
