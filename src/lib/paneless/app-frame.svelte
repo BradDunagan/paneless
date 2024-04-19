@@ -281,7 +281,11 @@ class ClassAppFrame {
 					return { key:	i,
 							 props:	{ prpAppFrameFnc:	self.doAll,
 									  prpDlg:			r.dlg,
-									  prpMnu:			r.mnu } };
+									  prpMnu:			r.mnu,
+									  prpRes:			cmn.isFunction ( r.res )
+									  						? r.res : null,
+									  prpRej:			cmn.isFunction ( r.rej )
+									  						? r.rej : null } };
 				}
 			} );
 		} );	//	tick().then
@@ -362,10 +366,16 @@ class ClassAppFrame {
 			return;
 		}
 		case ( 'show-menu' ): {
-			this.dlgList.push ( { dlg: 		'menu',
-								  mnu:		o } );
-			this.updateDialogState();
-			return;
+		//	this.dlgList.push ( { dlg: 		'menu',
+		//						  mnu:		o } );
+		//	this.updateDialogState();
+			return new Promise ( ( res, rej ) => {
+				this.dlgList.push ( { dlg: 		'menu',
+									  mnu:		o,
+									  res:		res,
+									  rej: 		rej } );
+				this.updateDialogState();
+			} );
 		}
 		case ( 'menu-dismiss' ): {
 			if ( this.activeMenuFnc ) {

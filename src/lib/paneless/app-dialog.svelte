@@ -15,6 +15,8 @@
 	export let prpCtx: any				= null;
 	export let prpDlg: any				= null;
 	export let prpMnu: any				= null;
+	export let prpRes: any 				= null;
+	export let prpRej: any 				= null;
 	export let prpComp: any				= null;
 	export let prpScreenClass : any		= null;
 
@@ -174,7 +176,10 @@ let self = {
 						prpAppFrameFnc:	prpAppFrameFnc,
 						prpScreenFnc: 	self.doAll,
 						prpUpFnc:		prpMnu.upFnc,
-						prpCtx:			prpMnu.ctx } } ); }
+						prpCtx:			prpMnu.ctx,
+						prpRes:			prpRes,
+						prpRej:			prpRej,
+				prpSelectedItemIndex:	prpMnu.menuSelectedItemIndex } } ); }
 
 	onMount ( () => {
 		if ( ! cmn.isFunction ( prpClientFnc ) ) {

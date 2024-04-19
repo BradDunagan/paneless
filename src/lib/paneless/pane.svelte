@@ -137,10 +137,10 @@ let self = {
 	
 	bRelayoutAfterMount:	false,
 
-	burgerClick() {
+	burgerClick ( o: any ) {
 		let sW = 'paneless Pane burgerClick()';
 	//	cmn.log ( sW );
-		let menuItems = [];
+		let menuItems: any[] = [];
 
 		if (   (! self.ccFnc) 
 			|| (! self.ccFnc ( { do: 'is-content-installed' } )) ) {
@@ -178,14 +178,18 @@ let self = {
 			menuItems.push ( { type: 'item',	text: 'Empty Pane' } ); 
 			menuItems.push ( { type: 'item',	text: 'Remove Pane' } ); }
 
+		let misi: null | number = null;
+		if ( cmn.isString ( o.hotKey ) ) {
+			misi = menuItems.findIndex ( mi => mi.hotKey === o.hotKey ); }
 		let pe = document.getElementById ( self.eleId );
 		let r  = pe.getBoundingClientRect();
-		prpFrameFnc ( { 
+		let pms = prpFrameFnc ( { 
             do: 		'show-menu',
             menuEleId:	self.eleId + '-burger-menu',
             menuX:		r.x - 1,
             menuY:		r.y - 1,
             menuItems:	menuItems,
+			menuSelectedItemIndex:	misi,
             upFnc:		self.doAll,
             ctx:		{ what:		'pane burger',
 						  dismiss:	'burger-menu-dismissed',
@@ -193,6 +197,7 @@ let self = {
 		} );
 
 		self.isShowingBurgerMenu = true;
+		return pms;
 	},	//	burgerClick()
 
 	myElementStyleFnc ( dim, size, gutSize ) {
@@ -1199,7 +1204,7 @@ let self = {
 			prpFrameFnc ( { do: 'show-burger-menu' } );
 			return;
 		}
-		self.burgerClick();
+		self.burgerClick ( o );
 	},	//	keyBurgerMenu()
 
 	focus ( o ) {
@@ -1775,8 +1780,7 @@ let self = {
 			}
 		}	//	if ( o.do === 'set-call-down-correct' ) 
 		case 'pane-burger-click': {
-			self.burgerClick();
-			return;
+			return self.burgerClick ( o );
 		}
 		case 'split-horz': {
 			return self.splitHorz ( o );

@@ -3,7 +3,7 @@
 	import { beforeUpdate }	    from 'svelte';
 
 	export let prpText 		= '';
-	export let prpHotkey	= '';
+	export let prpHotKey	= '';
 	export let prpDisabled	= false;
 
 	function stringifyStyle ( style: any ): string {
@@ -55,7 +55,7 @@ let self = {
         </div>
         <div class = 'menu-item-hotkey'
                 style = { self.state.itemStyleString }>
-            { prpHotkey }
+            { prpHotKey }
         </div>
     </div>
 

@@ -7,12 +7,15 @@
 
 	export let prpEleId 				= '';
 	export let prpStyle: any			= { };
-	export let prpItems: any [] 		= [ ]
+	export let prpItems: any [] 		= [ ];
 	export let prpAppFrameFnc: any		= null;
 	export let prpScreenFnc: any 		= null;
 	export let prpUpFnc: any			= null;
 	export let prpCtx: any				= null;
 	export let prpIsSubMenu: boolean	= false;
+	export let prpRes: any				= null;
+	export let prpRej: any				= null;
+	export let prpSelectedItemIndex: any 	= null;
     
 	function stringifyStyle ( style: any ): string {
 		let s = '';
@@ -34,6 +37,8 @@ let self = {
 	itemEleIdPrefix:	prpEleId + '-menu-item-',
 
 	prevGAMF:			null,
+	
+	bFirstUpdate:		true,
 
 
 	setGlobalActiveMenuFnc ( fnc ) {
@@ -205,9 +210,9 @@ let self = {
 			if ( ev.altKey ) {		//	frame, pane, control navigation
 				break; }
 			let item = items[i];
-			if ( ! item.hotkey ) {
+			if ( ! item.hotKey ) {
 				continue; }
-			if ( item.hotkey === ev.key ) {
+			if ( item.hotKey === ev.key ) {
 				self.selectItem ( i );
 				return true; }
 		}	//	for
@@ -273,13 +278,17 @@ let self = {
 	self.styleString = stringifyStyle ( prpStyle );
 
 	prpItems.forEach ( item => {
-		if ( ! cmn.isString ( item.hotkey ) ) {
-			item.hotkey = ''; }
+		if ( ! cmn.isString ( item.hotKey ) ) {
+			item.hotKey = ''; }
 	} );
 
 	onMount ( () => {
 		self.setGlobalActiveMenuFnc ( self.doAll );
-		self.setCurItem ( 0 )
+		if ( 	cmn.isNumber ( prpSelectedItemIndex ) 
+			 && (prpSelectedItemIndex >= 0) ) {
+			self.setCurItem ( prpSelectedItemIndex ); }
+		else {
+			self.setCurItem ( 0 ); }
 	} )	//	onMount()
 	
 	beforeUpdate ( () => {
@@ -297,6 +306,10 @@ let self = {
 			if ( ce ) {
 				let r  = ce.getBoundingClientRect();
 				ce.style.left = ((-x) - r.width) + 'px'; } }
+		if ( self.bFirstUpdate ) {
+			if ( cmn.isFunction ( prpRes ) ) {
+				prpRes ( 'BurgerMenu - first update' );
+			self.bFirstUpdate = false; } }
 	} )	//	afterUpdate()
 
 
@@ -322,7 +335,7 @@ let self = {
 				on:mouseleave	= { self.mouseLeave.bind ( self, i ) }
 				on:click		= { self.click.bind ( self, i ) } >
 				<MenuItem prpText	= { mi.text }
-						prpHotkey	= { mi.hotkey }
+						prpHotKey	= { mi.hotKey }
 						prpDisabled	= { cmn.isBoolean ( mi.disabled )
 													 && mi.disabled } />
 			</li>

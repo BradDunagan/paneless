@@ -993,8 +993,7 @@
 			return;
 		}
 		case ( 'show-menu' ): {
-			self.appFnc ( o );
-			return;
+			return self.appFnc ( o );
 		}
 		case ( 'show-name-dlg' ): {
 			self.appFnc ( o );
