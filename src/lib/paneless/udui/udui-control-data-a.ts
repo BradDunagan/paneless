@@ -143,8 +143,8 @@ export var uCD = (function() {
 			y: 				evt.pageY,
 			dx: 			0,						//	change in position
 			dy: 			0,
-			elex: 			evt.pageX - ebcr.left,
-			eley: 			evt.pageY - ebcr.top,
+			eleX: 			evt.pageX - ebcr.left,
+			eleY: 			evt.pageY - ebcr.top,
 
 			updateXY: 		function  ( x, y ) {
 				this.dx = x - this.x;		this.x = x;

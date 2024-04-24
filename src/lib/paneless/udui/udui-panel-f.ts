@@ -898,11 +898,11 @@ export var uPanel = (function () {
 		var sW = serviceId + ' selectStart()';
 		var pd = bd.panelData;
 		var mo = uc.mouseOp;
-//		cmn.log ( sW, '  panel name: ' + pd.name + '  event.altKey: ' + event.altKey );
+	//	cmn.log ( sW, '  panel name: ' + pd.name + '  event.altKey: ' + event.altKey );
 
 		//	draw a dashed-line rectangle
 
-	//	cmn.log ( sW, '  panel name: ' + pd.name + ' eleX Y: ' + mo.eleX + ' ' + mo.eleY + ' bd.x y ' + bd.x + ' ' + bd.y );
+		cmn.log ( sW, '  panel name: ' + pd.name + ' eleX Y: ' + mo.eleX + ' ' + mo.eleY + ' bd.x y ' + bd.x + ' ' + bd.y );
 
 		mo.select = {
 			xs: mo.eleX - bd.x - 0.5,
@@ -932,7 +932,7 @@ export var uPanel = (function () {
 		var dx = mo.x - mo.x0;
 		var dy = mo.y - mo.y0;
 
-	//	cmn.log ( sW, '  panel name: ' + pd.name + ' eleX Y: ' + mo.eleX + ' ' + mo.eleY + '  dx y: ' + dx + ' ' + dy );
+		cmn.log ( sW, '  panel name: ' + pd.name + ' eleX Y: ' + mo.eleX + ' ' + mo.eleY + '  dx y: ' + dx + ' ' + dy );
 
 	//	d3.select ( '#' + pd.eleId + '-control-select' )
 	//		.attr ( 'width',  dx )
