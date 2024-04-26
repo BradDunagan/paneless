@@ -143,7 +143,7 @@ class ClassPanelessDemo {
 		this.setCallDown		= this.setCallDown.bind ( this );
 		this.menuItem			= this.menuItem.bind ( this );
 		this.instantiateCode	= this.instantiateCode.bind ( this );
-		this.loadRecordDialog	= this.loadRecordDialog.bind ( this );
+		this.loadFixedDialog	= this.loadFixedDialog.bind ( this );
 		this.okRecordName		= this.okRecordName.bind ( this );
 		this.longTextDialog		= this.longTextDialog.bind ( this );
 		this.make_id			= this.make_id.bind ( this );
@@ -743,8 +743,8 @@ class ClassPanelessDemo {
 
 	}	//	instantiateCode()
 
-	loadRecordDialog ( o ) {
-		const sW = 'App loadRecordDialog()';
+	loadFixedDialog ( o ) {
+		const sW = 'App loadFixedDialog()';
 		cmn.log ( sW );
 
 		//  Modal dialog to list existing layouts by name - and to select a
@@ -769,7 +769,7 @@ class ClassPanelessDemo {
 										 } },
 							 screenClass:	null,
 							} } );
-	}	//	loadRecordDialog()
+	}	//	loadFixedDialog()
 	
 	okRecordName ( o ) {
 		const sW = 'App okRecordName()';
@@ -1614,8 +1614,8 @@ class ClassPanelessDemo {
 				break;
 			case 'instantiate-code':
 				return this.instantiateCode ( o );
-			case 'load-record-dialog':
-				this.loadRecordDialog ( o );
+			case 'load-fixed-dialog':
+				this.loadFixedDialog ( o );
 				break;
 			case 'ok-load':
 				this.okRecordName ( o );

@@ -176,7 +176,8 @@ class ClassUDUI {
 								= this.updateRPDRegistration.bind ( this );
 		this.paneCodeRegistration	
 								= this.paneCodeRegistration.bind ( this );
-		this.subMenu			= this.subMenu.bind ( this );
+		this.controlSubMenu		= this.controlSubMenu.bind ( this );
+		this.loadSubMenu		= this.loadSubMenu.bind ( this );
 		this.loadChildren		= this.loadChildren.bind ( this );
 		this.get_fPD			= this.get_fPD.bind ( this );
 		this.remove_fPD			= this.remove_fPD.bind ( this );
@@ -207,7 +208,8 @@ class ClassUDUI {
 		this.showJointValues	= this.showJointValues.bind ( this );
 		this.jsonizeRPD			= this.jsonizeRPD.bind ( this );
 		this.save				= this.save.bind ( this );
-		this.load				= this.load.bind ( this );
+		this.loadFixed			= this.loadFixed.bind ( this );
+		this.loadPanelPerGUS	= this.loadPanelPerGUS.bind ( this );
 		this.insertNameInTopEleIds		
 								= this.insertNameInTopEleIds.bind ( this );
 		this.instantiateCode	= this.instantiateCode.bind ( this );
@@ -980,8 +982,8 @@ class ClassUDUI {
 	}	//	paneCodeRegistration()
 
 
-	subMenu ( item ) {
-		let sW = 'UDUI subMenu()';
+	controlSubMenu ( item ) {
+		let sW = 'UDUI controlSubMenu()';
 		cmn.log ( sW, item.text );
 		let mnu: any = [];
 		mnu.push ( { type: 'item', 	text: 'Button' } );
@@ -998,7 +1000,16 @@ class ClassUDUI {
 		mnu.push ( { type: 'item',	text: 'Editor' } );
 		mnu.push ( { type: 'item',	text: 'Canvas' } );
 		return mnu;
-	}	//	subMenu()
+	}	//	controlSubMenu()
+
+	loadSubMenu ( item ) {
+		let sW = 'UDUI loadSubMenu()';
+		cmn.log ( sW, item.text );
+		let mnu: any = [];
+		mnu.push ( { type: 'item', 	text: 'Fixed ...' } );
+		mnu.push ( { type: 'item',	text: 'Record ...' } );
+		return mnu;
+	}	//	loadSubMenu()
 
 	get_fPD() {
 		let n = this.focusedPanelDataStack.length;
@@ -1886,8 +1897,8 @@ class ClassUDUI {
 							afterCB:	getData } );
 	}	//	save();
 
-	load() {
-		const sW = 'UDUI load()';
+	loadFixed() {
+		const sW = 'UDUI loadFixed()';
 		let self = this;
 		function setData ( data: any ) {
 			let sRS: null | string = null;
@@ -1930,11 +1941,31 @@ class ClassUDUI {
 			self.setRootPanelWH();
 		}	//	setData()
 		
-		prpClientAppFnc ( { do:			'load-record-dialog',
+		prpClientAppFnc ( { do:			'load-fixed-dialog',
 							title:		'Load UDUI',
 							recordType:	'udui',
 							afterCB:	setData } );
-	}	//	load();
+	}	//	loadFixed();
+
+	loadPanelPerGUS() {
+		const sW = 'UDUI loadPanelPerGUS()';
+		let self = this;
+		
+		function onOK( o: any ) {
+
+		}	//	onOK()
+
+		let dlgArgs = { dlgTitle:				'Select Panel Record',
+						disallowPaneEdits:		true,
+						importCB:				null,
+						okBtnText:				'OK',
+						onOK:					onOK,
+						initialSelectedType:	null,
+						ctx:	{ bRecordNew:	false } };
+		prpClientAppFnc ( { do:				'load-frame-as-dialog',
+							frameRecName:	'DlgPanelPerGus',
+							dlgArgs: 		dlgArgs } );
+	}	//	loadPanelPerGUS();
 
 	insertNameInTopEleIds ( name : string ) {
 		const sW = 'UDUI insertNameInTopEleIds()';
@@ -2289,11 +2320,15 @@ class ClassUDUI {
 			a.push ( { type: 		'item',		
 					   text: 		'Add Control >',
 					   bSubmenu:	true,
-					   fnc: 		this.subMenu })
+					   fnc: 		this.controlSubMenu })
 			a.push ( { type:		'item',
 					   text:		'Save ...' } );
+		//	a.push ( { type:		'item',
+		//			   text:		'Load ...' } );
 			a.push ( { type:		'item',
-					   text:		'Load ...' } );
+					   text:		'Load >',
+					   bSubMenu:	true,
+					   fnc:			this.loadSubMenu } );
 			a.push ( { type: 		'item',
 					   text: 		'Clear' } );
 		
@@ -2463,8 +2498,14 @@ class ClassUDUI {
 			if ( o.menuItemText === 'Save ...' ) {
 				this.save();
 				return true; }
-			if ( o.menuItemText === 'Load ...' ) {
-				this.load();
+		//	if ( o.menuItemText === 'Load ...' ) {
+		//		this.load();
+		//		return true; }
+			if ( o.menuItemText === 'Fixed ...' ) {		//	Load > Fixed ...
+				this.loadFixed();
+				return true; }
+			if ( o.menuItemText === 'Record ...' ) {	//	Load > Record ...
+				this.loadPanelPerGUS();
 				return true; }
 			if ( o.menuItemText === 'Clear' ) {
 				uPanel.clear ( this.rootPanel );
