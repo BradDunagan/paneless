@@ -190,16 +190,16 @@ export let cmn = {
 		console.info ( text );
 	},	//	info()
 
-	error ( sW: string, err?: any ): string {
+	error ( sW: any, err?: any ): null | string {
 		if ( ! this.isString ( sW ) ) {
 			sW = '' + sW; }
-		if ( sW.includes ( '%s' ) ) {
+		if ( sW && sW.includes ( '%s' ) ) {
 			console.error.apply ( console, arguments );
-			return; }
+			return null; }
 		if ( ! this.isDefined ( err ) ) {
 			err = sW; 
 			sW  = null; }
-		let s = null;
+		let s: null | string = null;
 		if ( this.isString ( err ) ) {
 			s = err; }
 		else
@@ -220,9 +220,10 @@ export let cmn = {
 		res ( s );
 	},	//	errorResolve()
 
-	errorCatch ( sW: string, err: any, rej?: any ): string {
+	errorCatch ( sW: string, err: any, rej?: any )
+				: null | string {
 		this.error ( sW, err );
-		let msg = null;
+		let msg: null | string = null;
 		if ( 	this.isObject ( err.response )
 			 && (err.response.status === 401)
 			 && this.isObject ( err.response.data )
