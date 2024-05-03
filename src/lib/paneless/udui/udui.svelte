@@ -177,7 +177,6 @@ class ClassUDUI {
 		this.paneCodeRegistration	
 								= this.paneCodeRegistration.bind ( this );
 		this.controlSubMenu		= this.controlSubMenu.bind ( this );
-		this.loadSubMenu		= this.loadSubMenu.bind ( this );
 		this.loadChildren		= this.loadChildren.bind ( this );
 		this.get_fPD			= this.get_fPD.bind ( this );
 		this.remove_fPD			= this.remove_fPD.bind ( this );
@@ -207,9 +206,10 @@ class ClassUDUI {
 		this.canvasEdge			= this.canvasEdge.bind ( this );
 		this.showJointValues	= this.showJointValues.bind ( this );
 		this.jsonizeRPD			= this.jsonizeRPD.bind ( this );
-		this.save				= this.save.bind ( this );
-		this.loadFixed			= this.loadFixed.bind ( this );
-		this.loadPanelPerGUS	= this.loadPanelPerGUS.bind ( this );
+		this.saveByName			= this.saveByName.bind ( this );
+		this.loadByName			= this.loadByName.bind ( this );
+	//	this.loadFixed			= this.loadFixed.bind ( this );
+	//	this.loadPanelPerGUS	= this.loadPanelPerGUS.bind ( this );
 		this.insertNameInTopEleIds		
 								= this.insertNameInTopEleIds.bind ( this );
 		this.instantiateCode	= this.instantiateCode.bind ( this );
@@ -1001,15 +1001,6 @@ class ClassUDUI {
 		mnu.push ( { type: 'item',	text: 'Canvas' } );
 		return mnu;
 	}	//	controlSubMenu()
-
-	loadSubMenu ( item ) {
-		let sW = 'UDUI loadSubMenu()';
-		cmn.log ( sW, item.text );
-		let mnu: any = [];
-		mnu.push ( { type: 'item', 	text: 'Fixed ...' } );
-		mnu.push ( { type: 'item',	text: 'Record ...' } );
-		return mnu;
-	}	//	loadSubMenu()
 
 	get_fPD() {
 		let n = this.focusedPanelDataStack.length;
@@ -1875,8 +1866,8 @@ class ClassUDUI {
 											   this.rpd ) );
 	}	//	jsonizeRPD()
 
-	save() {
-		const sW = 'UDUI save()';
+	saveByName() {
+		const sW = 'UDUI saveByName()';
 		let self = this;
 		function getData() {
 			
@@ -1891,22 +1882,22 @@ class ClassUDUI {
 
 			return self.jsonizeRPD ( sW );		//	a string
 		}	//	getData()
-		prpClientAppFnc ( { do:			'save-record-dialog',
+		prpClientAppFnc ( { do:			'save-record-by-name-dialog',
 							title:		'Save UDUI',
 							recordType:	'udui',
 							afterCB:	getData } );
-	}	//	save();
+	}	//	saveByName();
 
-	loadFixed() {
-		const sW = 'UDUI loadFixed()';
+	loadByName() {
+		const sW = 'UDUI loadByName()';
 		let self = this;
 		function setData ( data: any ) {
 			let sRS: null | string = null;
 			self.rpd.panningEnabled = cmn.isBoolean ( data.panningEnabled )
 										? data.panningEnabled : false;
-			self.rpd.minWidth  = cmn.isNumber ( data.minWidth )
+			self.rpd.minWidth		= cmn.isNumber ( data.minWidth )
 										? data.minWidth  : 0;
-			self.rpd.minHeight = cmn.isNumber ( data.minHeight )
+			self.rpd.minHeight		= cmn.isNumber ( data.minHeight )
 										? data.minHeight : 0;
 			sRS = data.regSpec;
 			let code = self.instantiateCode ( data.codeName, self.state );
@@ -1923,11 +1914,6 @@ class ClassUDUI {
 					code.gotProperties ( cmn.isFunction ( fnc ) ); } 
 				code.isLoaded = true; 
 				self.insertNameInTopEleIds ( data.codeName ); 
-			//	if ( cmn.isFunction ( code.updateRegistration ) ) {
-			//		code.updateRegistration ( self.rpd.regSpec ); }
-			//	else {
-			//		cmn.error ( sW, 'code has no updateRegistration()' ); } 
-			//	Taken care of by code.loaded(), just above.
 			}
 			if ( (! code) && (typeof sRS === 'string') 
 						  && (sRS.length > 0)  ) {
@@ -1941,31 +1927,76 @@ class ClassUDUI {
 			self.setRootPanelWH();
 		}	//	setData()
 		
-		prpClientAppFnc ( { do:			'load-fixed-dialog',
+		prpClientAppFnc ( { do:			'load-record-by-name-dialog',
 							title:		'Load UDUI',
 							recordType:	'udui',
 							afterCB:	setData } );
-	}	//	loadFixed();
+	}	//	loadByName();
 
-	loadPanelPerGUS() {
-		const sW = 'UDUI loadPanelPerGUS()';
-		let self = this;
-		
-		function onOK( o: any ) {
+//	loadFixed() {
+//		const sW = 'UDUI loadFixed()';
+//		let self = this;
+//		function setData ( data: any ) {
+//			let sRS: null | string = null;
+//			self.rpd.panningEnabled = cmn.isBoolean ( data.panningEnabled )
+//										? data.panningEnabled : false;
+//			self.rpd.minWidth  = cmn.isNumber ( data.minWidth )
+//										? data.minWidth  : 0;
+//			self.rpd.minHeight = cmn.isNumber ( data.minHeight )
+//										? data.minHeight : 0;
+//			sRS = data.regSpec;
+//			let code = self.instantiateCode ( data.codeName, self.state );
+//			self.loadChildren ( sW, data.childData.data );
+//			if ( code && ! code.isLoaded ) {
+//				if ( typeof sRS === 'string' ) {
+//					self.rpd.regSpec = JSON.parse ( sRS ); }
+//				else {
+//					self.rpd.regSpec = sRS; }
+//				code.loaded();
+//				if ( cmn.isFunction ( code.gotProperties ) ) {
+//					let fnc = cmn.oneCallee ( sW, self.callees, 
+//												  'properties' );
+//					code.gotProperties ( cmn.isFunction ( fnc ) ); } 
+//				code.isLoaded = true; 
+//				self.insertNameInTopEleIds ( data.codeName ); 
+//			}
+//			if ( (! code) && (typeof sRS === 'string') 
+//						  && (sRS.length > 0)  ) {
+//				//	Register rpd.regSpec.
+//				try {
+//					let o = JSON.parse ( sRS );	
+//					self.updateRPDRegistration ( o ); }
+//				catch ( e ) {
+//					throw { message: 'failed to parse reg spec' }; }
+//			}
+//			self.setRootPanelWH();
+//		}	//	setData()
+//		
+//		prpClientAppFnc ( { do:			'load-fixed-dialog',
+//							title:		'Load UDUI',
+//							recordType:	'udui',
+//							afterCB:	setData } );
+//	}	//	loadFixed();
 
-		}	//	onOK()
-
-		let dlgArgs = { dlgTitle:				'Select Panel Record',
-						disallowPaneEdits:		true,
-						importCB:				null,
-						okBtnText:				'OK',
-						onOK:					onOK,
-						initialSelectedType:	null,
-						ctx:	{ bRecordNew:	false } };
-		prpClientAppFnc ( { do:				'load-frame-as-dialog',
-							frameRecName:	'DlgPanelPerGus',
-							dlgArgs: 		dlgArgs } );
-	}	//	loadPanelPerGUS();
+//	loadPanelPerGUS() {
+//		const sW = 'UDUI loadPanelPerGUS()';
+//		let self = this;
+//		
+//		function onOK( o: any ) {
+//
+//		}	//	onOK()
+//
+//		let dlgArgs = { dlgTitle:				'Select Panel Record',
+//						disallowPaneEdits:		true,
+//						importCB:				null,
+//						okBtnText:				'OK',
+//						onOK:					onOK,
+//						initialSelectedType:	null,
+//						ctx:	{ bRecordNew:	false } };
+//		prpClientAppFnc ( { do:				'load-frame-as-dialog',
+//							frameRecName:	'DlgPanelPerGus',
+//							dlgArgs: 		dlgArgs } );
+//	}	//	loadPanelPerGUS();
 
 	insertNameInTopEleIds ( name : string ) {
 		const sW = 'UDUI insertNameInTopEleIds()';
@@ -2297,6 +2328,7 @@ class ClassUDUI {
 			return this.loadChildren ( sW, o.controls, o.panel );
 		}
 		if ( o.do === 'append-menu-items' ) {
+			let itm = null;
 			let a = o.menuItems;
 			let bShowTitle =     this.state.titleStyle 
 							 && (this.state.titleStyle.display === 'none');
@@ -2321,14 +2353,29 @@ class ClassUDUI {
 					   text: 		'Add Control >',
 					   bSubmenu:	true,
 					   fnc: 		this.controlSubMenu })
-			a.push ( { type:		'item',
-					   text:		'Save ...' } );
+		//	a.push ( { type:		'item',
+		//			   text:		'Save ...' } );
 		//	a.push ( { type:		'item',
 		//			   text:		'Load ...' } );
-			a.push ( { type:		'item',
-					   text:		'Load >',
-					   bSubMenu:	true,
-					   fnc:			this.loadSubMenu } );
+			itm = prpClientAppFnc ( { do:	'get-udui-menu-item',
+									  what:	'save',
+									  fncDefault:	this.saveByName,
+									  fncUDUI:		this.doAll,
+									  data:			this.rpd,
+									  json:			this.jsonizeRPD ( sW ) } );
+			if ( itm ) {
+				a.push ( itm ); }		   
+			else {
+				a.push ( { type:		'item',
+						   text:		'Save ...' } ); }
+			itm = prpClientAppFnc ( { do:	'get-udui-menu-item',
+									  what:	'load',
+									  fncDefault:	this.loadByName } );
+			if ( itm ) {
+				a.push ( itm ); }		   
+			else {
+				a.push ( { type:		'item',
+						   text:		'Load ...' } ); }
 			a.push ( { type: 		'item',
 					   text: 		'Clear' } );
 		
@@ -2496,17 +2543,17 @@ class ClassUDUI {
 					this.onProperties ( cvsD ); }
 				return true; }
 			if ( o.menuItemText === 'Save ...' ) {
-				this.save();
+				this.saveByName();
 				return true; }
-		//	if ( o.menuItemText === 'Load ...' ) {
-		//		this.load();
+			if ( o.menuItemText === 'Load ...' ) {
+				this.loadByName();
+				return true; }
+		//	if ( o.menuItemText === 'Fixed ...' ) {		//	Load > Fixed ...
+		//		this.loadFixed();
 		//		return true; }
-			if ( o.menuItemText === 'Fixed ...' ) {		//	Load > Fixed ...
-				this.loadFixed();
-				return true; }
-			if ( o.menuItemText === 'Record ...' ) {	//	Load > Record ...
-				this.loadPanelPerGUS();
-				return true; }
+		//	if ( o.menuItemText === 'Record ...' ) {	//	Load > Record ...
+		//		this.loadPanelPerGUS();
+		//		return true; }
 			if ( o.menuItemText === 'Clear' ) {
 				uPanel.clear ( this.rootPanel );
 				return true; }
