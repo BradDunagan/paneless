@@ -2361,6 +2361,7 @@ class ClassUDUI {
 									  what:	'save',
 									  fncDefault:	this.saveByName,
 									  fncUDUI:		this.doAll,
+									  pane:			prpPaneId,
 									  data:			this.rpd,
 									  json:			this.jsonizeRPD ( sW ) } );
 			if ( itm ) {
