@@ -57,8 +57,8 @@ var uCanvas = (function() {
 
 	function mousemove ( evt: PointerEvent, d: any ) {
 		let sW = serviceId + ' mousemove()';
-		cmn.log ( sW, 'Name: ' + d.name + '  evt.altKey: ' + evt.altKey
-					+ '    clientX Y: ' + evt.clientX + ' ' + evt.clientY );
+	//	cmn.log ( sW, 'Name: ' + d.name + '  evt.altKey: ' + evt.altKey
+	//				+ '    clientX Y: ' + evt.clientX + ' ' + evt.clientY );
 		evt.stopPropagation();
 	}	//	mousemove()
 

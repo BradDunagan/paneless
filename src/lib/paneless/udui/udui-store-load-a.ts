@@ -585,6 +585,12 @@ export let uSL = (function() {
 			let o = JSON.parse ( s1 );
 			o.regSpec = pd.regSpec;
 			s1 = JSON.stringify ( o ); }
+			
+		//	Likewise, storageSpec.
+		if ( cmn.isObject ( pd.storageSpec ) ) {
+			let o = JSON.parse ( s1 );
+			o.storageSpec = pd.storageSpec;
+			s1 = JSON.stringify ( o ); }
 
 		return s1;
 

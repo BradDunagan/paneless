@@ -1916,6 +1916,11 @@ export var uPanel = (function () {
 						 : 0;
 		this.storeName = o.storeName;		//	Unique name for the panel when the user does a Save As ...
 
+		//	For more complicated storage.  storeId, storeName are probably 
+		//	obsolete.
+		this.storageSpec = cmn.isObject ( o.storageSpec ) ? o.storageSpec 
+														  : null;
+		
 		//	Sometimes a single control may fill the entire panel by itself.  
 		//	For examples, tables and tabs.  
 		this.filledBy = null;

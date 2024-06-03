@@ -186,6 +186,7 @@ class ClassUDUI {
 		this.keyDown			= this.keyDown.bind ( this );
 		this.doScript			= this.doScript.bind ( this );
 		this.doScriptCmd		= this.doScriptCmd.bind ( this );
+		this.getFocusPanel		= this.getFocusPanel.bind ( this );
 		this.addControl			= this.addControl.bind ( this );
 		this.enable				= this.enable.bind ( this );
 		this.setChecked			= this.setChecked.bind ( this );
@@ -194,7 +195,10 @@ class ClassUDUI {
 		this.setText			= this.setText.bind ( this );
 		this.getText			= this.getText.bind ( this );
 		this.getSelected		= this.getSelected.bind ( this );
+		this.scriptCheckPanel	= this.scriptCheckPanel.bind ( this );
 		this.prepCanvasOp		= this.prepCanvasOp.bind ( this );
+		this.getPanelEleId		= this.getPanelEleId.bind ( this );
+		this.panelLoad			= this.panelLoad.bind ( this );
 		this.getCanvasContext	= this.getCanvasContext.bind ( this );
 		this.canvasSetFillstyle	= this.canvasSetFillstyle.bind ( this );
 		this.canvasFillRect		= this.canvasFillRect.bind ( this );
@@ -207,9 +211,10 @@ class ClassUDUI {
 		this.showJointValues	= this.showJointValues.bind ( this );
 		this.jsonizeRPD			= this.jsonizeRPD.bind ( this );
 		this.saveByName			= this.saveByName.bind ( this );
+		this.afterSave			= this.afterSave.bind ( this );
+		this.loadRootPanel		= this.loadRootPanel.bind ( this );
+		this.loadPanel			= this.loadPanel.bind ( this );
 		this.loadByName			= this.loadByName.bind ( this );
-	//	this.loadFixed			= this.loadFixed.bind ( this );
-	//	this.loadPanelPerGUS	= this.loadPanelPerGUS.bind ( this );
 		this.insertNameInTopEleIds		
 								= this.insertNameInTopEleIds.bind ( this );
 		this.instantiateCode	= this.instantiateCode.bind ( this );
@@ -1389,6 +1394,26 @@ class ClassUDUI {
 			o.ev.stopPropagation();
 			return; }
 	}	//	keyDown()
+	
+	getFocusPanel() {
+	//	this.rootPanel.addControl ( ctrlD );
+		let panel = this.rootPanel;
+		let fPD = this.get_fPD();
+		if ( fPD && (fPD.focusedChildId > 0) ) {
+		//	let cd = this.rpd.getControlById ( fPD.focusedChildId );
+			let cd =   fPD.pd.getControlById ( fPD.focusedChildId );
+			if ( 	(cd.type           === uc.TYPE_TABS)
+				 &&	(cd.tabs.iSelected >=  0           ) ) {
+				//	The panel of the selected tab.
+				cd = cd.tabs.data[cd.tabs.iSelected].panel.data; }
+				//	2022-Sep-24 	To get the new control to persist (save, 
+				//	load).  I.e., cd.tabs.data does not seem to be the same as
+				//	cd.childData.data
+			//	cd = cd.childData.data[cd.tabs.iSelected].panel.data; }
+			if ( cd && (cd.type === uc.TYPE_PANEL) ) {
+				panel = cd.panel; } }
+		return panel; 
+	}	//	getFocusPanel()
 
 	addControl ( o ) {
 		const sW = 'UDUI addControl()';
@@ -1482,23 +1507,24 @@ class ClassUDUI {
 				return null;
 		}
 		
-	//	this.rootPanel.addControl ( ctrlD );
-		let panel = this.rootPanel;
-		let fPD = this.get_fPD();
-		if ( fPD && (fPD.focusedChildId > 0) ) {
-		//	let cd = this.rpd.getControlById ( fPD.focusedChildId );
-			let cd =   fPD.pd.getControlById ( fPD.focusedChildId );
-			if ( 	(cd.type           === uc.TYPE_TABS)
-				 &&	(cd.tabs.iSelected >=  0           ) ) {
-				//	The panel of the selected tab.
-				cd = cd.tabs.data[cd.tabs.iSelected].panel.data; }
-				//	2022-Sep-24 	To get the new control to persist (save, 
-				//	load).  I.e., cd.tabs.data does not seem to be the same as
-				//	cd.childData.data
-			//	cd = cd.childData.data[cd.tabs.iSelected].panel.data; }
-			if ( cd && (cd.type === uc.TYPE_PANEL) ) {
-				panel = cd.panel; } }
-	
+//	//	this.rootPanel.addControl ( ctrlD );
+//		let panel = this.rootPanel;
+//		let fPD = this.get_fPD();
+//		if ( fPD && (fPD.focusedChildId > 0) ) {
+//		//	let cd = this.rpd.getControlById ( fPD.focusedChildId );
+//			let cd =   fPD.pd.getControlById ( fPD.focusedChildId );
+//			if ( 	(cd.type           === uc.TYPE_TABS)
+//				 &&	(cd.tabs.iSelected >=  0           ) ) {
+//				//	The panel of the selected tab.
+//				cd = cd.tabs.data[cd.tabs.iSelected].panel.data; }
+//				//	2022-Sep-24 	To get the new control to persist (save, 
+//				//	load).  I.e., cd.tabs.data does not seem to be the same as
+//				//	cd.childData.data
+//			//	cd = cd.childData.data[cd.tabs.iSelected].panel.data; }
+//			if ( cd && (cd.type === uc.TYPE_PANEL) ) {
+//				panel = cd.panel; } }
+		let panel = this.getFocusPanel();
+
 		//	To always place the control as ctrlD.x, y are initally set
 		//	as if there is no panning.  That is to * appear *  as if placed 
 		//	as ctrlD.x, y are initially set.
@@ -1620,10 +1646,9 @@ class ClassUDUI {
 		return { status: 'error', msg: 'control not found' };
 	}	//	getSelected()
 
-	prepCanvasOp ( o ) {
-		let p: { cvsD: any; result: any } = { cvsD:		null,
-				  							  result:	null };
-
+	scriptCheckPanel ( o: any, p: { ctlD: any, result: any } )
+			: {ctlD: any, result: any } {
+		p.result = { status: 'ok' };
 		let pnlName = o["panel"];
 		if ( ! cmn.isString ( pnlName ) ) {
 			p.result = { status: 'error', msg: 'expected panel name' }; 
@@ -1634,20 +1659,123 @@ class ClassUDUI {
 		if ( ! pnlD ) {
 			p.result = { status: 'error', msg: 'panel not found' }; 
 			return p; }
+		p.ctlD = pnlD;
+		return p;
+	}	//	scriptCheckPanel()
+	
+	prepPanelOp ( o ) : { ctlD: any, result: any } {
+		let p: { ctlD: any; result: any } = { ctlD:		null,
+				  							  result:	null };
+
+		p = this.scriptCheckPanel ( o, p );
+		if ( p.result.status === 'error' ) {
+			return p; }
+
+		p.result = 	{ cmd:				o["cmd"],
+					  status:			'ok',
+					  'panel-object':	o['panel-object'],
+					  result:			'success' };
+		return p;
+	}	//	prepPanelOp()
+	
+	getPanelEleId ( o ): Promise<any> {
+		const sW = 'UDUI getPanelEleId()';
+		let p = this.prepPanelOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return Promise.resolve ( p.result ); }	
+			
+		p.result["ele-id"] = p.ctlD.eleId;
+		return Promise.resolve ( p.result );
+	}	//	getPanelEleId()
+
+	panelLoad ( o ): Promise<any> {
+		const sW = 'UDUI panelLoad()';
+		let p = this.prepPanelOp ( o );
+		if ( p.result.status !== 'ok' ) {
+			return Promise.resolve ( p.result ); }	
+		//	Also maybe -
+		//	-	prompt		 : string (opt)
+		//	-	prompt-title : string (opt)
+		//	and/or -
+		//	-	spec		 : object (opt)
+		if ( cmn.isString ( o.prompt ) ) {
+			p.result.prompt = true;
+			p.result['prompt-title'] = o.prompt;
+			p.result.spec = cmn.isObject ( o.spec ) ? o.spec : null; }
+		else {
+			p.result.prompt = null;
+			if ( ! cmn.isObject ( o.spec ) ) {
+				p.result.status = 'error';
+				p.result.msg    = 'if no prompt then spec is required';
+				return Promise.resolve ( p.result ); }
+			p.result.spec = o.spec; }
+
+		let self = this;
+		return new Promise ( ( res, rej ) => {
+			//	Two things -
+			//	-	From spec (i.e., record type, name), or, by prompting.
+			//	-	Go to the app to do this.
+
+			function after ( ctx, data ) {
+				
+				self.loadPanel ( ctx, data );
+
+				p.result.result = ctx.spec;
+
+				res ( p.result );				
+			}
+
+			let pms = prpClientAppFnc ( { do:		'panel-load',
+							//			  paneId:	prpPaneId,
+							//			  panel:	p.ctlD.panel,
+									  	  prompt:	p.result.prompt,
+									'prompt-title':	p.result['prompt-title'],
+										  spec:		p.result.spec,
+										  ctx:		{ paneId:	prpPaneId,
+													  panel:	p.ctlD.panel,
+													  fncAfter:	after }
+										} );
+
+		//	pms.then ( ( r: { ctx: any, data: any } ) => {
+		//
+		//		self.loadPanel ( r.ctx, r.data );
+		//
+		//		res ( 'ok' );				
+		//	} );
+		} );
+	}	//	panelLoad()
+
+	prepCanvasOp ( o ) {
+		let p: { ctlD: any; result: any } = { ctlD:		null,
+				  						  	  result:	null, };
+
+	//	let pnlName = o["panel"];
+	//	if ( ! cmn.isString ( pnlName ) ) {
+	//		p.result = { status: 'error', msg: 'expected panel name' }; 
+	//		return p; }
+	//	let pnlD = this.rpd.name === pnlName
+	//				? this.rpd
+	//				: this.rpd.getControl ( uc.TYPE_PANEL, pnlName );
+	//	if ( ! pnlD ) {
+	//		p.result = { status: 'error', msg: 'panel not found' }; 
+	//		return p; }
+		p = this.scriptCheckPanel ( o, p );
+		if ( p.result.status === 'error' ) {
+			return p; }
 		let cvsName = o["canvas"];
 		if ( ! cmn.isString ( cvsName ) ) {
 			p.result = { status: 'error', msg: 'expected canvas name' }; 
 			return p; }
-		let cvsD = pnlD.getControl ( uc.TYPE_CANVAS, cvsName );
+		let cvsD = p.ctlD.getControl ( uc.TYPE_CANVAS, cvsName );
 		if ( ! cvsD ) {
 			p.result = { status: 'error', msg: 'canvas not found' }; 
 			return p; }
 
-		p.cvsD   = cvsD;
-		p.result = 	{ cmd:		o["cmd"],
-					  status:	'ok', 
+		p.ctlD   = cvsD;
+		p.result = 	{ cmd:				o["cmd"],
+					  status:			'ok', 
 					  'context-object':	o['context-object'],
-					  'result':	'success' };
+					  result:			'success' };
 		return p;
 	}	//	prepCanvasOp()
 	
@@ -1657,7 +1785,7 @@ class ClassUDUI {
 		if ( p.result.status !== 'ok' ) {
 			return p.result; }	
 
-		p.result["context-handle"] = p.cvsD.getContext();		
+		p.result["context-handle"] = p.ctlD.getContext();		
 		return p.result;
 	}	//	getCanvasContext()
 
@@ -1669,7 +1797,7 @@ class ClassUDUI {
 
 		let hContext  = o["context-handle"];
 		let fillstyle = o["fillstyle"];
-		p.cvsD.setFillstyle ( hContext, fillstyle );		
+		p.ctlD.setFillstyle ( hContext, fillstyle );		
 		return p.result;
 	}	//	canvasSetFillstyle()
 
@@ -1680,7 +1808,7 @@ class ClassUDUI {
 			return p.result; }	
 
 		let hContext  = o["context-handle"];
-		p.cvsD.fillRect ( hContext, o.x, o.y, o.w, o.h );		
+		p.ctlD.fillRect ( hContext, o.x, o.y, o.w, o.h );		
 		return p.result;
 	}	//	canvasFillRect()
 
@@ -1691,7 +1819,7 @@ class ClassUDUI {
 			return p.result; }	
 
 		let hContext  = o["context-handle"];
-		p.cvsD.size ( hContext, o.w, o.h );		
+		p.ctlD.size ( hContext, o.w, o.h );		
 		return p.result;
 	}	//	canvasSize()
 
@@ -1702,7 +1830,7 @@ class ClassUDUI {
 			return p.result; }	
 
 		let hContext  = o["context-handle"];
-		p.cvsD.enlarge ( hContext, o['pixel-size'] );		
+		p.ctlD.enlarge ( hContext, o['pixel-size'] );		
 		return p.result;
 	}	//	canvasEnlarge()
 
@@ -1713,7 +1841,7 @@ class ClassUDUI {
 			return p.result; }	
 
 		let hContext  = o["context-handle"];
-		p.cvsD.translate ( hContext, o.x, o.y );
+		p.ctlD.translate ( hContext, o.x, o.y );
 		return p.result;
 	}	//	canvasTranslate()
 
@@ -1724,7 +1852,7 @@ class ClassUDUI {
 			return p.result; }	
 
 		let hContext  = o["context-handle"];
-		p.cvsD.rotate ( hContext, o.a );
+		p.ctlD.rotate ( hContext, o.a );
 		return p.result;
 	}	//	canvasRotate()
 
@@ -1735,7 +1863,7 @@ class ClassUDUI {
 			return p.result; }	
 
 		let hContext  = o["context-handle"];
-		let bp: BytePixels = p.cvsD.getImageData ( hContext, o.x, o.y, 
+		let bp: BytePixels = p.ctlD.getImageData ( hContext, o.x, o.y, 
 															 o.w, o.h );
 		//	https://developer.mozilla.org/en-US/docs/Glossary/Base64
 		let s3 = btoa ( String.fromCodePoint ( ...bp.b ) )
@@ -1750,7 +1878,7 @@ class ClassUDUI {
 			return p.result; }	
 
 		let hContext  = o["context-handle"];
-		p.cvsD.edge ( hContext );
+		p.ctlD.edge ( hContext );
 		return p.result;
 	}	//	canvasEdge()
 
@@ -1760,89 +1888,131 @@ class ClassUDUI {
 		if ( ! Array.isArray ( script ) ) {
 			cmn.error ( sW, 'script is not an array' );
 			return results; }
-		let i;
-		for ( i = 0; i < script.length; i++ ) {
-			let cmdResult: any = this.doScriptCmd ( script[i] );
-			results.push ( cmdResult );
+		let pmss: Promise<any>[] = [];
+		for ( let i = 0; i < script.length; i++ ) {
+		//	let cmdResult: any = this.doScriptCmd ( script[i] );
+		//	results.push ( cmdResult );
+			let pms = this.doScriptCmd ( script[i] );
+			pmss.push ( pms );
 		}	//	for 
-		return results;
+	//	return results;
+		return Promise.all ( pmss );
 	}	//	doScript()
 
-	doScriptCmd ( cmd ) {
+//	doScriptCmd ( cmd ) {
+	doScriptCmd ( cmd ): Promise<any> {
 		const sW = 'UDUI doScriptCmd()';
 		let ai = cmd;
 		let cmdResult: any = null;
 		if ( typeof ai.cmd !== 'string' ) {
 			cmdResult = { status: 'error', msg: 'cmd is not a string' };
-			return cmdResult; }
+			return Promise.resolve ( cmdResult ); }
+		let pms: Promise<any> | null = null;
 		switch ( ai.cmd ) {
 			case 'add-control':
 				let ctrlD = this.addControl ( ai );
 				if ( ctrlD ) {
-					return { ctrlId: ctrlD.id } }
-				cmdResult = { status: 'error', msg: 'failed to add control' };
+			//		return { ctrlId: ctrlD.id };
+					pms = Promise.resolve ( { status: 'ok', ctrlId: ctrlD.id } );
+					break; }
+			//	cmdResult = { status: 'error', msg: 'failed to add control' };
+				pms = Promise.resolve ( { status: 'error', msg: 'failed to add control' } );
 				break;
 			case 'enable':
-				cmdResult = this.enable ( ai );
+			//	cmdResult = this.enable ( ai );
+				pms = Promise.resolve ( this.enable ( ai ) );
 				break;
 			case 'set-checked':
-				cmdResult = this.setChecked ( ai );
+			//	cmdResult = this.setChecked ( ai );
+				pms = Promise.resolve ( this.setChecked ( ai ) );
 				break;
 			case 'list-clear':
 			case 'tree-clear':
-				cmdResult = this.listClear ( ai );
+			//	cmdResult = this.listClear ( ai );
+				pms = Promise.resolve ( this.listClear ( ai ) );
 				break;
 			case 'list-add-item':
 			case 'tree-add-item':
-				cmdResult = this.listAddItem ( ai );
+			//	cmdResult = this.listAddItem ( ai );
+				pms = Promise.resolve ( this.listAddItem ( ai ) );
 				break;
 			case 'clear':
 				uPanel.clear ( this.rootPanel );
-				cmdResult = { status: 'ok' };
+			//	cmdResult = { status: 'ok' };
+				pms = Promise.resolve ( { status: 'ok' } );
 				break;
 			case 'set-text':
-				cmdResult = this.setText ( ai );
+			//	cmdResult = this.setText ( ai );
+				pms = Promise.resolve ( this.setText ( ai ) );
 				break;
 			case 'get-text':
-				cmdResult = this.getText ( ai );
+			//	cmdResult = this.getText ( ai );
+				pms = Promise.resolve ( this.getText ( ai ) );
 				break;
 			case 'get-selected':
-				cmdResult = this.getSelected ( ai );
+			//	cmdResult = this.getSelected ( ai );
+				pms = Promise.resolve ( this.getSelected ( ai ) );
 				break;
+
+			case 'get-panel-ele-id':
+				pms = this.getPanelEleId ( ai );
+				break;
+			case 'panel-load':
+			//	cmdResult = this.panelLoad ( ai );
+				pms = this.panelLoad ( ai );
+				break;
+
 			case 'get-canvas-context':
-				cmdResult = this.getCanvasContext ( ai );
+			//	cmdResult = this.getCanvasContext ( ai );
+				pms = Promise.resolve ( this.getCanvasContext ( ai ) );
 				break;
 			case 'canvas-set-fillstyle':
-				cmdResult = this.canvasSetFillstyle ( ai );
+			//	cmdResult = this.canvasSetFillstyle ( ai );
+				pms = Promise.resolve ( this.canvasSetFillstyle ( ai ) );
 				break;
 			case 'canvas-fill-rect':
-				cmdResult = this.canvasFillRect ( ai );
+			//	cmdResult = this.canvasFillRect ( ai );
+				pms = Promise.resolve ( this.canvasFillRect ( ai ) );
 				break;
 			case 'canvas-size':
-				cmdResult = this.canvasSize ( ai );
+			//	cmdResult = this.canvasSize ( ai );
+				pms = Promise.resolve ( this.canvasSize ( ai ) );
 				break;
 			case 'canvas-enlarge':
-				cmdResult = this.canvasEnlarge ( ai );
+			//	cmdResult = this.canvasEnlarge ( ai );
+				pms = Promise.resolve ( this.canvasEnlarge ( ai ) );
 				break;
 			case 'canvas-translate':
-				cmdResult = this.canvasTranslate ( ai );
+			//	cmdResult = this.canvasTranslate ( ai );
+				pms = Promise.resolve ( this.canvasTranslate ( ai ) );
 				break;
 			case 'canvas-rotate':
-				cmdResult = this.canvasRotate ( ai );
+			//	cmdResult = this.canvasRotate ( ai );
+				pms = Promise.resolve ( this.canvasRotate ( ai ) );
 				break;
 			case 'canvas-get-image-data':
-				cmdResult = this.canvasGetImageData ( ai );
+			//	cmdResult = this.canvasGetImageData ( ai );
+				pms = Promise.resolve ( this.canvasGetImageData ( ai ) );
 				break;
 			case 'canvas-edge':
-				cmdResult = this.canvasEdge ( ai );
+			//	cmdResult = this.canvasEdge ( ai );
+				pms = Promise.resolve ( this.canvasEdge ( ai ) );
 				break;
 			default:
 				let msg = 'unrecognized cmd "' + ai.cmd + '"';
 				cmn.error ( sW, msg );
-				cmdResult = { status: 'error', msg: msg };
+			//	cmdResult = { status: 'error', msg: msg };
+				pms = Promise.resolve ( { status: 'error', msg: msg } );
 		}	//	switch
-		cmdResult.cmd = ai.cmd;
-		return cmdResult;
+	//	cmdResult.cmd = ai.cmd;
+	//	return cmdResult;
+		if ( ! pms ) {
+			return Promise.reject ( { message: sW + ' pms is null' } ); }
+		return pms.then ( ( result ) => {
+			let cmdResult = { cmd:	ai.cmd };
+			let o = Object.assign ( cmdResult, result );
+			return o;
+		} );
 	}	//	doScriptCmd()
 
 	showJointValues ( o ) {
@@ -1888,43 +2058,88 @@ class ClassUDUI {
 							afterCB:	getData } );
 	}	//	saveByName();
 
+	afterSave ( storageSpec ) {
+		const sW = 'UDUI afterSave()';
+		if ( ! this.rpd ) {
+			cmn.error ( sW, 'no rpd' );
+			return; }
+		this.rpd.storageSpec = storageSpec;
+	}	//	afterSave()
+
+	loadRootPanel ( data: any ) {
+		const sW = 'UDUI loadRootPanel()';
+		cmn.log ( sW );
+
+		uPanel.clear ( this.rootPanel );
+
+		let sRS: null | string = null;
+		this.rpd.panningEnabled = cmn.isBoolean ( data.panningEnabled )
+									? data.panningEnabled : false;
+		this.rpd.minWidth		= cmn.isNumber ( data.minWidth )
+									? data.minWidth  : 0;
+		this.rpd.minHeight		= cmn.isNumber ( data.minHeight )
+									? data.minHeight : 0;
+		sRS = data.regSpec;
+		let code = this.instantiateCode ( data.codeName, this.state );
+		this.loadChildren ( sW, data.childData.data );
+		if ( code && ! code.isLoaded ) {
+			if ( typeof sRS === 'string' ) {
+				this.rpd.regSpec = JSON.parse ( sRS ); }
+			else {
+				this.rpd.regSpec = sRS; }
+			code.loaded();
+			if ( cmn.isFunction ( code.gotProperties ) ) {
+				let fnc = cmn.oneCallee ( sW, this.callees, 
+											  'properties' );
+				code.gotProperties ( cmn.isFunction ( fnc ) ); } 
+			code.isLoaded = true; 
+			this.insertNameInTopEleIds ( data.codeName ); 
+		}
+		if ( (! code) && (typeof sRS === 'string') 
+					  && (sRS.length > 0)  ) {
+			//	Register rpd.regSpec.
+			try {
+				let o = JSON.parse ( sRS );	
+				this.updateRPDRegistration ( o ); }
+			catch ( e ) {
+				throw { message: 'failed to parse reg spec' }; }
+		}
+		this.setRootPanelWH();
+	}	//	loadRootPanel()
+
+	loadPanel ( ctx: any, data: any ) {
+		let sW = 'UDUI loadPanel()';
+		let panel = ctx.panel;
+		if ( ! cmn.isObject ( panel ) || ! cmn.isObject ( panel.data ) ) {
+			cmn.error ( sW, 'no panel.data' );
+			return; }
+		let pd = panel.data;
+		if ( ! cmn.isObject ( this.rootPanel ) ) {
+			cmn.error ( sW, 'rootPanel is not set' );
+			return; }
+		if ( ! cmn.isObject ( this.rpd ) ) {
+			cmn.error ( sW, 'rpd is not set' );
+			return; }
+			
+		if ( pd.id === this.rpd.id ) {
+			return this.loadRootPanel ( data ); }
+
+		uPanel.clear ( panel );
+
+		this.loadChildren ( sW, data.childData.data, panel );
+		
+	}	//	loadPanel()
+
 	loadByName() {
 		const sW = 'UDUI loadByName()';
 		let self = this;
 		function setData ( data: any ) {
-			let sRS: null | string = null;
-			self.rpd.panningEnabled = cmn.isBoolean ( data.panningEnabled )
-										? data.panningEnabled : false;
-			self.rpd.minWidth		= cmn.isNumber ( data.minWidth )
-										? data.minWidth  : 0;
-			self.rpd.minHeight		= cmn.isNumber ( data.minHeight )
-										? data.minHeight : 0;
-			sRS = data.regSpec;
-			let code = self.instantiateCode ( data.codeName, self.state );
-			self.loadChildren ( sW, data.childData.data );
-			if ( code && ! code.isLoaded ) {
-				if ( typeof sRS === 'string' ) {
-					self.rpd.regSpec = JSON.parse ( sRS ); }
-				else {
-					self.rpd.regSpec = sRS; }
-				code.loaded();
-				if ( cmn.isFunction ( code.gotProperties ) ) {
-					let fnc = cmn.oneCallee ( sW, self.callees, 
-												  'properties' );
-					code.gotProperties ( cmn.isFunction ( fnc ) ); } 
-				code.isLoaded = true; 
-				self.insertNameInTopEleIds ( data.codeName ); 
-			}
-			if ( (! code) && (typeof sRS === 'string') 
-						  && (sRS.length > 0)  ) {
-				//	Register rpd.regSpec.
-				try {
-					let o = JSON.parse ( sRS );	
-					self.updateRPDRegistration ( o ); }
-				catch ( e ) {
-					throw { message: 'failed to parse reg spec' }; }
-			}
-			self.setRootPanelWH();
+			try {
+			//	self.loadRootPanel ( data ); }
+				let ctx = { panel: self.getFocusPanel() };
+				self.loadPanel ( ctx, data ); }
+			catch ( err: any ) {
+				cmn.error ( sW, err.message ); }
 		}	//	setData()
 		
 		prpClientAppFnc ( { do:			'load-record-by-name-dialog',
@@ -1933,70 +2148,6 @@ class ClassUDUI {
 							afterCB:	setData } );
 	}	//	loadByName();
 
-//	loadFixed() {
-//		const sW = 'UDUI loadFixed()';
-//		let self = this;
-//		function setData ( data: any ) {
-//			let sRS: null | string = null;
-//			self.rpd.panningEnabled = cmn.isBoolean ( data.panningEnabled )
-//										? data.panningEnabled : false;
-//			self.rpd.minWidth  = cmn.isNumber ( data.minWidth )
-//										? data.minWidth  : 0;
-//			self.rpd.minHeight = cmn.isNumber ( data.minHeight )
-//										? data.minHeight : 0;
-//			sRS = data.regSpec;
-//			let code = self.instantiateCode ( data.codeName, self.state );
-//			self.loadChildren ( sW, data.childData.data );
-//			if ( code && ! code.isLoaded ) {
-//				if ( typeof sRS === 'string' ) {
-//					self.rpd.regSpec = JSON.parse ( sRS ); }
-//				else {
-//					self.rpd.regSpec = sRS; }
-//				code.loaded();
-//				if ( cmn.isFunction ( code.gotProperties ) ) {
-//					let fnc = cmn.oneCallee ( sW, self.callees, 
-//												  'properties' );
-//					code.gotProperties ( cmn.isFunction ( fnc ) ); } 
-//				code.isLoaded = true; 
-//				self.insertNameInTopEleIds ( data.codeName ); 
-//			}
-//			if ( (! code) && (typeof sRS === 'string') 
-//						  && (sRS.length > 0)  ) {
-//				//	Register rpd.regSpec.
-//				try {
-//					let o = JSON.parse ( sRS );	
-//					self.updateRPDRegistration ( o ); }
-//				catch ( e ) {
-//					throw { message: 'failed to parse reg spec' }; }
-//			}
-//			self.setRootPanelWH();
-//		}	//	setData()
-//		
-//		prpClientAppFnc ( { do:			'load-fixed-dialog',
-//							title:		'Load UDUI',
-//							recordType:	'udui',
-//							afterCB:	setData } );
-//	}	//	loadFixed();
-
-//	loadPanelPerGUS() {
-//		const sW = 'UDUI loadPanelPerGUS()';
-//		let self = this;
-//		
-//		function onOK( o: any ) {
-//
-//		}	//	onOK()
-//
-//		let dlgArgs = { dlgTitle:				'Select Panel Record',
-//						disallowPaneEdits:		true,
-//						importCB:				null,
-//						okBtnText:				'OK',
-//						onOK:					onOK,
-//						initialSelectedType:	null,
-//						ctx:	{ bRecordNew:	false } };
-//		prpClientAppFnc ( { do:				'load-frame-as-dialog',
-//							frameRecName:	'DlgPanelPerGus',
-//							dlgArgs: 		dlgArgs } );
-//	}	//	loadPanelPerGUS();
 
 	insertNameInTopEleIds ( name : string ) {
 		const sW = 'UDUI insertNameInTopEleIds()';
@@ -2160,6 +2311,11 @@ class ClassUDUI {
 		
 		if ( cmn.isString ( state.rootPanelName ) ) {
 			this.rpd.name = state.rootPanelName; }
+			
+		if ( cmn.isObject ( state.storageSpec ) ) {
+			this.rpd.storageSpec = state.storageSpec; }
+		else {
+			this.rpd.storageSpec = null; }
 	}	//	doSetState()
 
 	getControl ( o ) {
@@ -2263,7 +2419,8 @@ class ClassUDUI {
 				uduiRegSpec:	this.regSpec,
 				codeRegSpec:	this.rpd.regSpec,
 				minWidth:		this.rpd.minWidth,
-				minHeight:		this.rpd.minHeight
+				minHeight:		this.rpd.minHeight,
+				storageSpec:	pd.storageSpec ? pd.storageSpec : null
 			};
 		}
 		if ( 	(o.do === 'set-state'  )
@@ -2353,6 +2510,7 @@ class ClassUDUI {
 					   text: 		'Add Control >',
 					   bSubmenu:	true,
 					   fnc: 		this.controlSubMenu })
+
 		//	a.push ( { type:		'item',
 		//			   text:		'Save ...' } );
 		//	a.push ( { type:		'item',
@@ -2361,22 +2519,28 @@ class ClassUDUI {
 									  what:	'save',
 									  fncDefault:	this.saveByName,
 									  fncUDUI:		this.doAll,
-									  pane:			prpPaneId,
-									  data:			this.rpd,
-									  json:			this.jsonizeRPD ( sW ) } );
+									  paneId:		prpPaneId,
+									  panel:		this.getFocusPanel(),
+									  data:			this.jsonizeRPD ( sW ),
+									  fncAfter:		this.afterSave } );
 			if ( itm ) {
 				a.push ( itm ); }		   
 			else {
 				a.push ( { type:		'item',
 						   text:		'Save ...' } ); }
+
 			itm = prpClientAppFnc ( { do:	'get-udui-menu-item',
 									  what:	'load',
-									  fncDefault:	this.loadByName } );
+									  fncDefault:	this.loadByName,
+									  paneId:		prpPaneId,
+									  panel:		this.getFocusPanel(),
+									  fncAfter:		this.loadPanel } );
 			if ( itm ) {
 				a.push ( itm ); }		   
 			else {
 				a.push ( { type:		'item',
 						   text:		'Load ...' } ); }
+
 			a.push ( { type: 		'item',
 					   text: 		'Clear' } );
 		
@@ -2549,14 +2713,10 @@ class ClassUDUI {
 			if ( o.menuItemText === 'Load ...' ) {
 				this.loadByName();
 				return true; }
-		//	if ( o.menuItemText === 'Fixed ...' ) {		//	Load > Fixed ...
-		//		this.loadFixed();
-		//		return true; }
-		//	if ( o.menuItemText === 'Record ...' ) {	//	Load > Record ...
-		//		this.loadPanelPerGUS();
-		//		return true; }
 			if ( o.menuItemText === 'Clear' ) {
-				uPanel.clear ( this.rootPanel );
+			//	uPanel.clear ( this.rootPanel );
+				let panel = this.getFocusPanel();
+				uPanel.clear ( panel );
 				return true; }
 			if ( o.menuItemText === 'Delete Control' ) {
 				let fPD = this.get_fPD();

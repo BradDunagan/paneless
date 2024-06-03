@@ -782,6 +782,7 @@ export var uTree = (function() {
 
 	function TreeData_clear() {
 		this.itemData = [];
+		this.itemSelected = null;
 		this.update();
 		updateSclrs ( this );
 	}	//	TreeData.prototype.clear()
