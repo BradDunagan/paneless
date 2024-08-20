@@ -194,7 +194,7 @@ export var uButton = (function() {
 		else {
 			this.bDropdown = false; }
 		//	Comma separated list of dropdown menu items.
-		if ( uc.isString ( o.menu ) ) {
+		if ( uc.isString ( o.menu ) && o.menu.length > 0 ) {
 			try {
 				let o2    = JSON.parse ( o.menu );
 				this.menu = JSON.stringify ( o2 ); }

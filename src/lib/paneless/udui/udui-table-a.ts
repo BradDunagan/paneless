@@ -73,19 +73,20 @@ export var uTable = (function() {
 
 	var firstCustomStyleId = 6;
 
-	function cpSizeRectW ( d, dx ) {
-		let w = d.w + dx;
+//	function cpSizeRectW ( d, dx ) {
+//		let w = d.w + dx;
+	function cpSizeRectW ( d, w ) {
 		if ( w >= 1 ) {
 			d.w = w; }
 		return d.w;
 	}	//	cpSizeRectW()
 
-	function cpSizeRectH ( d, dy ) {
-		let h = d.h + dy;
-		if ( h >= 1 ) {
-			d.h = h; }
-		return d.h;
-	}	//	cpSizeRectH()
+//	function cpSizeRectH ( d, dy ) {
+//		let h = d.h + dy;
+//		if ( h >= 1 ) {
+//			d.h = h; }
+//		return d.h;
+//	}	//	cpSizeRectH()
 
 	function click ( evt: PointerEvent, d: any ) {
 		var sW = serviceId + ' click()';
@@ -269,9 +270,13 @@ export var uTable = (function() {
 	//		.attr ( 'x',      function ( d, i ) { return d.w - uc.SIZE_HANDLE_WIDTH;  } )
 			.attr ( 'x',      function ( d, i ) { return  vw - uc.SIZE_HANDLE_WIDTH;  } )
 			.attr ( 'y',      function ( d, i ) { return d.h - uc.SIZE_HANDLE_HEIGHT; } );
+			
 		d3.select ( '#cp-' + d.eleId + '-rect' )
-			.attr ( 'width',  d => cpSizeRectW ( d, dx ) )
-			.attr ( 'height', d => cpSizeRectH ( d, dy ) );
+		//	.attr ( 'width',  d => cpSizeRectW ( d, dx ) )
+		//	.attr ( 'height', d => cpSizeRectH ( d, dy ) );
+			//	This clip path appears to only be used by the title.
+			.attr ( 'width',  d => cpSizeRectW ( d, vw ) )
+			.attr ( 'height', TitleAreaHeight );
 
 		//	size columns to maintain table filling control
 		//

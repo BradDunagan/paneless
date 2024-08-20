@@ -20,6 +20,7 @@
 
 	let lastPropertiesSvgEleId	= 0
 
+	let propertiesStyleString	= '';
 	let title 					= '';
 	let titleStyleString		= '';
 
@@ -116,7 +117,7 @@ class Properties {
 		let rpd = this.rpd;
 		if ( ! rpd ) {
 			return; }
-		let e = document.getElementById ( this.svg.eleId );
+		let e = <HTMLElement>document.getElementById ( this.svg.eleId );
 		if ( ! e ) {
 			return; }
 		let w = e.clientWidth;
@@ -329,6 +330,7 @@ class Properties {
 				return true;
 			}
 			if ( o.menuItemText === 'Show Title' ) {
+				propertiesStyleString = '';
 				this.state.titleStyle = null;
 				titleStyleString = cmn.stringifyStyle ( this.state.titleStyle );
 				tick().then ( () => {
@@ -337,6 +339,8 @@ class Properties {
 				return true;
 			}
 			if ( o.menuItemText === 'Hide Title' ) {
+			//	propertiesStyleString = 'grid-template-rows: max-content';
+				propertiesStyleString = 'grid-template-rows: auto';
 				this.state.titleStyle = { display: 'none' };
 				titleStyleString = cmn.stringifyStyle ( this.state.titleStyle );
 				tick().then ( () => {
@@ -471,7 +475,8 @@ class Properties {
 </script>
 
 
-<properties class = "rr-properties-container">
+<properties class = "rr-properties-container"
+			style = { propertiesStyleString }>
 	<div class = "rr-properties-title"
 		 style 		= { titleStyleString }>
 		{ title }

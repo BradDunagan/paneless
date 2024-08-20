@@ -313,9 +313,18 @@
 
 			this.updateAppSizeDictator ( sW );
 
+			//	Delete from frames before the app saves state.
+			cmn.log ( sW, ' deleting frames[' + o.frameId + '] ...' );
+			delete frames[o.frameId];
+
 			tick().then ( () => {
-				cmn.log ( sW, ' deleting frames[' + o.frameId + '] ...' );
-				delete frames[o.frameId];
+			//	cmn.log ( sW, ' deleting frames[' + o.frameId + '] ...' );
+			//	delete frames[o.frameId];
+			//	Moved up (just above, before tick()) because tick() will let 
+			//	Svelte process the frame's onDestroy() function which will 
+			//	call the app to save state - that includes frames[o.frameId] 
+			//	which * should * no longer exist.
+
 				clientFnc ( { do:	'set-state-changed',
 							  what:	'frame-destroyed' } ); } );
 		}	//	destroyFrame()

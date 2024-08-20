@@ -1387,11 +1387,18 @@ export var uPanel = (function () {
 		if ( d.bParentSplitAndRoot ) 
 		//	bd.w = d.w - uc.VERT_SCROLL_WIDTH - uc.SCROLL_BORDER_WIDTH;
 			bd.w = d.w - uc.VERT_SCROLL_WIDTH - uc.SCROLL_BORDER_WIDTH - uc.PANEL_BORDER_WIDTH;
-		else
+		else 
 		//	bd.w = d.w - uc.VERT_SCROLL_WIDTH  - (2 * uc.OFFS_4_1_PIX_LINE) - (2 * uc.PANEL_BORDER_WIDTH)                   - uc.SCROLL_BORDER_WIDTH;
 
 		//	bd.w = d.w - uc.VERT_SCROLL_WIDTH                               - (d.hasBorder ? 2 * uc.PANEL_BORDER_WIDTH : 0                        ) - uc.SCROLL_BORDER_WIDTH;
 			bd.w = d.w - uc.VERT_SCROLL_WIDTH                               - (d.hasBorder ? 2 * uc.PANEL_BORDER_WIDTH : 1 * uc.PANEL_BORDER_WIDTH) - uc.SCROLL_BORDER_WIDTH;
+	
+		let cpId = 'cp-' + d.eleId + '-base';
+		let cpd = d.rpd ? d.rpd.clipPathsData.find ( d => d.eleId === cpId )
+						: null;
+		if ( cpd ) {
+			cpd.w = bd.w; }
+	
 		return bd.w;
 	}
 
@@ -5187,7 +5194,9 @@ export var uPanel = (function () {
 				.append ( 'clipPath' )
 				.attr ( 'id',     function ( d, i ) { return d.eleId; } )			//	e.g., 'cp-root-base'
 				.append ( 'rect' )
-				.attr ( 'id',     function ( d, i ) { return d.eleId + '-rect'; } )	//	e.g., 'cp-root-base-rect'
+				.attr ( 'id',     function ( d, i ) { 
+				//	cmn.log ( sW, 'clipPath ' + d.eleId + '-rect' );
+					return d.eleId + '-rect'; } )	//	e.g., 'cp-root-base-rect'
 				.attr ( 'x',      function ( d, i ) { return (cp.x !== undefined) ? -cp.x + uc.PANEL_BORDER_WIDTH : d.x; } )
 				.attr ( 'y',      function ( d, i ) { return (cp.y !== undefined) ? -cp.y + uc.PANEL_BORDER_WIDTH : d.y; } )
 				.attr ( 'width',  function ( d, i ) { return d.w; } )

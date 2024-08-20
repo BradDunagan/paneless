@@ -1580,7 +1580,7 @@ class ClassPanelessDemo {
 		let sW = 'App doAll() ' + o.do;
 		if ( o.to ) {
 			sW += ' to ' + o.to; }
-		cmn.log ( sW );
+	//	cmn.log ( sW );
 		switch ( o.do ) {
 			case 'check-content':
 			//	return this.checkContent ( o.sW );
