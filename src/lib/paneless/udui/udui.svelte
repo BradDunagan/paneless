@@ -2252,7 +2252,8 @@ class ClassUDUI {
 			//	Should not the code have its own regSpec?
 				this.rpd.regSpec = rs; } 
 			catch ( e ) {
-				cmn.error ( sW, 'failed to parse rpd regSpec' ); 
+				cmn.error ( sW,   'codeName: ' + state.codeName 
+								+ ',  failed to parse state.regSpec' ); 
 				this.rpd.regSpec = null; }
 		}
 		else
@@ -2265,7 +2266,8 @@ class ClassUDUI {
 			this.rpd.regSpec = state.regSpec;
 		}
 		else 
-		if ( cmn.isString ( state.codeRegSpec ) ) {
+		if ( 	cmn.isString ( state.codeRegSpec ) 
+			 && (state.codeRegSpec.length > 0) ) {
 			try {
 				let rs = JSON.parse ( state.codeRegSpec ); 
 				if ( ! code ) {
@@ -2275,7 +2277,8 @@ class ClassUDUI {
 			//	code will set/update registration when it is loaded
 				this.rpd.regSpec = rs; }
 			catch ( e ) {
-				cmn.error ( sW, 'failed to parse rpd regSpec' ); 
+				cmn.error ( sW,   'codeName: ' + state.codeName 
+								+ ',  failed to parse state.codeRegSpec' ); 
 				this.rpd.regSpec = null; }
 		}
 		else

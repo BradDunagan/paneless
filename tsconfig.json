@@ -11,6 +11,8 @@
 		"strict": true,
 		"moduleResolution": "Node",
 		"allowImportingTsExtensions": true,
-		"noImplicitAny": false
+		"noImplicitAny": false,
+		"outDir": "./dist",
+		"declarationMap": true
 	}
 }

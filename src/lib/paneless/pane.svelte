@@ -825,10 +825,17 @@ let self = {
 				   + self.eleId + '  ' + o.do;
 	//	cmn.log ( sW );
 		let rtn = { bError:		true,
-					bMinimized:	false };
+					bMinimized:	false,
+					bMounted:	true };
 		if ( ! self.mounted ) {
-			cmn.error ( sW, 'not mounted' );
+		//	cmn.error ( sW, 'not mounted' );
+			//	Tired of seeing this error message when -
+			//	-	Clicking tab in tabs pane. It may be that the clicked-on
+			//		tab is not mounted yet.
+			//	So, just return. But with some indicator.
+			rtn.bMounted = false;
 			return rtn; }
+
 		let e = document.getElementById ( self.eleId );
 		if ( ! e ) {
 			cmn.error ( sW, 'no element' );

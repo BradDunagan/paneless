@@ -3,6 +3,7 @@
   "version": "0.0.25",
   "scripts": {
     "dev": "vite dev",
+    "buildonly": "vite build",
     "build": "vite build && npm run package",
     "preview": "vite preview",
     "package": "svelte-kit sync && svelte-package && publint",
@@ -19,7 +20,14 @@
   "files": [
     "dist",
     "!dist/**/*.test.*",
-    "!dist/**/*.spec.*"
+    "!dist/**/*.spec.*",
+    "src/lib",
+    "src/lib/**/*",
+    "src/lib/**/*.svelte",
+    "src/lib/**/*.js",
+    "src/lib/**/*.ts",
+    "src/lib/**/*.json",
+    "src/lib/**/*.css"
   ],
   "peerDependencies": {
     "svelte": "^4.0.0"
